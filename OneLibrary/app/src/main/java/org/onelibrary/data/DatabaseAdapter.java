@@ -5,10 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -18,7 +20,7 @@ import java.util.Date;
  */
 public class DatabaseAdapter {
 
-    public static final String KEY_ID = "_id";
+    public static final String KEY_ID = "id";
     public static final String KEY_TITLE = "title";
     public static final String KEY_CONTENT = "content";
     public static final String KEY_CATEGORY = "category";
@@ -35,15 +37,22 @@ public class DatabaseAdapter {
     private static final String MESSAGE_TABLE_NAME = "message";
     private static final String MESSAGE_TABLE_CREATE =
             "CREATE TABLE " + MESSAGE_TABLE_NAME + " (" +
-                    "id INTEGER PRIMARY KEY,, " +
+                    "id INTEGER PRIMARY KEY, " +
                     "title TEXT not null, " +
                     "content TEXT not null, " +
                     "link TEXT, " +
                     "category TEXT not null, " +
-                    "pubdate TEXT not null;";
+                    "pubdate TEXT not null);";
 
     public DatabaseAdapter(Context ctx){
         this.mCtx = ctx;
+    }
+
+    /**
+     * close() method that used to close database
+     */
+    public void close(){
+        mDbHelper.close();
     }
 
     /**
@@ -54,14 +63,17 @@ public class DatabaseAdapter {
     public DatabaseAdapter open() throws SQLException{
         mDbHelper = new DatabaseHelper(mCtx);
         mDb = mDbHelper.getWritableDatabase();
-        return this;
-    }
 
-    /**
-     * close() method that used to close database
-     */
-    public void close(){
-        mDbHelper.close();
+        //TODO test
+        for (int i = 0; i < 5; i++) {
+            String title = "Title " + i;
+            String content = "Test Content " + i;
+            String category = "Library " + i;
+            String link = "http://www.onelibrary.org/" + i;
+            long pubdate = System.currentTimeMillis();
+            createMessage(title, content, category, link, pubdate);
+        }
+        return this;
     }
 
 
@@ -74,7 +86,7 @@ public class DatabaseAdapter {
      * @param pubdate
      * @return
      */
-    public long createMessage(String title, String content, String link, String category, int pubdate){
+    public long createMessage(String title, String content, String category, String link, long pubdate){
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_TITLE, title);
         initialValues.put(KEY_CONTENT, content);
@@ -103,7 +115,8 @@ public class DatabaseAdapter {
      * @return
      */
     public Cursor getAllMessages(){
-        return mDb.query(MESSAGE_TABLE_NAME, new String[]{KEY_ID, KEY_TITLE, KEY_CATEGORY, KEY_PUBDATE}, null, null, null, null, null);
+        String[] fields = new String[]{KEY_ID, KEY_TITLE, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_PUBDATE};
+        return mDb.query(MESSAGE_TABLE_NAME, fields, null, null, null, null, "id desc");
     }
 
     /**

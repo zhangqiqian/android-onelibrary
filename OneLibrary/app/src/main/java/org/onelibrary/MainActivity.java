@@ -6,6 +6,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,8 +17,11 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 
+import org.onelibrary.data.DatabaseAdapter;
 import org.onelibrary.data.MessageCollection;
 import org.onelibrary.data.MessageItem;
+
+import java.sql.SQLException;
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
 
@@ -25,6 +29,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     public final static String IS_LOGIN = "is_login";
 
     private MessageCollection messages = null;
+    private DatabaseAdapter mDbAdapter;
+    private Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,15 +54,27 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     private MessageCollection getMessages(){
         MessageCollection messages = new MessageCollection();
-        for (int i = 0; i < 15; i++) {
-            MessageItem item = new MessageItem();
-            item.setTitle("This is test title "+i);
-            item.setContent("This is test content "+i);
-            item.setCategory("Social "+i);
-            item.setLink("link "+i);
-            item.setPubdate("2014-12-20 08:00:09");
-            messages.addMessageItem(item);
+        mDbAdapter = new DatabaseAdapter(this);
+        try {
+            mDbAdapter.open();
+        }catch (SQLException e){
+            mDbAdapter.close();
         }
+
+        cursor = mDbAdapter.getAllMessages();
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++){
+            MessageItem item = new MessageItem();
+            item.setId(cursor.getInt(0));
+            item.setTitle(cursor.getString(1));
+            item.setContent(cursor.getString(2));
+            item.setCategory(cursor.getString(3));
+            item.setLink(cursor.getString(4));
+            item.setPubdate(cursor.getString(5));
+            messages.addMessageItem(item);
+            cursor.moveToNext();
+        }
+        mDbAdapter.close();
         return messages;
     }
 
@@ -77,10 +95,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         Intent intent = new Intent(this, DetailActivity.class);
         Bundle bundle = new Bundle();
         MessageItem item = messages.getMessageItem(position);
+        bundle.putInt("id", item.getId());
         bundle.putString("title", item.getTitle());
-        bundle.putString("link", item.getLink());
         bundle.putString("content", item.getContent());
         bundle.putString("category", item.getCategory());
+        bundle.putString("link", item.getLink());
         bundle.putString("pubdate", item.getPubdate());
 
         intent.putExtra("message_item", bundle);
