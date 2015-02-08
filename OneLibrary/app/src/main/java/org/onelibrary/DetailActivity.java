@@ -27,7 +27,7 @@ public class DetailActivity extends Activity {
             }else {
                 content = bundle.getString("title")+"\n\n"
                         +bundle.getString("pubdate")+"\n\n"
-                        +bundle.getString("description").replace('\n', ' ')
+                        +bundle.getString("content").replace('\n', ' ')
                         +"\n\n详细信息请访问以下网址：\n"
                         +bundle.getString("link");
             }

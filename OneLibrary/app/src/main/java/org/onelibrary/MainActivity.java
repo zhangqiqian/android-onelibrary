@@ -51,7 +51,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         for (int i = 0; i < 15; i++) {
             MessageItem item = new MessageItem();
             item.setTitle("This is test title "+i);
-            item.setDescription("This is test description "+i);
+            item.setContent("This is test content "+i);
             item.setCategory("Social "+i);
             item.setLink("link "+i);
             item.setPubdate("2014-12-20 08:00:09");
@@ -76,11 +76,12 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, DetailActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("title", messages.getMessageItem(position).getTitle());
-        bundle.putString("link", messages.getMessageItem(position).getLink());
-        bundle.putString("description", messages.getMessageItem(position).getDescription());
-        bundle.putString("category", messages.getMessageItem(position).getCategory());
-        bundle.putString("pubdate", messages.getMessageItem(position).getPubdate());
+        MessageItem item = messages.getMessageItem(position);
+        bundle.putString("title", item.getTitle());
+        bundle.putString("link", item.getLink());
+        bundle.putString("content", item.getContent());
+        bundle.putString("category", item.getCategory());
+        bundle.putString("pubdate", item.getPubdate());
 
         intent.putExtra("message_item", bundle);
         startActivityForResult(intent, 0);

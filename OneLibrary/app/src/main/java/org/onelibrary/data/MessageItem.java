@@ -6,11 +6,12 @@ package org.onelibrary.data;
 public class MessageItem {
 
     public static final String TITLE = "title";
-    public static final String PUBDATE = "pubdate";
-    public static final String DESC = "description";
+    public static final String CONTENT = "content";
+    public static final String CATEGORY = "category";
     public static final String LINK = "link";
+    public static final String PUBDATE = "pubdate";
     private String title = null;
-    private String description = null;
+    private String content = null;
     private String link = null;
     private String category = null;
     private String pubdate = null;
@@ -25,12 +26,12 @@ public class MessageItem {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getContent() {
+        return content;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getLink() {
