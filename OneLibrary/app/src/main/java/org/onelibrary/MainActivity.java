@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -16,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import org.onelibrary.data.DatabaseAdapter;
 import org.onelibrary.data.MessageCollection;
@@ -49,6 +52,13 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         //list
         messages = getMessages();
         showListView();
+
+        //assert if network is ok
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if(networkInfo == null){
+            Toast.makeText(MainActivity.this, "Unconnected to network.", Toast.LENGTH_SHORT).show();
+        }
 
     }
 

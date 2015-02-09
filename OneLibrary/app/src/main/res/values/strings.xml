@@ -12,7 +12,7 @@
     <string name="title_activity_login">Sign in</string>
     <string name="title_activity_register">Sign up</string>
     <string name="title_activity_detail">Detail</string>
-    <string name="input_email_hint">Email address</string>
+    <string name="input_email_hint">Username or Email</string>
     <string name="input_password_hint">Password</string>
     <string name="input_repassword_hint">Confirm password</string>
     <string name="button_sign_in">Sign in</string>
@@ -22,5 +22,8 @@
     <string name="being_sign_in">Signing in ...</string>
     <string name="being_sign_up">Signing up ...</string>
     <string name="forget_password">Forget password</string>
+
+    <string name="login_url">http://192.168.0.102/Api/Public/login</string>
+    <string name="connection_error">Connection Error.</string>
 
 </resources>

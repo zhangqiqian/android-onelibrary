@@ -1,8 +1,11 @@
 package org.onelibrary;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +30,13 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
         final EditText editEmail = (EditText) findViewById(R.id.editEmail);
         final EditText editPassword = (EditText) findViewById(R.id.editPassword);
 
+        //assert if network is ok
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if(networkInfo == null){
+            Toast.makeText(RegisterActivity.this, "Unconnected to network.", Toast.LENGTH_SHORT).show();
+        }
+
         final ProgressGenerator progressGenerator = new ProgressGenerator(this);
         final ActionProcessButton btnSignIn = (ActionProcessButton) findViewById(R.id.btnSignIn);
         btnSignIn.setOnClickListener(new View.OnClickListener() {
@@ -41,8 +51,6 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
                 //TODO sign up a user
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
                 session.edit().putString(USERNAME, editEmail.getText().toString()).commit();
-
-
             }
         });
     }
