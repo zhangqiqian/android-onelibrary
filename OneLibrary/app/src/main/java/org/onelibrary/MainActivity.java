@@ -192,7 +192,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
             Boolean isLogin = session.getBoolean(IS_LOGIN, false);
             if (isLogin){
-                session.edit().putBoolean(IS_LOGIN, false).commit();
+                session.edit().putBoolean(IS_LOGIN, false).remove(PASSWORD).commit();
             }
             Intent intent = new Intent(MainActivity.this, IndexActivity.class);
             startActivity(intent);
