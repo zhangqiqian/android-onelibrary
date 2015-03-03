@@ -79,7 +79,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                     SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
                     if(result.get("errno") == 0){
-                        session.edit().putString(USERNAME, editEmail.getText().toString()).putBoolean(IS_LOGIN, true).commit();
+                        session.edit().putString(USERNAME, editEmail.getText().toString()).putString(PASSWORD, editPassword.getText().toString()).putBoolean(IS_LOGIN, true).commit();
                     }else{
                         Toast.makeText(LoginActivity.this, result.get("errmsg").toString(), Toast.LENGTH_LONG).show();
                         session.edit().putString(USERNAME, editEmail.getText().toString()).putBoolean(IS_LOGIN, false).commit();

@@ -23,13 +23,18 @@ import android.widget.Toast;
 import org.onelibrary.data.DatabaseAdapter;
 import org.onelibrary.data.MessageCollection;
 import org.onelibrary.data.MessageItem;
+import org.onelibrary.util.NetworkAdapter;
 
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
 
     public final static String SESSION_INFO = "session_info";
     public final static String IS_LOGIN = "is_login";
+    public final static String USERNAME = "username";
+    public final static String PASSWORD = "password";
 
     private MessageCollection messages = null;
     private DatabaseAdapter mDbAdapter;
@@ -43,10 +48,36 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
         Boolean isLogin = session.getBoolean(IS_LOGIN, false);
         if (!isLogin){
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
+            //auto login
+            try {
+                NetworkAdapter adapter = new NetworkAdapter();
+                String username = session.getString(USERNAME, "");
+                String password = session.getString(PASSWORD, "");
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                if(username.equals("") || password.equals("")){
+                    //logout
+                    startActivity(intent);
+                }else{
+                    Bundle params = new Bundle();
+                    params.putString("username", session.getString(USERNAME, ""));
+                    params.putString("password", session.getString(PASSWORD, ""));
+
+                    Map<String, Object> result = adapter.request(getString(R.string.login_url), params);
+                    if(result.get("errno") == 0){
+                        Log.i("MainActivity", "auto login success.");
+                        session.edit().putBoolean(IS_LOGIN, true).commit();
+                    }else{
+                        //logout
+                        Log.i("MainActivity", "auto login failure.");
+                        startActivity(intent);
+                    }
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
         }
-        Log.i("MainActivity", "query: -----------------");
+
         handleIntent(getIntent());
 
         //list
