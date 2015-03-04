@@ -27,7 +27,7 @@ import java.util.Set;
 public class NetworkAdapter {
 
     public static final String TAG = "Network Connect";
-
+    private static String sessionId = null;
     /**
      * Given a string representation of a URL, sets up a connection and gets
      * an input stream.
@@ -40,6 +40,9 @@ public class NetworkAdapter {
         //new connection
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        if(sessionId != null) {
+            conn.setRequestProperty("Cookie", sessionId);
+        }
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
         conn.setRequestMethod("POST");
@@ -48,7 +51,6 @@ public class NetworkAdapter {
         conn.setUseCaches(false);
 
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
 
         conn.connect();
         //add post params
@@ -78,6 +80,11 @@ public class NetworkAdapter {
             while ((line = reader.readLine()) != null){
                 buffer.append(line);
             }
+            String cookie = conn.getHeaderField("set-cookie");
+            if(cookie != null) {
+                sessionId = cookie.substring(0, cookie.indexOf(";"));
+            }
+            conn.disconnect();
             return parseJSON(buffer.toString());
         }else{
             JSONObject map = new JSONObject();

@@ -8,8 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -25,12 +23,10 @@ import org.onelibrary.ui.processbutton.iml.ActionProcessButton;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LoginActivity extends Activity implements ProgressGenerator.OnCompleteListener {
 
-    public static final String TAG = "Login Activity";
+    public static final String TAG = "LoginActivity";
 
     public final static String SESSION_INFO = "session_info";
     public final static String USERNAME = "username";
@@ -73,7 +69,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 params.putString("username", editEmail.getText().toString());
                 params.putString("password", editPassword.getText().toString());
 
-                new RequestTask().execute(params);
+                new LoginTask().execute(params);
             }
         });
 
@@ -125,7 +121,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
      */
-    private class RequestTask extends AsyncTask<Bundle, Void, Boolean> {
+    private class LoginTask extends AsyncTask<Bundle, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(Bundle...params) {
@@ -137,14 +133,15 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
 
                 if(result.getInt("errno") == 0){
                     is_ok = true;
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).commit();
+
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
                 }else{
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).commit();
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
                 }
                 return is_ok;
-            }catch (JSONException e){
-                e.printStackTrace();
             }catch (IOException e){
+                e.printStackTrace();
+            }catch (JSONException e){
                 e.printStackTrace();
             }
             return is_ok;

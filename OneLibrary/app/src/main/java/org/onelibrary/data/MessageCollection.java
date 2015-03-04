@@ -35,10 +35,14 @@ public class MessageCollection {
         int size = itemList.size();
         for (int i = 0; i < size; i++) {
             HashMap<String, Object> item = new HashMap<String, Object>();
+            item.put(MessageItem.ID, itemList.get(i).getId());
+            item.put(MessageItem.MESSAGEID, itemList.get(i).getMessageId());
             item.put(MessageItem.TITLE, itemList.get(i).getTitle());
+            item.put(MessageItem.AUTHOR, itemList.get(i).getAuthor());
             item.put(MessageItem.CONTENT, itemList.get(i).getContent());
             item.put(MessageItem.LINK, itemList.get(i).getLink());
             item.put(MessageItem.CATEGORY, itemList.get(i).getCategory());
+            item.put(MessageItem.TAGS, itemList.get(i).getTags());
             item.put(MessageItem.PUBDATE, itemList.get(i).getPubdate());
             data.add(item);
         }

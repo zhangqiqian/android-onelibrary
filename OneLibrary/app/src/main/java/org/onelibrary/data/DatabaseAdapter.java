@@ -40,7 +40,7 @@ public class DatabaseAdapter {
     private static final String MESSAGE_TABLE_NAME = "message";
     private static final String MESSAGE_TABLE_CREATE =
             "CREATE TABLE " + MESSAGE_TABLE_NAME + " (" +
-                    "id INTEGER PRIMARY KEY, " +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "message_id INTEGER not null, " +
                     "title TEXT not null, " +
                     "author TEXT not null, " +
@@ -48,7 +48,7 @@ public class DatabaseAdapter {
                     "category TEXT not null, " +
                     "link TEXT, " +
                     "tags TEXT, " +
-                    "pubdate TEXT not null);";
+                    "pubdate TEXT);";
 
     public DatabaseAdapter(Context ctx){
         this.mCtx = ctx;
@@ -88,16 +88,16 @@ public class DatabaseAdapter {
         initialValues.put(KEY_TITLE, title);
         initialValues.put(KEY_AUTHOR, author);
         initialValues.put(KEY_CONTENT, content);
-        initialValues.put(KEY_LINK, link);
         initialValues.put(KEY_CATEGORY, category);
+        initialValues.put(KEY_LINK, link);
         initialValues.put(KEY_TAGS, tags);
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        Date date = new Date(pubdate);
+        Date date = new Date(pubdate*1000);
         String pub_date = format.format(date);
         initialValues.put(KEY_PUBDATE, pub_date);
 
-        return mDb.insert(MESSAGE_TABLE_NAME, null, initialValues);
+        return mDb.insert(MESSAGE_TABLE_NAME, "tags", initialValues);
     }
 
     /**
@@ -114,7 +114,7 @@ public class DatabaseAdapter {
      * @return
      */
     public Cursor getAllMessages(){
-        String[] fields = new String[]{KEY_ID, KEY_TITLE, KEY_AUTHOR, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_TAGS, KEY_PUBDATE};
+        String[] fields = new String[]{KEY_ID, KEY_MESSAGE_ID, KEY_TITLE, KEY_AUTHOR, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_TAGS, KEY_PUBDATE};
         return mDb.query(MESSAGE_TABLE_NAME, fields, null, null, null, null, "id desc");
     }
 
@@ -124,7 +124,7 @@ public class DatabaseAdapter {
      * @return
      */
     public Cursor getMessage(long id){
-        Cursor cursor = mDb.query(MESSAGE_TABLE_NAME, new String[]{KEY_ID, KEY_TITLE, KEY_AUTHOR, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_TAGS, KEY_PUBDATE}, KEY_ID+"="+id, null, null, null, null);
+        Cursor cursor = mDb.query(MESSAGE_TABLE_NAME, new String[]{KEY_ID, KEY_MESSAGE_ID, KEY_TITLE, KEY_AUTHOR, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_TAGS, KEY_PUBDATE}, KEY_ID+"="+id, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
         }

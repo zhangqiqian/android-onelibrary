@@ -9,7 +9,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,10 +31,12 @@ import org.onelibrary.data.MessageItem;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
+import java.lang.annotation.Target;
 import java.sql.SQLException;
-import java.util.Map;
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
+
+    public static final String TAG = "MainActivity";
 
     private static long back_pressed;
 
@@ -50,7 +54,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     private MessageCollection messages = null;
     private DatabaseAdapter mDbAdapter;
-    private Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,42 +64,24 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         Boolean isLogin = session.getBoolean(IS_LOGIN, false);
         if (!isLogin){
             //auto login
-            try {
-                NetworkAdapter adapter = new NetworkAdapter();
-                String username = session.getString(USERNAME, "");
-                String password = session.getString(PASSWORD, "");
+            String username = session.getString(USERNAME, "");
+            String password = session.getString(PASSWORD, "");
 
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                if(username.equals("") || password.equals("")){
-                    //logout
-                    startActivity(intent);
-                }else{
-                    Bundle params = new Bundle();
-                    params.putString("username", username);
-                    params.putString("password", password);
-
-                    JSONObject result = adapter.request(getString(R.string.login_url), params);
-                    if(result.getInt("errno") == 0){
-                        Log.i("MainActivity", "auto login success.");
-                        session.edit().putBoolean(IS_LOGIN, true).commit();
-                    }else{
-                        //logout
-                        Log.i("MainActivity", "auto login failure.");
-                        startActivity(intent);
-                    }
-                }
-            }catch (IOException e){
-                e.printStackTrace();
-            }catch (JSONException e){
-                e.printStackTrace();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            if(username.equals("") || password.equals("")){
+                //logout
+                startActivity(intent);
+            }else{
+                Bundle params = new Bundle();
+                params.putString("username", username);
+                params.putString("password", password);
+                new LoginTask().execute(params);
             }
         }
 
         //handleIntent(getIntent());
 
-        //get remote message, and save to db.
-        //getRemoteMessages();
-
+        new LoadMessageTask().execute(new Bundle());
         //read local message from db.
         messages = getLocalMessages();
         showListView();
@@ -119,17 +104,22 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             mDbAdapter.close();
         }
 
-        cursor = mDbAdapter.getAllMessages();
+
+        Cursor cursor = mDbAdapter.getAllMessages();
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++){
             MessageItem item = new MessageItem();
+            Log.i(TAG, "messages:"+ cursor.toString());
             item.setId(cursor.getInt(0));
-            item.setTitle(cursor.getString(1));
-            item.setContent(cursor.getString(2));
-            item.setCategory(cursor.getString(3));
-            item.setLink(cursor.getString(4));
-            item.setPubdate(cursor.getString(5));
-            //messages.addMessageItem(item);
+            item.setMessageId(cursor.getInt(1));
+            item.setTitle(cursor.getString(2));
+            item.setAuthor(cursor.getString(3));
+            item.setContent(cursor.getString(4));
+            item.setCategory(cursor.getString(5));
+            item.setLink(cursor.getString(6));
+            item.setTags(cursor.getString(7));
+            item.setPubdate(cursor.getString(8));
+            messages.addMessageItem(item);
             cursor.moveToNext();
         }
         mDbAdapter.close();
@@ -147,23 +137,22 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         itemList.setSelection(0);
     }
 
-    private void getRemoteMessages(){
+    private boolean getRemoteMessages(Bundle params){
+        boolean is_ok = true;
         try {
-            SharedPreferences session = getSharedPreferences(MAIN_INFO, 0);
             NetworkAdapter adapter = new NetworkAdapter();
+            SharedPreferences session = getSharedPreferences(MAIN_INFO, 0);
             long last_time = session.getLong(LAST_TIME, 0);
             long last_message_id = session.getLong(LAST_MESSAGE_ID, 0);
-            float longitude = session.getFloat(LAST_LONGITUDE, 0);
-            float latitude = session.getFloat(LAST_LATITUDE, 0);
+            double longitude = session.getFloat(LAST_LONGITUDE, 0);
+            double latitude = session.getFloat(LAST_LATITUDE, 0);
             int next_start = session.getInt(NEXT_START, 0);
 
-            Bundle params = new Bundle();
-            params.putLong(LAST_TIME, last_time);
-            params.putLong(LAST_MESSAGE_ID, last_message_id);
-            params.putFloat(LAST_LONGITUDE, longitude);
-            params.putFloat(LAST_LATITUDE, latitude);
-            params.putFloat(NEXT_START, next_start);
-
+            params.putString(LAST_TIME, String.valueOf(last_time));
+            params.putString(LAST_MESSAGE_ID, String.valueOf(last_message_id));
+            params.putString(LAST_LONGITUDE, String.valueOf(longitude));
+            params.putString(LAST_LATITUDE, String.valueOf(latitude));
+            params.putString(NEXT_START, String.valueOf(next_start));
 
             JSONObject result = adapter.request(getString(R.string.get_messages_url), params);
             if(result.getInt("errno") == 0){
@@ -197,20 +186,24 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                         }
                         mDbAdapter.createMessage(message_id, title, author, content, category, link, tags, pubdate);
                     }
-                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).putLong(LAST_MESSAGE_ID, new_last_message_id).commit();
-                    Log.i("MainActivity", "new_last_time=" + new_last_time + " start=" + start + " new_last_message_id="+new_last_message_id);
+                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).putLong(LAST_MESSAGE_ID, new_last_message_id).apply();
+                    Log.i(TAG, "new_last_time=" + new_last_time + " start=" + start + " new_last_message_id="+new_last_message_id);
                     mDbAdapter.close();
                 }
             }else{
-                Log.i("MainActivity", "failure: " + result.getString("errmsg"));
+                is_ok = false;
+                Log.i(TAG, "failure: " + result.getString("errmsg"));
             }
         }catch (IOException e){
             mDbAdapter.close();
+            is_ok = false;
             e.printStackTrace();
         }catch (JSONException e){
             mDbAdapter.close();
+            is_ok = false;
             e.printStackTrace();
         }
+        return is_ok;
     }
 
     @Override
@@ -219,10 +212,13 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         Bundle bundle = new Bundle();
         MessageItem item = messages.getMessageItem(position);
         bundle.putInt("id", item.getId());
+        bundle.putInt("message_id", item.getMessageId());
         bundle.putString("title", item.getTitle());
+        bundle.putString("author", item.getAuthor());
         bundle.putString("content", item.getContent());
         bundle.putString("category", item.getCategory());
         bundle.putString("link", item.getLink());
+        bundle.putString("tags", item.getTags());
         bundle.putString("pubdate", item.getPubdate());
 
         intent.putExtra("message_item", bundle);
@@ -281,6 +277,65 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Implementation of AsyncTask, to fetch the data in the background away from
+     * the UI thread.
+     */
+    private class LoadMessageTask extends AsyncTask<Bundle, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Bundle...params) {
+            //get remote message, and save to db.
+            return getRemoteMessages(params[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            Log.i(TAG, "result: " + result);
+        }
+    }
+
+    /**
+     * Implementation of AsyncTask, to fetch the data in the background away from
+     * the UI thread.
+     */
+    private class LoginTask extends AsyncTask<Bundle, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Bundle...params) {
+            boolean is_ok = false;
+            try {
+                NetworkAdapter adapter = new NetworkAdapter();
+                JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
+                SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
+
+                if(result.getInt("errno") == 0){
+                    is_ok = true;
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
+                }else{
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
+                }
+                return is_ok;
+            }catch (IOException e){
+                e.printStackTrace();
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+            return is_ok;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            Log.i(TAG, "Auto login result: " + result);
+            if(!result){
+                Looper.prepare();
+                Toast.makeText(getBaseContext(), "Failure to login.", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        }
     }
 
     @Override

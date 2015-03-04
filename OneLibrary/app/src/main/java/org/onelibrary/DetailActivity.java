@@ -34,16 +34,16 @@ public class DetailActivity extends Activity {
         if (intent != null) {
             Bundle bundle = intent.getBundleExtra("message_item");
             if (bundle == null) {
-                content = "不好意思，程序出错啦！";
+                content = "Failure to load.";
             }else {
                 content = bundle.getString("title")+"\n\n"
                         +bundle.getString("pubdate")+"\n\n"
                         +bundle.getString("content").replace('\n', ' ')
-                        +"\n\n详细信息请访问以下网址：\n"
+                        +"\n\nLink：\n"
                         +bundle.getString("link");
             }
         } else {
-            content = "不好意思，程序出错啦！";
+            content = "Failure to load.";
         }
 
         TextView textView = (TextView) findViewById(R.id.content);
