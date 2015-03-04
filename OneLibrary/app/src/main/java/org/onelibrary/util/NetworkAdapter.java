@@ -95,10 +95,6 @@ public class NetworkAdapter {
         //Map<String, Object> resultMap = new HashMap<String, Object>();
         try {
             JSONObject result = new JSONObject(jsonString);
-            /*resultMap.put("errno", result.getInt("errno"));
-            resultMap.put("errmsg", result.getString("errmsg"));
-            resultMap.put("result", result.getJSONArray("result"));
-            resultMap.put("start", result.getInt("start"));*/
             return result;
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());

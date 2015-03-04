@@ -50,11 +50,11 @@
             android:text="@string/button_sign_in"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            custom:pb_colorComplete="@color/green_complete"
+            custom:pb_colorComplete="@color/blue_normal"
             custom:pb_colorNormal="@color/blue_normal"
             custom:pb_colorPressed="@color/blue_pressed"
             custom:pb_colorProgress="@color/purple_progress"
-            custom:pb_textComplete="@string/success"
+            custom:pb_textComplete="@string/button_sign_in"
             custom:pb_textProgress="@string/being_sign_in" />
 
         <TextView android:text="@string/forget_password"

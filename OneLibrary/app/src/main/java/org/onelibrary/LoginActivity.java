@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.Menu;
@@ -41,9 +42,6 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
         SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
         String username = session.getString(USERNAME, "");
 
@@ -71,26 +69,11 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 editEmail.setEnabled(false);
                 editPassword.setEnabled(false);
 
-                NetworkAdapter adapter = new NetworkAdapter();
                 Bundle params = new Bundle();
                 params.putString("username", editEmail.getText().toString());
                 params.putString("password", editPassword.getText().toString());
 
-                try {
-                    JSONObject result = adapter.request(getString(R.string.login_url), params);
-                    SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-
-                    if(result.getInt("errno") == 0){
-                        session.edit().putString(USERNAME, editEmail.getText().toString()).putString(PASSWORD, editPassword.getText().toString()).putBoolean(IS_LOGIN, true).commit();
-                    }else{
-                        Toast.makeText(LoginActivity.this, result.getString("errmsg"), Toast.LENGTH_LONG).show();
-                        session.edit().putString(USERNAME, editEmail.getText().toString()).putBoolean(IS_LOGIN, false).commit();
-                    }
-                }catch (IOException e){
-                    e.printStackTrace();
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
+                new RequestTask().execute(params);
             }
         });
 
@@ -114,9 +97,6 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         btnSignIn.setEnabled(true);
         editEmail.setEnabled(true);
         editPassword.setEnabled(true);
-
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -145,21 +125,40 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
      */
-    private class RequestTask extends AsyncTask<String, Void, String> {
+    private class RequestTask extends AsyncTask<Bundle, Void, Boolean> {
 
         @Override
-        protected String doInBackground(String... urls) {
+        protected Boolean doInBackground(Bundle...params) {
+            boolean is_ok = false;
             try {
                 NetworkAdapter adapter = new NetworkAdapter();
-                return adapter.loadFromNetwork(urls[0]);
-            } catch (IOException e) {
-                return getString(R.string.connection_error);
+                JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
+                SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
+
+                if(result.getInt("errno") == 0){
+                    is_ok = true;
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).commit();
+                }else{
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).commit();
+                }
+                return is_ok;
+            }catch (JSONException e){
+                e.printStackTrace();
+            }catch (IOException e){
+                e.printStackTrace();
             }
+            return is_ok;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            Log.i(TAG, result);
+        protected void onPostExecute(Boolean result) {
+            Log.i(TAG, "Login result: " + result);
+            if(result){
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+            }else{
+                Toast.makeText(LoginActivity.this, "Failure to login.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

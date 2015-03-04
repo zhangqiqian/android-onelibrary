@@ -23,6 +23,7 @@ public class ProgressGenerator {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+
                 mProgress += 10;
                 button.setProgress(mProgress);
                 if (mProgress < 100) {
