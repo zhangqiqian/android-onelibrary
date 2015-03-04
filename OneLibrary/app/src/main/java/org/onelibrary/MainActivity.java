@@ -20,6 +20,9 @@ import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.onelibrary.data.DatabaseAdapter;
 import org.onelibrary.data.MessageCollection;
 import org.onelibrary.data.MessageItem;
@@ -35,6 +38,13 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     public final static String IS_LOGIN = "is_login";
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
+
+    public final static String MAIN_INFO = "main_info";
+    public final static String LAST_TIME = "last_time";
+    public final static String LAST_MESSAGE_ID = "last_message_id";
+    public final static String LAST_LONGITUDE = "longitude";
+    public final static String LAST_LATITUDE = "latitude";
+    public final static String NEXT_START = "next_start";
 
     private MessageCollection messages = null;
     private DatabaseAdapter mDbAdapter;
@@ -60,11 +70,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                     startActivity(intent);
                 }else{
                     Bundle params = new Bundle();
-                    params.putString("username", session.getString(USERNAME, ""));
-                    params.putString("password", session.getString(PASSWORD, ""));
+                    params.putString("username", username);
+                    params.putString("password", password);
 
-                    Map<String, Object> result = adapter.request(getString(R.string.login_url), params);
-                    if(result.get("errno") == 0){
+                    JSONObject result = adapter.request(getString(R.string.login_url), params);
+                    if(result.getInt("errno") == 0){
                         Log.i("MainActivity", "auto login success.");
                         session.edit().putBoolean(IS_LOGIN, true).commit();
                     }else{
@@ -75,13 +85,17 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
                 }
             }catch (IOException e){
                 e.printStackTrace();
+            }catch (JSONException e){
+                e.printStackTrace();
             }
         }
 
         handleIntent(getIntent());
 
-        //list
-        messages = getMessages();
+        //get remote message, and save to db.
+        getRemoteMessages();
+        //read local message from db.
+        messages = getLocalMessages();
         showListView();
 
         //assert if network is ok
@@ -93,7 +107,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     }
 
-    private MessageCollection getMessages(){
+    private MessageCollection getLocalMessages(){
         MessageCollection messages = new MessageCollection();
         mDbAdapter = new DatabaseAdapter(this);
         try {
@@ -112,7 +126,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             item.setCategory(cursor.getString(3));
             item.setLink(cursor.getString(4));
             item.setPubdate(cursor.getString(5));
-            messages.addMessageItem(item);
+            //messages.addMessageItem(item);
             cursor.moveToNext();
         }
         mDbAdapter.close();
@@ -130,6 +144,71 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         itemList.setSelection(0);
     }
 
+    private void getRemoteMessages(){
+        try {
+            SharedPreferences session = getSharedPreferences(MAIN_INFO, 0);
+            NetworkAdapter adapter = new NetworkAdapter();
+            long last_time = session.getLong(LAST_TIME, 0);
+            long last_message_id = session.getLong(LAST_MESSAGE_ID, 0);
+            float longitude = session.getFloat(LAST_LONGITUDE, 0);
+            float latitude = session.getFloat(LAST_LATITUDE, 0);
+            int next_start = session.getInt(NEXT_START, 0);
+
+            Bundle params = new Bundle();
+            params.putLong(LAST_TIME, last_time);
+            params.putLong(LAST_MESSAGE_ID, last_message_id);
+            params.putFloat(LAST_LONGITUDE, longitude);
+            params.putFloat(LAST_LATITUDE, latitude);
+            params.putFloat(NEXT_START, next_start);
+
+
+            JSONObject result = adapter.request(getString(R.string.get_messages_url), params);
+            if(result.getInt("errno") == 0){
+                Log.i("MainActivity", "success to get messages: " + result.get("result").toString());
+
+                int start = result.getInt("start");
+                long new_last_time = System.currentTimeMillis()/1000;
+                long new_last_message_id = last_message_id;
+
+                JSONArray messages = result.getJSONArray("result");
+                if(messages.length() > 0){
+                    mDbAdapter = new DatabaseAdapter(this);
+                    try {
+                        mDbAdapter.open();
+                    }catch (SQLException e){
+                        mDbAdapter.close();
+                    }
+
+                    for (int i = 0;i< messages.length();i++){
+                        JSONObject message = messages.getJSONObject(i);
+                        int message_id = message.getInt("message_id");
+                        String title = message.getString("title");
+                        String author = message.getString("author");
+                        String content = message.getString("content");
+                        String category = message.getString("category");
+                        String link = message.getString("link");
+                        String tags = message.getString("tags");
+                        long pubdate = message.getLong("pubdate");
+                        if(message_id > new_last_message_id){
+                            new_last_message_id = message_id;
+                        }
+                        mDbAdapter.createMessage(message_id, title, author, content, category, link, tags, pubdate);
+                    }
+                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).putLong(LAST_MESSAGE_ID, new_last_message_id).commit();
+                    Log.i("MainActivity", "new_last_time=" + new_last_time + " start=" + start + " new_last_message_id="+new_last_message_id);
+                    mDbAdapter.close();
+                }
+            }else{
+                Log.i("MainActivity", "failure: " + result.getString("errmsg"));
+            }
+        }catch (IOException e){
+            mDbAdapter.close();
+            e.printStackTrace();
+        }catch (JSONException e){
+            mDbAdapter.close();
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

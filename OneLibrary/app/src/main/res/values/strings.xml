@@ -24,6 +24,7 @@
     <string name="forget_password">Forget password</string>
 
     <string name="login_url">http://192.168.0.102/Api/Public/login</string>
+    <string name="get_messages_url">http://192.168.0.102/Api/Index/messages</string>
     <string name="connection_error">Connection Error.</string>
 
 </resources>

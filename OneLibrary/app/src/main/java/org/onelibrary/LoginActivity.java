@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.Toast;
 import android.widget.EditText;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.onelibrary.ui.processbutton.ProgressGenerator;
 import org.onelibrary.ui.processbutton.iml.ActionProcessButton;
 import org.onelibrary.util.NetworkAdapter;
@@ -75,16 +77,18 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 params.putString("password", editPassword.getText().toString());
 
                 try {
-                    Map<String, Object> result = adapter.request(getString(R.string.login_url), params);
+                    JSONObject result = adapter.request(getString(R.string.login_url), params);
                     SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
-                    if(result.get("errno") == 0){
+                    if(result.getInt("errno") == 0){
                         session.edit().putString(USERNAME, editEmail.getText().toString()).putString(PASSWORD, editPassword.getText().toString()).putBoolean(IS_LOGIN, true).commit();
                     }else{
-                        Toast.makeText(LoginActivity.this, result.get("errmsg").toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, result.getString("errmsg"), Toast.LENGTH_LONG).show();
                         session.edit().putString(USERNAME, editEmail.getText().toString()).putBoolean(IS_LOGIN, false).commit();
                     }
                 }catch (IOException e){
+                    e.printStackTrace();
+                }catch (JSONException e){
                     e.printStackTrace();
                 }
             }

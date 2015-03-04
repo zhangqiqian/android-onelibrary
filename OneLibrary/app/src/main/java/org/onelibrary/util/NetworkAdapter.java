@@ -35,7 +35,7 @@ public class NetworkAdapter {
      * @return An InputStream retrieved from a successful HttpURLConnection.
      * @throws java.io.IOException
      */
-    public Map<String, Object> request(String urlString, Bundle params) throws IOException {
+    public JSONObject request(String urlString, Bundle params) throws IOException {
 
         //new connection
         URL url = new URL(urlString);
@@ -80,24 +80,30 @@ public class NetworkAdapter {
             }
             return parseJSON(buffer.toString());
         }else{
-            HashMap<String, Object> map = new HashMap<String, Object>();
-            map.put("errno", 1);
-            map.put("errmsg", "Server Error. Return code: " + conn.getResponseCode());
+            JSONObject map = new JSONObject();
+            try {
+                map.put("errno", 1);
+                map.put("errmsg", "Server Error. Return code: " + conn.getResponseCode());
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
             return map;
-
         }
     }
 
-    public Map<String, Object> parseJSON(String jsonString) {
-        Map<String, Object> resultMap = new HashMap<String, Object>();
+    public JSONObject parseJSON(String jsonString) {
+        //Map<String, Object> resultMap = new HashMap<String, Object>();
         try {
-            JSONObject person = new JSONObject(jsonString);
-            resultMap.put("errno", person.getInt("errno"));
-            resultMap.put("errmsg", person.getString("errmsg"));
+            JSONObject result = new JSONObject(jsonString);
+            /*resultMap.put("errno", result.getInt("errno"));
+            resultMap.put("errmsg", result.getString("errmsg"));
+            resultMap.put("result", result.getJSONArray("result"));
+            resultMap.put("start", result.getInt("start"));*/
+            return result;
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());
         }
-        return resultMap;
+        return null;
     }
 
     /** Initiates the fetch operation. */

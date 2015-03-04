@@ -20,12 +20,15 @@ import java.util.Date;
  */
 public class DatabaseAdapter {
 
-    public static final String KEY_ID = "id";
-    public static final String KEY_TITLE = "title";
-    public static final String KEY_CONTENT = "content";
-    public static final String KEY_CATEGORY = "category";
-    public static final String KEY_LINK = "link";
-    public static final String KEY_PUBDATE = "pubdate";
+    public static final String KEY_ID           = "id";
+    public static final String KEY_MESSAGE_ID   = "message_id";
+    public static final String KEY_TITLE        = "title";
+    public static final String KEY_AUTHOR       = "author";
+    public static final String KEY_CONTENT      = "content";
+    public static final String KEY_CATEGORY     = "category";
+    public static final String KEY_LINK         = "link";
+    public static final String KEY_PUBDATE      = "pubdate";
+    public static final String KEY_TAGS         = "tags";
 
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
@@ -38,10 +41,13 @@ public class DatabaseAdapter {
     private static final String MESSAGE_TABLE_CREATE =
             "CREATE TABLE " + MESSAGE_TABLE_NAME + " (" +
                     "id INTEGER PRIMARY KEY, " +
+                    "message_id INTEGER not null, " +
                     "title TEXT not null, " +
+                    "author TEXT not null, " +
                     "content TEXT not null, " +
-                    "link TEXT, " +
                     "category TEXT not null, " +
+                    "link TEXT, " +
+                    "tags TEXT, " +
                     "pubdate TEXT not null);";
 
     public DatabaseAdapter(Context ctx){
@@ -63,16 +69,6 @@ public class DatabaseAdapter {
     public DatabaseAdapter open() throws SQLException{
         mDbHelper = new DatabaseHelper(mCtx);
         mDb = mDbHelper.getWritableDatabase();
-
-        //TODO test
-        for (int i = 0; i < 5; i++) {
-            String title = "Title " + i;
-            String content = "Test Content " + i;
-            String category = "Library " + i;
-            String link = "http://www.onelibrary.org/" + i;
-            long pubdate = System.currentTimeMillis();
-            createMessage(title, content, category, link, pubdate);
-        }
         return this;
     }
 
@@ -86,12 +82,15 @@ public class DatabaseAdapter {
      * @param pubdate
      * @return
      */
-    public long createMessage(String title, String content, String category, String link, long pubdate){
+    public long createMessage(int message_id, String title, String author, String content, String category, String link, String tags, long pubdate){
         ContentValues initialValues = new ContentValues();
+        initialValues.put(KEY_MESSAGE_ID, message_id);
         initialValues.put(KEY_TITLE, title);
+        initialValues.put(KEY_AUTHOR, author);
         initialValues.put(KEY_CONTENT, content);
         initialValues.put(KEY_LINK, link);
         initialValues.put(KEY_CATEGORY, category);
+        initialValues.put(KEY_TAGS, tags);
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         Date date = new Date(pubdate);
@@ -115,7 +114,7 @@ public class DatabaseAdapter {
      * @return
      */
     public Cursor getAllMessages(){
-        String[] fields = new String[]{KEY_ID, KEY_TITLE, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_PUBDATE};
+        String[] fields = new String[]{KEY_ID, KEY_TITLE, KEY_AUTHOR, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_TAGS, KEY_PUBDATE};
         return mDb.query(MESSAGE_TABLE_NAME, fields, null, null, null, null, "id desc");
     }
 
@@ -125,7 +124,7 @@ public class DatabaseAdapter {
      * @return
      */
     public Cursor getMessage(long id){
-        Cursor cursor = mDb.query(MESSAGE_TABLE_NAME, new String[]{KEY_ID, KEY_TITLE, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_PUBDATE}, KEY_ID+"="+id, null, null, null, null);
+        Cursor cursor = mDb.query(MESSAGE_TABLE_NAME, new String[]{KEY_ID, KEY_TITLE, KEY_AUTHOR, KEY_CONTENT, KEY_CATEGORY, KEY_LINK, KEY_TAGS, KEY_PUBDATE}, KEY_ID+"="+id, null, null, null, null);
         if (cursor != null) {
             cursor.moveToFirst();
         }
