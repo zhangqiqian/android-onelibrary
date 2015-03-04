@@ -34,6 +34,8 @@ import java.util.Map;
 
 public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
 
+    private static long back_pressed;
+
     public final static String SESSION_INFO = "session_info";
     public final static String IS_LOGIN = "is_login";
     public final static String USERNAME = "username";
@@ -90,10 +92,11 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             }
         }
 
-        handleIntent(getIntent());
+        //handleIntent(getIntent());
 
         //get remote message, and save to db.
-        getRemoteMessages();
+        //getRemoteMessages();
+
         //read local message from db.
         messages = getLocalMessages();
         showListView();
@@ -226,8 +229,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         startActivityForResult(intent, 0);
 
     }
-    @Override
 
+    /*@Override
     protected void onNewIntent(Intent intent) {
         handleIntent(intent);
     }
@@ -241,7 +244,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             //use the query to search your data somehow
             Log.i("MainActivity", "query: " + query);
         }
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -249,9 +252,9 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         //Associate searchable configuration with the SearchView
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        /*SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));*/
         return true;
     }
 
@@ -278,5 +281,15 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(back_pressed + 2000 > System.currentTimeMillis()){
+            super.onBackPressed();
+        }else{
+            Toast.makeText(getBaseContext(), "Press once again to exit.", Toast.LENGTH_LONG).show();
+        }
+        back_pressed = System.currentTimeMillis();
     }
 }
