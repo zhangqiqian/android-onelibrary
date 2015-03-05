@@ -1,6 +1,7 @@
 package org.onelibrary.util;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -13,10 +14,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +31,14 @@ import java.util.Set;
 public class NetworkAdapter {
 
     public static final String TAG = "Network Connect";
-    private static String sessionId = null;
+    private static CookieManager cookieManager = null;
+    private static final String COOKIES_HEADER = "Set-Cookie";
+
+    public NetworkAdapter(){
+        cookieManager = new CookieManager();
+        CookieHandler.setDefault(cookieManager);
+    }
+
     /**
      * Given a string representation of a URL, sets up a connection and gets
      * an input stream.
@@ -40,9 +51,11 @@ public class NetworkAdapter {
         //new connection
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        if(sessionId != null) {
-            conn.setRequestProperty("Cookie", sessionId);
+
+        if(cookieManager.getCookieStore().getCookies().size() > 0){
+            conn.setRequestProperty("Cookie", TextUtils.join(",", cookieManager.getCookieStore().getCookies()));
         }
+
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
         conn.setRequestMethod("POST");
@@ -80,10 +93,18 @@ public class NetworkAdapter {
             while ((line = reader.readLine()) != null){
                 buffer.append(line);
             }
-            String cookie = conn.getHeaderField("set-cookie");
-            if(cookie != null) {
-                sessionId = cookie.substring(0, cookie.indexOf(";"));
+
+            //save cookie
+            Map<String, List<String>> headerFields = conn.getHeaderFields();
+            List<String> cookiesHeader = headerFields.get(COOKIES_HEADER);
+            if(cookiesHeader != null)
+            {
+                for (String cookie : cookiesHeader)
+                {
+                    cookieManager.getCookieStore().add(null,HttpCookie.parse(cookie).get(0));
+                }
             }
+
             conn.disconnect();
             return parseJSON(buffer.toString());
         }else{
