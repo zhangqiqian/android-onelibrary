@@ -1,7 +1,8 @@
 package org.onelibrary.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -14,15 +15,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,12 +29,13 @@ import java.util.Set;
 public class NetworkAdapter {
 
     public static final String TAG = "Network Connect";
-    private static CookieManager cookieManager = null;
-    private static final String COOKIES_HEADER = "Set-Cookie";
+    public final static String SESSION_INFO = "session_info";
+    public static final String PHPSESSID = "phpsessid";
 
-    public NetworkAdapter(){
-        cookieManager = new CookieManager();
-        CookieHandler.setDefault(cookieManager);
+    private SharedPreferences preferences = null;
+
+    public NetworkAdapter(Context mContext){
+        preferences = mContext.getSharedPreferences(SESSION_INFO, 0);
     }
 
     /**
@@ -53,11 +50,10 @@ public class NetworkAdapter {
         //new connection
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        if(cookieManager.getCookieStore().getCookies().size() > 0){
-            conn.setRequestProperty("Cookie", TextUtils.join(",", cookieManager.getCookieStore().getCookies()));
+        String sessionId = preferences.getString(PHPSESSID, null);
+        if(sessionId != null) {
+            conn.setRequestProperty("Cookie", sessionId);
         }
-
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
         conn.setRequestMethod("POST");
@@ -90,32 +86,16 @@ public class NetworkAdapter {
             // Start the query
             InputStream stream = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            String line;
+            String line = null;
             StringBuffer buffer = new StringBuffer();
             while ((line = reader.readLine()) != null){
                 buffer.append(line);
             }
-
-            //save cookie
-            Map<String, List<String>> headerFields = conn.getHeaderFields();
-            List<String> cookiesHeader = headerFields.get(COOKIES_HEADER);
-            if(cookiesHeader != null)
-            {
-                try {
-                    URI cookieUri = url.toURI();
-                    for (String cookie : cookiesHeader)
-                    {
-                        HttpCookie httpCookie = HttpCookie.parse(cookie).get(0);
-                        httpCookie.setDomain(cookieUri.getHost());
-                        httpCookie.setPath("/");
-                        httpCookie.setVersion(0);
-                        cookieManager.getCookieStore().add(cookieUri,HttpCookie.parse(cookie).get(0));
-                    }
-                }catch (URISyntaxException e){
-
-                }
+            String cookie = conn.getHeaderField("set-cookie");
+            if(cookie != null) {
+                sessionId = cookie.substring(0, cookie.indexOf(";"));
+                preferences.edit().putString(PHPSESSID, sessionId).apply();
             }
-
             conn.disconnect();
             return parseJSON(buffer.toString());
         }else{
