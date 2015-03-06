@@ -140,7 +140,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     private boolean getRemoteMessages(Bundle params){
         boolean is_ok = true;
         try {
-            NetworkAdapter adapter = new NetworkAdapter();
+            NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
             SharedPreferences session = getSharedPreferences(MAIN_INFO, 0);
             long last_time = session.getLong(LAST_TIME, 0);
             long last_message_id = session.getLong(LAST_MESSAGE_ID, 0);
@@ -307,7 +307,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
-                NetworkAdapter adapter = new NetworkAdapter();
+                NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
                 JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 

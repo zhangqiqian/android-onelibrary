@@ -20,11 +20,11 @@ public class DetailActivity extends Activity {
         setContentView(R.layout.activity_detail);
 
         //assert if network is ok
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        /*ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo == null){
             Toast.makeText(DetailActivity.this, "Unconnected to network.", Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
         //getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowTitleEnabled(false);

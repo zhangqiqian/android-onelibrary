@@ -127,7 +127,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
-                NetworkAdapter adapter = new NetworkAdapter();
+                NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
                 JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
