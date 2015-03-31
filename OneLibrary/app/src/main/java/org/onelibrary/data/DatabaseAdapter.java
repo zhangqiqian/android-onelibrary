@@ -5,13 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+
 
 /**
  * DB Operations
@@ -75,27 +71,19 @@ public class DatabaseAdapter {
 
     /**
      * createMessage method that used to create a message in the database
-     * @param title
-     * @param content
-     * @param link
-     * @param category
-     * @param pubdate
+     * @param item MessageItem
      * @return
      */
-    public long createMessage(int message_id, String title, String author, String content, String category, String link, String tags, long pubdate){
+    public long createMessage(MessageItem item){
         ContentValues initialValues = new ContentValues();
-        initialValues.put(KEY_MESSAGE_ID, message_id);
-        initialValues.put(KEY_TITLE, title);
-        initialValues.put(KEY_AUTHOR, author);
-        initialValues.put(KEY_CONTENT, content);
-        initialValues.put(KEY_CATEGORY, category);
-        initialValues.put(KEY_LINK, link);
-        initialValues.put(KEY_TAGS, tags);
-
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        Date date = new Date(pubdate*1000);
-        String pub_date = format.format(date);
-        initialValues.put(KEY_PUBDATE, pub_date);
+        initialValues.put(KEY_MESSAGE_ID, item.getMessageId());
+        initialValues.put(KEY_TITLE, item.getTitle());
+        initialValues.put(KEY_AUTHOR, item.getAuthor());
+        initialValues.put(KEY_CONTENT, item.getContent());
+        initialValues.put(KEY_CATEGORY, item.getCategory());
+        initialValues.put(KEY_LINK, item.getLink());
+        initialValues.put(KEY_TAGS, item.getTags());
+        initialValues.put(KEY_PUBDATE, item.getPubdate());
 
         return mDb.insert(MESSAGE_TABLE_NAME, "tags", initialValues);
     }
