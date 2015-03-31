@@ -48,8 +48,11 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo == null){
-            Toast.makeText(LoginActivity.this, "Unconnected to network.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
         }
+
+        //TODO for test
+        session.edit().putBoolean(IS_LOGIN, true).apply();
 
         if (username.length() > 0){
             editEmail.setText(username);
@@ -68,8 +71,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 Bundle params = new Bundle();
                 params.putString("username", editEmail.getText().toString());
                 params.putString("password", editPassword.getText().toString());
-
-                new LoginTask().execute(params);
+                new LoginTask().execute(params); //Login
             }
         });
 
@@ -131,9 +133,9 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
+                session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
                 if(result.getInt("errno") == 0){
                     is_ok = true;
-
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
                 }else{
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();

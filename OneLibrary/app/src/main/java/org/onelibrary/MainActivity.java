@@ -12,6 +12,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +36,7 @@ import java.io.IOException;
 import java.lang.annotation.Target;
 import java.sql.SQLException;
 
-public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
+public class MainActivity extends FragmentActivity {//implements AdapterView.OnItemClickListener {
 
     public static final String TAG = "MainActivity";
 
@@ -45,15 +47,8 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
 
-    public final static String MAIN_INFO = "main_info";
-    public final static String LAST_TIME = "last_time";
-    public final static String LAST_MESSAGE_ID = "last_message_id";
-    public final static String LAST_LONGITUDE = "longitude";
-    public final static String LAST_LATITUDE = "latitude";
-    public final static String NEXT_START = "next_start";
-
     private MessageCollection messages = null;
-    private DatabaseAdapter mDbAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,134 +74,37 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             }
         }
 
-        //handleIntent(getIntent());
-
-        new LoadMessageTask().execute(new Bundle());
-        //read local message from db.
-        messages = getLocalMessages();
-        showListView();
 
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo == null){
-            Toast.makeText(MainActivity.this, "Unconnected to network.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
+        }
+
+        if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
+            transaction.replace(R.id.sample_content_fragment, fragment);
+            transaction.commit();
         }
 
     }
 
-    private MessageCollection getLocalMessages(){
-        MessageCollection messages = new MessageCollection();
-        mDbAdapter = new DatabaseAdapter(this);
-        try {
-            mDbAdapter.open();
-        }catch (SQLException e){
-            mDbAdapter.close();
-        }
 
-
-        Cursor cursor = mDbAdapter.getAllMessages();
-        cursor.moveToFirst();
-        for (int i = 0; i < cursor.getCount(); i++){
-            MessageItem item = new MessageItem();
-            Log.i(TAG, "messages:"+ cursor.toString());
-            item.setId(cursor.getInt(0));
-            item.setMessageId(cursor.getInt(1));
-            item.setTitle(cursor.getString(2));
-            item.setAuthor(cursor.getString(3));
-            item.setContent(cursor.getString(4));
-            item.setCategory(cursor.getString(5));
-            item.setLink(cursor.getString(6));
-            item.setTags(cursor.getString(7));
-            item.setPubdate(cursor.getString(8));
-            messages.addMessageItem(item);
-            cursor.moveToNext();
-        }
-        mDbAdapter.close();
-        return messages;
-    }
 
     private void showListView(){
-        ListView itemList = (ListView) findViewById(R.id.message_list);
+        /*ListView itemList = (ListView) findViewById(R.id.message_list);
         if (messages == null) {
             return;
         }
         SimpleAdapter adapter = new SimpleAdapter(this, messages.getAllItemsForListView(), android.R.layout.simple_list_item_2, new String[]{MessageItem.TITLE,MessageItem.PUBDATE}, new int[]{android.R.id.text1,android.R.id.text2});
         itemList.setAdapter(adapter);
         itemList.setOnItemClickListener(this);
-        itemList.setSelection(0);
+        itemList.setSelection(0);*/
     }
 
-    private boolean getRemoteMessages(Bundle params){
-        boolean is_ok = true;
-        try {
-            NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
-            SharedPreferences session = getSharedPreferences(MAIN_INFO, 0);
-            long last_time = session.getLong(LAST_TIME, 0);
-            long last_message_id = session.getLong(LAST_MESSAGE_ID, 0);
-            double longitude = session.getFloat(LAST_LONGITUDE, 0);
-            double latitude = session.getFloat(LAST_LATITUDE, 0);
-            int next_start = session.getInt(NEXT_START, 0);
-
-            params.putString(LAST_TIME, String.valueOf(last_time));
-            params.putString(LAST_MESSAGE_ID, String.valueOf(last_message_id));
-            params.putString(LAST_LONGITUDE, String.valueOf(longitude));
-            params.putString(LAST_LATITUDE, String.valueOf(latitude));
-            params.putString(NEXT_START, String.valueOf(next_start));
-
-            JSONObject result = adapter.request(getString(R.string.get_messages_url), params);
-            if(result.getInt("errno") == 0){
-                Log.i("MainActivity", "success to get messages: " + result.get("result").toString());
-
-                int start = result.getInt("start");
-                long new_last_time = System.currentTimeMillis()/1000;
-                long new_last_message_id = last_message_id;
-
-                JSONArray messages = result.getJSONArray("result");
-                if(messages.length() > 0){
-                    mDbAdapter = new DatabaseAdapter(this);
-                    try {
-                        mDbAdapter.open();
-                    }catch (SQLException e){
-                        mDbAdapter.close();
-                    }
-
-                    for (int i = 0;i< messages.length();i++){
-                        JSONObject message = messages.getJSONObject(i);
-                        int message_id = message.getInt("message_id");
-                        String title = message.getString("title");
-                        String author = message.getString("author");
-                        String content = message.getString("content");
-                        String category = message.getString("category");
-                        String link = message.getString("link");
-                        String tags = message.getString("tags");
-                        long pubdate = message.getLong("pubdate");
-                        if(message_id > new_last_message_id){
-                            new_last_message_id = message_id;
-                        }
-                        mDbAdapter.createMessage(message_id, title, author, content, category, link, tags, pubdate);
-                    }
-                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).putLong(LAST_MESSAGE_ID, new_last_message_id).apply();
-                    Log.i(TAG, "new_last_time=" + new_last_time + " start=" + start + " new_last_message_id="+new_last_message_id);
-                    mDbAdapter.close();
-                }
-            }else{
-                is_ok = false;
-                Log.i(TAG, "failure: " + result.getString("errmsg"));
-            }
-        }catch (IOException e){
-            mDbAdapter.close();
-            is_ok = false;
-            e.printStackTrace();
-        }catch (JSONException e){
-            mDbAdapter.close();
-            is_ok = false;
-            e.printStackTrace();
-        }
-        return is_ok;
-    }
-
-    @Override
+    /*@Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, DetailActivity.class);
         Bundle bundle = new Bundle();
@@ -224,7 +122,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         intent.putExtra("message_item", bundle);
         startActivityForResult(intent, 0);
 
-    }
+    }*/
 
     /*@Override
     protected void onNewIntent(Intent intent) {
@@ -279,23 +177,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Implementation of AsyncTask, to fetch the data in the background away from
-     * the UI thread.
-     */
-    private class LoadMessageTask extends AsyncTask<Bundle, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Bundle...params) {
-            //get remote message, and save to db.
-            return getRemoteMessages(params[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            Log.i(TAG, "result: " + result);
-        }
-    }
 
     /**
      * Implementation of AsyncTask, to fetch the data in the background away from
