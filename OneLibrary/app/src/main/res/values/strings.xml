@@ -5,7 +5,8 @@
     <string name="index_button">Enjoy it.</string>
     <string name="index_content">One library is one world.</string>
     <string name="title_activity_main">OneLibrary</string>
-    <string name="action_search">Search</string>
+    <!--<string name="action_search">Search</string>-->
+    <string name="menu_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
     <string name="action_logout">Sign out</string>
     <string name="search_hint">Key words</string>
@@ -23,8 +24,8 @@
     <string name="being_sign_up">Signing up ...</string>
     <string name="forget_password">Forget password</string>
 
-    <string name="login_url">http://192.168.0.102/Api/Public/login</string>
-    <string name="get_messages_url">http://192.168.0.102/Api/Index/messages</string>
+    <string name="login_url">http://192.168.0.108/Api/Public/login</string>
+    <string name="get_messages_url">http://192.168.0.108/Api/Index/messages</string>
     <string name="connection_error">Connection Error.</string>
 
 </resources>
