@@ -36,11 +36,14 @@ public class DetailActivity extends Activity {
         TextView titleView = (TextView) findViewById(R.id.title);
         titleView.setText(item.getCharSequence("title"));
         //publish date
+        TextView categoryView = (TextView) findViewById(R.id.category);
+        categoryView.setText("["+item.getCharSequence("category")+"]");
+        //publish date
         TextView pubdateView = (TextView) findViewById(R.id.pubdate);
         pubdateView.setText(item.getCharSequence("pubdate"));
         //content
         TextView contentView = (TextView) findViewById(R.id.content);
-        contentView.setText(item.getCharSequence("content"));
+        contentView.setText("Source: " + item.getCharSequence("content"));
     }
 
 
