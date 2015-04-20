@@ -3,6 +3,7 @@ package org.onelibrary;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -28,26 +29,18 @@ public class DetailActivity extends Activity {
 
         //getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setDisplayShowTitleEnabled(false);
-        String content = null;
         Intent intent = getIntent();
 
-        if (intent != null) {
-            Bundle bundle = intent.getBundleExtra("message_item");
-            if (bundle == null) {
-                content = "Failure to load.";
-            }else {
-                content = bundle.getString("title")+"\n\n"
-                        +bundle.getString("pubdate")+"\n\n"
-                        +bundle.getString("content").replace('\n', ' ')
-                        +"\n\nLink：\n"
-                        +bundle.getString("link");
-            }
-        } else {
-            content = "Failure to load.";
-        }
-
-        TextView textView = (TextView) findViewById(R.id.content);
-        textView.setText(content);
+        Bundle item = intent.getBundleExtra("message_item");
+        //title
+        TextView titleView = (TextView) findViewById(R.id.title);
+        titleView.setText(item.getCharSequence("title"));
+        //publish date
+        TextView pubdateView = (TextView) findViewById(R.id.pubdate);
+        pubdateView.setText(item.getCharSequence("pubdate"));
+        //content
+        TextView contentView = (TextView) findViewById(R.id.content);
+        contentView.setText(item.getCharSequence("content"));
     }
 
 
