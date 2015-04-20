@@ -215,7 +215,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) getListAdapter();
         adapter.clear();
 
-        List<MessageItem> messages = getLocalMessages().getAllMessageItems();
+        messages = getLocalMessages().getAllMessageItems();
         for (MessageItem item : messages){
             adapter.add(item.getTitle());
         }
