@@ -75,6 +75,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public final static String NEXT_START = "next_start";
 
     private DatabaseAdapter mDbAdapter;
+    private List<MessageItem> messages;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,8 +94,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
          * Create an ArrayAdapter to contain the data for the ListView. Each item in the ListView
          * uses the system-defined simple_list_item_1 layout that contains one TextView.
          */
-
-        List<MessageItem> messages = getLocalMessages().getAllMessageItems();
+        messages = getLocalMessages().getAllMessageItems();
 
         ArrayList<String> titles = new ArrayList<String>();
         for (MessageItem item : messages){
@@ -173,17 +173,16 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public void onListItemClick(ListView list, View v, int position, long id) {
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         Bundle bundle = new Bundle();
-        ListAdapter adapter = getListAdapter();
-        //MessageItem item = messages.getMessageItem(position);
-        bundle.putLong("id", id);
-        bundle.putInt("message_id", 12);
-        bundle.putString("title", "test title" +position);
-        bundle.putString("author", "niko" + position);
-        bundle.putString("content", "test content: " + adapter.getItem(position));
-        bundle.putString("category", "life");
-        bundle.putString("link", "http://www.qq.com/" + id);
-        bundle.putString("tags", "test, life, "+id);
-        bundle.putString("pubdate", "2015-03-07 00:23:49");
+        MessageItem item = messages.get(position);
+        bundle.putLong("id", item.getId());
+        bundle.putInt("message_id", item.getMessageId());
+        bundle.putString("title", item.getTitle());
+        bundle.putString("author", item.getAuthor());
+        bundle.putString("content", item.getContent());
+        bundle.putString("category", item.getCategory());
+        bundle.putString("link", item.getLink());
+        bundle.putString("tags", item.getTags());
+        bundle.putString("pubdate", item.getPubdate());
 
         intent.putExtra("message_item", bundle);
         startActivityForResult(intent, 0);
@@ -237,7 +236,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         }catch (SQLException e){
             mDbAdapter.close();
         }
-
 
         Cursor cursor = mDbAdapter.getAllMessages();
         cursor.moveToFirst();
