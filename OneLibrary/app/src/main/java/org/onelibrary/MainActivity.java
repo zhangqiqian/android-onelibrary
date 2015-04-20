@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.onelibrary.data.MessageCollection;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
@@ -75,9 +74,6 @@ public class MainActivity extends FragmentActivity {
         }
 
     }
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
