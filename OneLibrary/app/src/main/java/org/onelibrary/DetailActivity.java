@@ -43,7 +43,7 @@ public class DetailActivity extends Activity {
         pubdateView.setText(item.getCharSequence("pubdate"));
         //content
         TextView contentView = (TextView) findViewById(R.id.content);
-        contentView.setText("Source: " + item.getCharSequence("content"));
+        contentView.setText(item.getCharSequence("content"));
     }
 
 
