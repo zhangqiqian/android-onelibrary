@@ -94,6 +94,10 @@ public class MainActivity extends FragmentActivity {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
         }
+        if (id == R.id.action_location) {
+            Intent intent = new Intent(MainActivity.this, LocationActivity.class);
+            startActivity(intent);
+        }
         if (id == R.id.action_logout) {
             SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
             Boolean isLogin = session.getBoolean(IS_LOGIN, false);
