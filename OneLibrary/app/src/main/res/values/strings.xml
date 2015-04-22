@@ -27,5 +27,7 @@
     <string name="login_url">http://192.168.1.103/Api/Public/login</string>
     <string name="get_messages_url">http://192.168.1.103/Api/Index/messages</string>
     <string name="connection_error">Connection Error.</string>
+    <string name="title_activity_location">Location</string>
+    <string name="action_location">Location</string>
 
 </resources>
