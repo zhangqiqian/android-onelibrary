@@ -29,7 +29,10 @@ public class DetailActivity extends Activity {
         pubdateView.setText(item.getCharSequence("pubdate"));
         //content
         TextView contentView = (TextView) findViewById(R.id.content);
-        contentView.setText(item.getCharSequence("content"));
+        contentView.setText("\u3000\u3000"+item.getCharSequence("content"));
+        //Tags
+        TextView tagsView = (TextView) findViewById(R.id.tags);
+        tagsView.setText("Tags: "+item.getCharSequence("tags"));
     }
 
 
