@@ -269,6 +269,11 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             double latitude = session.getFloat(LAST_LATITUDE, 0);
             int next_start = session.getInt(NEXT_START, 0);
 
+            long new_last_time = System.currentTimeMillis()/1000;
+            if(new_last_time - last_time > 60){
+                next_start = 0;
+            }
+
             Bundle params = new Bundle();
             params.putString(LAST_TIME, String.valueOf(last_time));
             params.putString(LAST_MESSAGE_ID, String.valueOf(last_message_id));
@@ -276,12 +281,12 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             params.putString(LAST_LATITUDE, String.valueOf(latitude));
             params.putString(NEXT_START, String.valueOf(next_start));
 
+            Log.i("MainActivity", "Request params: " + params.toString());
             JSONObject result = adapter.request(getString(R.string.get_messages_url), params);
             if(result.getInt("errno") == 0){
-                Log.i("MainActivity", "success to get messages: " + result.get("result").toString());
+                Log.i("MainActivity", "success to get messages");
 
                 int start = result.getInt("start");
-                long new_last_time = System.currentTimeMillis()/1000;
                 long new_last_message_id = last_message_id;
 
                 JSONArray messages = result.getJSONArray("result");
