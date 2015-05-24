@@ -36,6 +36,7 @@ public class MessageCollection {
         for (int i = 0; i < size; i++) {
             HashMap<String, Object> item = new HashMap<String, Object>();
             item.put(MessageItem.ID, itemList.get(i).getId());
+            item.put(MessageItem.PUBLISHID, itemList.get(i).getPublishId());
             item.put(MessageItem.MESSAGEID, itemList.get(i).getMessageId());
             item.put(MessageItem.TITLE, itemList.get(i).getTitle());
             item.put(MessageItem.AUTHOR, itemList.get(i).getAuthor());

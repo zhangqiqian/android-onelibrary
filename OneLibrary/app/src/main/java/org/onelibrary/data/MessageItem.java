@@ -6,6 +6,7 @@ package org.onelibrary.data;
 public class MessageItem {
 
     public static final String ID = "id";
+    public static final String PUBLISHID = "publish_id";
     public static final String MESSAGEID = "message_id";
     public static final String TITLE = "title";
     public static final String AUTHOR = "author";
@@ -15,6 +16,7 @@ public class MessageItem {
     public static final String TAGS = "tags";
     public static final String PUBDATE = "pubdate";
     private int id = 0;
+    private int publishId = 0;
     private int messageId = 0;
     private String title = null;
     private String author = null;
@@ -32,6 +34,14 @@ public class MessageItem {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getPublishId() {
+        return publishId;
+    }
+
+    public void setPublishId(int publishId) {
+        this.publishId = publishId;
     }
 
     public int getMessageId() {
