@@ -28,7 +28,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -43,10 +42,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
 
 /**
  * A sample which shows how to use {@link android.support.v4.widget.SwipeRefreshLayout} within a
@@ -90,6 +85,8 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        initiateRefresh();
+
         /**
          * Create an ArrayAdapter to contain the data for the ListView. Each item in the ListView
          * uses the system-defined simple_list_item_1 layout that contains one TextView.
@@ -100,6 +97,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         for (MessageItem item : messages){
             titles.add(item.getTitle());
         }
+
         ListAdapter adapter = new ArrayAdapter<String>(
                 getActivity(),
                 android.R.layout.simple_list_item_1,
@@ -174,17 +172,9 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         Bundle bundle = new Bundle();
         MessageItem item = messages.get(position);
-        bundle.putLong("id", item.getId());
+        bundle.putInt("id", item.getId());
         bundle.putInt("message_id", item.getMessageId());
-        bundle.putString("title", item.getTitle());
-        bundle.putString("author", item.getAuthor());
-        bundle.putString("content", item.getContent());
-        bundle.putString("category", item.getCategory());
-        bundle.putString("link", item.getLink());
-        bundle.putString("tags", item.getTags());
-        bundle.putString("pubdate", item.getPubdate());
-
-        intent.putExtra("message_item", bundle);
+        intent.putExtra("message", bundle);
         startActivityForResult(intent, 0);
     }
 
@@ -199,7 +189,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         /**
          * Execute the background task, which uses {@link android.os.AsyncTask} to load the data.
          */
-        new LoadMessageTask().execute();
+        new LoadMessagesTask().execute();
     }
     // END_INCLUDE (initiate_refresh)
 
@@ -208,7 +198,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
      * When the AsyncTask finishes, it calls onRefreshComplete(), which updates the data in the
      * ListAdapter and turns off the progress bar.
      */
-    private void onRefreshComplete(List<MessageItem> result) {
+    private void onRefreshComplete(int itemSize ) {
         Log.i(LOG_TAG, "onRefreshComplete");
 
         // Remove all items from the ListAdapter, and then replace them with the new items
@@ -223,39 +213,32 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         // Stop the refreshing indicator
         setRefreshing(false);
 
-        Toast.makeText(getActivity(), "Updated "+ result.size() +" message(s).", Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), "Updated "+ itemSize +" message(s).", Toast.LENGTH_LONG).show();
     }
     // END_INCLUDE (refresh_complete)
 
 
     private MessageCollection getLocalMessages(){
-        MessageCollection messages = new MessageCollection();
+        MessageCollection messagesCollect = new MessageCollection();
         mDbAdapter = new DatabaseAdapter(getActivity());
         try {
-            mDbAdapter.open();
+            mDbAdapter.openReadDB();
         }catch (SQLException e){
             mDbAdapter.close();
         }
 
         Cursor cursor = mDbAdapter.getAllMessages();
-        cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++){
             MessageItem item = new MessageItem();
-            Log.i(LOG_TAG, "messages:"+ cursor.toString());
             item.setId(cursor.getInt(0));
-            item.setMessageId(cursor.getInt(1));
-            item.setTitle(cursor.getString(2));
-            item.setAuthor(cursor.getString(3));
-            item.setContent(cursor.getString(4));
-            item.setCategory(cursor.getString(5));
-            item.setLink(cursor.getString(6));
-            item.setTags(cursor.getString(7));
-            item.setPubdate(cursor.getString(8));
-            messages.addMessageItem(item);
+            item.setPublishId(cursor.getInt(1));
+            item.setMessageId(cursor.getInt(2));
+            item.setTitle(cursor.getString(3));
+            messagesCollect.addMessageItem(item);
             cursor.moveToNext();
         }
         mDbAdapter.close();
-        return messages;
+        return messagesCollect;
     }
 
     private List<MessageItem> getRemoteMessages(){
@@ -281,40 +264,31 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             params.putString(LAST_LATITUDE, String.valueOf(latitude));
             params.putString(NEXT_START, String.valueOf(next_start));
 
-            Log.i("MainActivity", "Request params: " + params.toString());
+            Log.i(LOG_TAG, "Request params: " + params.toString());
             JSONObject result = adapter.request(getString(R.string.get_messages_url), params);
             if(result.getInt("errno") == 0){
-                Log.i("MainActivity", "success to get messages");
+                Log.i(LOG_TAG, "success to get messages");
 
                 int start = result.getInt("start");
-                long new_last_message_id = last_message_id;
 
-                JSONArray messages = result.getJSONArray("result");
-                if(messages.length() > 0){
-                    for (int i = 0;i< messages.length();i++){
-                        JSONObject message = messages.getJSONObject(i);
+                JSONArray messagesArray = result.getJSONArray("result");
+                if(messagesArray.length() > 0){
+                    for (int i = 0;i< messagesArray.length();i++){
+                        JSONObject message = messagesArray.getJSONObject(i);
                         MessageItem item = new MessageItem();
-                        int message_id = message.getInt("message_id");
-                        item.setMessageId(message_id);
+                        item.setPublishId(message.getInt("publish_id"));
+                        item.setMessageId(message.getInt("message_id"));
                         item.setTitle(message.getString("title"));
-                        item.setAuthor(message.getString("author"));
-                        item.setContent(message.getString("content"));
-                        item.setCategory(message.getString("category"));
-                        item.setTags(message.getString("tags"));
-                        item.setLink(message.getString("link"));
-
-                        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                        Date date = new Date(message.getLong("pubdate") *1000);
-                        String pub_date = format.format(date);
-                        item.setPubdate(pub_date);
-
+                        item.setAuthor("");
+                        item.setContent("");
+                        item.setCategory("");
+                        item.setTags("");
+                        item.setLink("");
+                        item.setPubdate("");
                         messageItems.add(item);
-                        if(message_id > new_last_message_id){
-                            new_last_message_id = message_id;
-                        }
                     }
-                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).putLong(LAST_MESSAGE_ID, new_last_message_id).apply();
-                    Log.i(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start + " new_last_message_id="+new_last_message_id);
+                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).apply();
+                    Log.i(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
                 }
             }else{
                 Log.i(LOG_TAG, "failure: " + result.getString("errmsg"));
@@ -331,7 +305,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
      */
-    private class LoadMessageTask extends AsyncTask<Void, Void, List<MessageItem>> {
+    private class LoadMessagesTask extends AsyncTask<Void, Void, List<MessageItem>> {
 
         @Override
         protected List<MessageItem> doInBackground(Void...params) {
@@ -341,12 +315,16 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            Log.i(LOG_TAG, "result: " + result);
             mDbAdapter = new DatabaseAdapter(getActivity());
+            int size = result.size();
             try {
-                mDbAdapter.open();
+                mDbAdapter.openWriteDB();
                 for (MessageItem item : result){
-                    mDbAdapter.createMessage(item);
+                    if(mDbAdapter.MessageIsExist(item.getPublishId())){
+                        size--;
+                    }else{
+                        mDbAdapter.createMessage(item);
+                    }
                 }
             }catch (SQLException e){
                 mDbAdapter.close();
@@ -355,7 +333,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             }
 
             // Tell the Fragment that the refresh has completed
-            onRefreshComplete(result);
+            onRefreshComplete(size);
         }
     }
 
