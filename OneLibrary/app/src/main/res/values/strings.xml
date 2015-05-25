@@ -24,9 +24,9 @@
     <string name="being_sign_up">Signing up ...</string>
     <string name="forget_password">Forget password</string>
 
-    <string name="login_url">http://192.168.1.102/Api/Public/login</string>
-    <string name="get_messages_url">http://192.168.1.102/Api/Index/messages</string>
-    <string name="get_message_detail_url">http://192.168.1.102/Api/Index/message</string>
+    <string name="login_url">http://192.168.1.105/Api/Public/login</string>
+    <string name="get_messages_url">http://192.168.1.105/Api/Index/messages</string>
+    <string name="get_message_detail_url">http://192.168.1.105/Api/Index/message</string>
     <string name="connection_error">Connection Error.</string>
     <string name="title_activity_location">Location</string>
     <string name="action_location">Location</string>
