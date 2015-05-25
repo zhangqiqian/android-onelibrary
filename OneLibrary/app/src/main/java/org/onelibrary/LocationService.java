@@ -14,7 +14,8 @@ import android.provider.Settings;
 import android.util.Log;
 
 public class LocationService extends Service implements LocationListener {
-    private final Context mContext;
+
+    private Context mContext;
 
     // flag for GPS status
     boolean isGPSEnabled = false;
@@ -39,14 +40,20 @@ public class LocationService extends Service implements LocationListener {
     protected LocationManager locationManager;
 
     public LocationService() {
-        mContext = getBaseContext();
+        this.mContext = getBaseContext();
+        getLocation();
+    }
 
+    public LocationService(Context context) {
+        this.mContext = context;
+        getLocation();
     }
 
     @Override
     public void onCreate(){
         super.onCreate();
         Log.i("Location Service", "------ onCreate ------");
+        mContext = getBaseContext();
     }
 
     @Override
@@ -59,11 +66,6 @@ public class LocationService extends Service implements LocationListener {
     public void onDestroy(){
         Log.i("Location Service", "------ onDestroy ------");
         super.onDestroy();
-    }
-
-    public LocationService(Context context) {
-        this.mContext = context;
-        getLocation();
     }
 
     public Location getLocation() {
@@ -89,7 +91,7 @@ public class LocationService extends Service implements LocationListener {
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.i("Network", "Network");
+                    Log.i("LocationActivity", "LocationService is from network.");
                     if (locationManager != null) {
                         location = locationManager                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
@@ -105,7 +107,7 @@ public class LocationService extends Service implements LocationListener {
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.i("GPS Enabled", "GPS Enabled");
+                        Log.i("LocationActivity", "GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -179,7 +181,7 @@ public class LocationService extends Service implements LocationListener {
 
         // On pressing Settings button
         alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog,int which) {
+            public void onClick(DialogInterface dialog, int which) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 mContext.startActivity(intent);
             }
@@ -198,14 +200,14 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i("Location Service","position has changed!");
+        Log.i("Location Service", "position has changed!");
 
         latitude = location.getLatitude();
 
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
 
-        Log.i("Location Service", "a new position: "+longitude+", "+latitude);
+        Log.i("Location Service", "a new position: " + longitude + ", " + latitude);
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -33,11 +34,49 @@ public class MainActivity extends FragmentActivity {
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
 
+    LocationService locationService;
+    /*private int interval = 5000; //5 seconds.
+    private Handler mHandler;
+
+    private Runnable updateTimerThread = new Runnable() {
+        @Override
+        public void run() {
+            // create class object
+            locationService = new LocationService(getBaseContext());
+            // check if GPS enabled
+            if(locationService.canGetLocation()){
+                double latitude = locationService.getLatitude();
+                double longitude = locationService.getLongitude();
+                // \n is for new line
+                Toast.makeText(getApplicationContext(), "Your Location is \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+            }else{
+                // can't get location
+                // GPS or Network is not enabled
+                // Ask user to enable GPS/network in settings
+                locationService.showSettingsAlert();
+            }
+            //mHandler.postDelayed(this, interval);
+        }
+    };*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        /*mHandler = new Handler();
+        mHandler.postDelayed(updateTimerThread, 0);*/
+
+        // create location object
+        locationService = new LocationService(getBaseContext());
+        // check if location enabled
+        if(locationService.canGetLocation()){
+            double latitude = locationService.getLatitude();
+            double longitude = locationService.getLongitude();
+            Toast.makeText(getApplicationContext(), "Your Location is \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
+        }else{
+            locationService.showSettingsAlert();
+        }
 
         SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
         Boolean isLogin = session.getBoolean(IS_LOGIN, false);
@@ -57,7 +96,6 @@ public class MainActivity extends FragmentActivity {
                 new LoginTask().execute(params);
             }
         }
-
 
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
