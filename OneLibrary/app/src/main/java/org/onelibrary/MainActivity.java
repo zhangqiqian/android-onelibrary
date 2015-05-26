@@ -69,7 +69,7 @@ public class MainActivity extends FragmentActivity {
         mHandler.postDelayed(updateTimerThread, 0);*/
 
         // create location object
-        locationService = new LocationService(getBaseContext());
+        locationService = new LocationService(MainActivity.this);
         // check if location enabled
         if(locationService.canGetLocation()){
             double latitude = locationService.getLatitude();
@@ -144,7 +144,7 @@ public class MainActivity extends FragmentActivity {
             SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
             Boolean isLogin = session.getBoolean(IS_LOGIN, false);
             if (isLogin){
-                session.edit().putBoolean(IS_LOGIN, false).remove(PASSWORD).commit();
+                session.edit().putBoolean(IS_LOGIN, false).remove(PASSWORD).apply();
             }
             Intent intent = new Intent(MainActivity.this, IndexActivity.class);
             startActivity(intent);
