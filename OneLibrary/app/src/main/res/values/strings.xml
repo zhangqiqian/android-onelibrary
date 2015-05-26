@@ -31,4 +31,10 @@
     <string name="title_activity_location">Location</string>
     <string name="action_location">Location</string>
 
+    <string name="location_alert_title">Location Settings</string>
+    <string name="location_alert_content">Location service is disabled, Do you want to enabled it?</string>
+    <string name="location_alert_settings_btn">Settings</string>
+    <string name="location_alert_cancel_btn">Cancel</string>
+
+
 </resources>
