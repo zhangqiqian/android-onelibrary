@@ -13,6 +13,15 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
+import org.onelibrary.data.LocationDataManager;
+import org.onelibrary.data.LocationDbAdapter;
+import org.onelibrary.data.LocationDbHelper;
+import org.onelibrary.data.LocationEntry;
+import org.onelibrary.data.MessageItem;
+
+import java.sql.SQLException;
+import java.util.Calendar;
+
 public class LocationService extends Service implements LocationListener {
 
     private Context mContext;
@@ -52,19 +61,19 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onCreate(){
         super.onCreate();
-        Log.i("Location Service", "------ onCreate ------");
+        Log.d("Location Service", "------ onCreate ------");
         mContext = getBaseContext();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        Log.i("Location Service", "------ onStartCommand ------");
+        Log.d("Location Service", "------ onStartCommand ------");
         return START_STICKY;
     }
 
     @Override
     public void onDestroy(){
-        Log.i("Location Service", "------ onDestroy ------");
+        Log.d("Location Service", "------ onDestroy ------");
         super.onDestroy();
     }
 
@@ -91,7 +100,7 @@ public class LocationService extends Service implements LocationListener {
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.i("LocationActivity", "LocationService is from network.");
+                    Log.d("LocationActivity", "LocationService is from network.");
                     if (locationManager != null) {
                         location = locationManager                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
@@ -107,7 +116,7 @@ public class LocationService extends Service implements LocationListener {
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.i("LocationActivity", "GPS Enabled, and locationService is from gps.");
+                        Log.d("LocationActivity", "GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
                             location = locationManager
                                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -200,14 +209,21 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i("Location Service", "position has changed!");
-
-        latitude = location.getLatitude();
-
+        Log.d("Location Service", "position has changed!");
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
+        Log.d("Location Service", "a new position: " + longitude + ", " + latitude);
 
-        Log.i("Location Service", "a new position: " + longitude + ", " + latitude);
+        LocationDbAdapter dbAdapter = new LocationDbAdapter(mContext);
+        try {
+            dbAdapter.openWriteDB();
+            LocationEntry entry = new LocationEntry("Location", longitude, latitude, Calendar.getInstance());
+            dbAdapter.insert(entry);
+        }catch (SQLException e){
+            dbAdapter.close();
+        }finally {
+            dbAdapter.close();
+        }
     }
 
     @Override
@@ -224,7 +240,7 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i("Location Service", "onBind");
+        Log.d("Location Service", "onBind");
         return null;
     }
 

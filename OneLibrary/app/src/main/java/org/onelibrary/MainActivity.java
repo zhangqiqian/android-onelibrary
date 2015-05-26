@@ -169,7 +169,8 @@ public class MainActivity extends FragmentActivity {
 
                 if(result.getInt("errno") == 0){
                     is_ok = true;
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
+                    long now = System.currentTimeMillis()/1000;
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).apply();
                 }else{
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
                 }

@@ -1,36 +1,47 @@
 package org.onelibrary;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.SimpleAdapter;
+
+import org.onelibrary.data.LocationDataManager;
+import org.onelibrary.data.LocationDbAdapter;
+import org.onelibrary.data.LocationDbHelper;
+import org.onelibrary.data.LocationEntry;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 
-public class LocationActivity extends Activity {
+public class LocationActivity extends ListActivity {
 
-    Button btnStart;
-    Button btnStop;
     //LocationService gps;
+    private List<String> listItems;
+    private SimpleAdapter listItemAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
 
-        btnStart = (Button) findViewById(R.id.startBtn);
-        btnStop = (Button) findViewById(R.id.stopBtn);
+        initListView();
 
-        btnStart.setOnClickListener(new View.OnClickListener() {
+        /*btnStart.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
                 Intent intent = new Intent(LocationActivity.this, LocationService.class);
                 startService(intent);
                 // create class object
-                /*gps = new LocationService(LocationActivity.this);
+                *//*gps = new LocationService(LocationActivity.this);
                 // check if GPS enabled
                 if(gps.canGetLocation()){
 
@@ -43,7 +54,7 @@ public class LocationActivity extends Activity {
                     // GPS or Network is not enabled
                     // Ask user to enable GPS/network in settings
                     gps.showSettingsAlert();
-                }*/
+                }*//*
             }
         });
         btnStop.setOnClickListener(new View.OnClickListener() {
@@ -53,13 +64,13 @@ public class LocationActivity extends Activity {
                 Intent intent = new Intent(LocationActivity.this, LocationService.class);
                 stopService(intent);
             }
-        });
+        });*/
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_location, menu);
+        getMenuInflater().inflate(R.menu.menu_location, menu);
         return true;
     }
 
@@ -71,10 +82,50 @@ public class LocationActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_clear) {
+            LocationDbAdapter dbAdapter = new LocationDbAdapter(getBaseContext());
+            try {
+                dbAdapter.openWriteDB();
+                dbAdapter.deleteAll();
+            }catch (SQLException e){
+                dbAdapter.close();
+            }finally {
+                dbAdapter.close();
+            }
+            initListView();
+        }
+
+        if (id == R.id.action_refresh) {
+            initListView();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initListView()   {
+        LocationDbAdapter dbAdapter = new LocationDbAdapter(getBaseContext());
+        try {
+            listItems = new ArrayList<String>();
+
+            dbAdapter.openWriteDB();
+            List<LocationEntry> points = dbAdapter.getLocationList();
+
+            for (LocationEntry entry:points){
+                listItems.add(entry.toString());
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    this,
+                    android.R.layout.simple_list_item_1,
+                    listItems
+            );
+            setListAdapter(adapter);
+
+        }catch (SQLException e){
+            dbAdapter.close();
+        }finally {
+            dbAdapter.close();
+        }
+
     }
 
 }
