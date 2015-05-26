@@ -32,6 +32,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
     public final static String IS_LOGIN = "is_login";
+    public final static String LAST_LOGIN = "last_login_time";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +137,8 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
                 if(result.getInt("errno") == 0){
                     is_ok = true;
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
+                    long now = System.currentTimeMillis()/1000;
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).apply();
                 }else{
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
                 }

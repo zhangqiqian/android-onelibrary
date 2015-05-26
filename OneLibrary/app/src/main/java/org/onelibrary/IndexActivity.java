@@ -59,8 +59,6 @@ public class IndexActivity extends Activity {
     private OnClickListener listener = null;
 
     public final static String SESSION_INFO = "session_info";
-    public final static String USERNAME = "username";
-    public final static String PASSWORD = "password";
     public final static String IS_LOGIN = "is_login";
 
     @Override

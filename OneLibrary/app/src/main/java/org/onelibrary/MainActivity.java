@@ -33,6 +33,7 @@ public class MainActivity extends FragmentActivity {
     public final static String IS_LOGIN = "is_login";
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
+    public final static String LAST_LOGIN = "last_login_time";
 
     LocationService locationService;
     /*private int interval = 5000; //5 seconds.
@@ -78,12 +79,15 @@ public class MainActivity extends FragmentActivity {
             locationService.showSettingsAlert();
         }
 
-        SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-        Boolean isLogin = session.getBoolean(IS_LOGIN, false);
-        if (!isLogin){
+        SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
+        Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
+        long last_login_time = preferences.getLong(LAST_LOGIN, 0);
+        long now = System.currentTimeMillis()/1000;
+        long interval = now - last_login_time;
+        if (!isLogin || interval > 300){
             //auto login
-            String username = session.getString(USERNAME, "");
-            String password = session.getString(PASSWORD, "");
+            String username = preferences.getString(USERNAME, "");
+            String password = preferences.getString(PASSWORD, "");
 
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             if(username.equals("") || password.equals("")){
