@@ -1,5 +1,7 @@
 package org.onelibrary.data;
 
+import java.util.Calendar;
+
 /**
  * Created by niko on 12/23/14.
  */
@@ -15,18 +17,45 @@ public class MessageItem {
     public static final String LINK = "link";
     public static final String TAGS = "tags";
     public static final String PUBDATE = "pubdate";
-    private int id = 0;
-    private int publishId = 0;
-    private int messageId = 0;
-    private String title = null;
-    private String author = null;
-    private String content = null;
-    private String category = null;
-    private String link = null;
-    private String tags = null;
-    private String pubdate = null;
+    public static final String STATUS = "status";
+    public static final String CTIME = "ctime";
+
+    private int id;
+    private int publishId;
+    private int messageId;
+    private String title;
+    private String author;
+    private String content;
+    private String category;
+    private String link;
+    private String tags;
+    private String pubdate;
+    private int status;
+    private Calendar ctime;
 
     public MessageItem(){}
+
+    public MessageItem(int publishId,
+                       int messageId,
+                       String title,
+                       String author,
+                       String content,
+                       String category,
+                       String link,
+                       String tags,
+                       String pubdate,
+                       int status) {
+        this.publishId = publishId;
+        this.messageId = messageId;
+        this.title = title;
+        this.author = author;
+        this.content = content;
+        this.category = category;
+        this.link = link;
+        this.tags = tags;
+        this.pubdate = pubdate;
+        this.status = status;
+    }
 
     public int getId() {
         return id;
@@ -105,6 +134,22 @@ public class MessageItem {
 
     public void setPubdate(String pubdate) {
         this.pubdate = pubdate;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public Calendar getCtime() {
+        return ctime;
+    }
+
+    public void setCtime(Calendar ctime) {
+        this.ctime = ctime;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public String toString(){

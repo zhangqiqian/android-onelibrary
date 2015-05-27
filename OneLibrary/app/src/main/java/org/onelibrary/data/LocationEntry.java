@@ -8,7 +8,7 @@ import java.util.Calendar;
  */
 public class LocationEntry {
 
-    private int id = 0;
+    private int id;
     private String name;
     private double latitude;
     private double longitude;
