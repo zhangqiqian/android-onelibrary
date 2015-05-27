@@ -79,32 +79,32 @@ public class MainActivity extends FragmentActivity {
             locationService.showSettingsAlert();
         }
 
-        SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
-        Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
-        long last_login_time = preferences.getLong(LAST_LOGIN, 0);
-        long now = System.currentTimeMillis()/1000;
-        long interval = now - last_login_time;
-        if (!isLogin || interval > 300){
-            //auto login
-            String username = preferences.getString(USERNAME, "");
-            String password = preferences.getString(PASSWORD, "");
-
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            if(username.equals("") || password.equals("")){
-                //logout
-                startActivity(intent);
-            }else{
-                Bundle params = new Bundle();
-                params.putString("username", username);
-                params.putString("password", password);
-                new LoginTask().execute(params);
-            }
-        }
-
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if(networkInfo == null){
+        if(networkInfo.isConnected()){
+            SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
+            Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
+            long last_login_time = preferences.getLong(LAST_LOGIN, 0);
+            long now = System.currentTimeMillis()/1000;
+            long interval = now - last_login_time;
+            if (!isLogin || interval > 300){
+                //auto login
+                String username = preferences.getString(USERNAME, "");
+                String password = preferences.getString(PASSWORD, "");
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                if(username.equals("") || password.equals("")){
+                    //logout
+                    startActivity(intent);
+                }else{
+                    Bundle params = new Bundle();
+                    params.putString("username", username);
+                    params.putString("password", password);
+                    new LoginTask().execute(params);
+                }
+            }
+        }else{
             Toast.makeText(MainActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
         }
 
