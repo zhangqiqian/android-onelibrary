@@ -16,9 +16,12 @@
 
 package org.onelibrary;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,14 +36,14 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.onelibrary.data.DatabaseAdapter;
-import org.onelibrary.data.MessageCollection;
+import org.onelibrary.data.DbAdapter;
+import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -69,7 +72,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public final static String LAST_LATITUDE = "latitude";
     public final static String NEXT_START = "next_start";
 
-    private DatabaseAdapter mDbAdapter;
+    private DbAdapter mDbAdapter;
     private List<MessageItem> messages;
 
     @Override
@@ -85,13 +88,19 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initiateRefresh();
+        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if(networkInfo != null){
+            initiateRefresh();
+            // Stop the refreshing indicator
+            setRefreshing(true);
+        }
 
         /**
          * Create an ArrayAdapter to contain the data for the ListView. Each item in the ListView
          * uses the system-defined simple_list_item_1 layout that contains one TextView.
          */
-        messages = getLocalMessages().getAllMessageItems();
+        messages = getLocalMessages();
 
         ArrayList<String> titles = new ArrayList<String>();
         for (MessageItem item : messages){
@@ -171,6 +180,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public void onListItemClick(ListView list, View v, int position, long id) {
         Intent intent = new Intent(getActivity(), DetailActivity.class);
         Bundle bundle = new Bundle();
+
         MessageItem item = messages.get(position);
         bundle.putInt("id", item.getId());
         bundle.putInt("message_id", item.getMessageId());
@@ -205,7 +215,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) getListAdapter();
         adapter.clear();
 
-        messages = getLocalMessages().getAllMessageItems();
+        messages = getLocalMessages();
         for (MessageItem item : messages){
             adapter.add(item.getTitle());
         }
@@ -218,8 +228,12 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     // END_INCLUDE (refresh_complete)
 
 
-    private MessageCollection getLocalMessages(){
-        MessageCollection messagesCollect = new MessageCollection();
+    private List<MessageItem> getLocalMessages(){
+        mDbAdapter = new DbAdapter(getActivity());
+        MessageDataManager messageDataManager = new MessageDataManager(mDbAdapter);
+
+        return messageDataManager.getMessageList();
+        /*MessageCollection messagesCollect = new MessageCollection();
         mDbAdapter = new DatabaseAdapter(getActivity());
         try {
             mDbAdapter.openReadDB();
@@ -238,7 +252,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             cursor.moveToNext();
         }
         mDbAdapter.close();
-        return messagesCollect;
+        return messagesCollect;*/
     }
 
     private List<MessageItem> getRemoteMessages(){
@@ -285,6 +299,8 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
                         item.setTags("");
                         item.setLink("");
                         item.setPubdate("");
+                        item.setStatus(0);
+                        item.setCtime(Calendar.getInstance());
                         messageItems.add(item);
                     }
                     session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).apply();
@@ -315,7 +331,18 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            mDbAdapter = new DatabaseAdapter(getActivity());
+            mDbAdapter = new DbAdapter(getActivity());
+            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            int size = result.size();
+            for (MessageItem item : result){
+                if(mDbAdapter.messageIsExist(item)){
+                    size--;
+                }else{
+                    manager.addMessage(item);
+                }
+            }
+
+            /*mDbAdapter = new DatabaseAdapter(getActivity());
             int size = result.size();
             try {
                 mDbAdapter.openWriteDB();
@@ -330,7 +357,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
                 mDbAdapter.close();
             }finally {
                 mDbAdapter.close();
-            }
+            }*/
 
             // Tell the Fragment that the refresh has completed
             onRefreshComplete(size);

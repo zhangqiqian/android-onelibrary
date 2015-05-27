@@ -2,7 +2,6 @@ package org.onelibrary;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,21 +11,23 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.onelibrary.data.DatabaseAdapter;
+import org.onelibrary.data.DbAdapter;
+import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DetailActivity extends Activity {
 
     private static final String LOG_TAG = "DetailActivity";
 
-    private DatabaseAdapter mDbAdapter;
+    private DbAdapter mDbAdapter;
+    private MessageDataManager manager;
     private MessageItem message;
 
     @Override
@@ -40,39 +41,19 @@ public class DetailActivity extends Activity {
         Bundle item = intent.getBundleExtra("message");
         int id = item.getInt("id");
         int message_id = item.getInt("message_id");
+        mDbAdapter = new DbAdapter(getBaseContext());
+        manager = new MessageDataManager(mDbAdapter);
 
-        try {
-            mDbAdapter = new DatabaseAdapter(getBaseContext());
-            mDbAdapter.openReadDB();
-            Cursor cursor = mDbAdapter.getMessage(id);
+        message = mDbAdapter.getMessage(id);
 
-            String content = cursor.getString(5);
-            if (content.isEmpty() || content.contentEquals("")){
-                new LoadMessageTask().execute(id, message_id);
-            }
-
-            cursor = mDbAdapter.getMessage(id);
-            message = new MessageItem();
-
-            message.setId(cursor.getInt(0));
-            message.setPublishId(cursor.getInt(1));
-            message.setMessageId(cursor.getInt(2));
-            message.setTitle(cursor.getString(3));
-            message.setAuthor(cursor.getString(4));
-            message.setContent(cursor.getString(5));
-            message.setCategory(cursor.getString(6));
-            message.setLink(cursor.getString(7));
-            message.setTags(cursor.getString(8));
-            message.setPubdate(cursor.getString(9));
-
-            mDbAdapter.close();
-        }catch (SQLException e){
-            mDbAdapter.close();
-        }finally {
-            mDbAdapter.close();
+        if (message.getContent().isEmpty() || message.getContent().contentEquals("")){
+            new LoadMessageTask().execute(id, message_id);
         }
 
+
+        message = mDbAdapter.getMessage(id);
         renderDetail(message);
+
     }
 
     private void renderDetail(MessageItem item){
@@ -130,7 +111,7 @@ public class DetailActivity extends Activity {
             Log.i(LOG_TAG, "Request params: " + params.toString());
             JSONObject result = adapter.request(getString(R.string.get_message_detail_url), params);
             if(result.getInt("errno") == 0){
-                Log.i(LOG_TAG, "success to get message detail: "+result.getString("result"));
+                Log.i(LOG_TAG, "success to get message detail: " + result.getString("result"));
 
                 JSONObject messageResult = result.getJSONObject("result");
                 item.setId(id);
@@ -145,6 +126,8 @@ public class DetailActivity extends Activity {
                 Date date = new Date(messageResult.getLong("pubdate") *1000);
                 String pub_date = format.format(date);
                 item.setPubdate(pub_date);
+                item.setStatus(1);
+                item.setCtime(Calendar.getInstance());
             }else{
                 Log.i(LOG_TAG, "failure: " + result.getString("errmsg"));
             }
@@ -171,15 +154,10 @@ public class DetailActivity extends Activity {
         @Override
         protected void onPostExecute(MessageItem result) {
             Log.i(LOG_TAG, "AsyncTask result: " + result.toString());
-            try {
-                renderDetail(result);
-                mDbAdapter.openWriteDB();
-                mDbAdapter.updateMessage(result);
-            }catch (SQLException e){
-                mDbAdapter.close();
-            }finally {
-                mDbAdapter.close();
-            }
+            renderDetail(result);
+            manager = new MessageDataManager(mDbAdapter);
+            result.setStatus(1);
+            manager.updateMessage(result);
         }
     }
 }

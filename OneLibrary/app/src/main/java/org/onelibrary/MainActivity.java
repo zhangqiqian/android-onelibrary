@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -82,7 +81,7 @@ public class MainActivity extends FragmentActivity {
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if(networkInfo.isConnected()){
+        if(networkInfo != null){
             SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
             Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
             long last_login_time = preferences.getLong(LAST_LOGIN, 0);
@@ -187,7 +186,6 @@ public class MainActivity extends FragmentActivity {
         protected void onPostExecute(Boolean result) {
             Log.i(TAG, "Auto login result: " + result);
             if(!result){
-                Looper.prepare();
                 Toast.makeText(getBaseContext(), "Failure to login.", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);

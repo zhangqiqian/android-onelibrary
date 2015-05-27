@@ -13,13 +13,10 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
+import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.LocationDataManager;
-import org.onelibrary.data.LocationDbAdapter;
-import org.onelibrary.data.LocationDbHelper;
 import org.onelibrary.data.LocationEntry;
-import org.onelibrary.data.MessageItem;
 
-import java.sql.SQLException;
 import java.util.Calendar;
 
 public class LocationService extends Service implements LocationListener {
@@ -214,16 +211,10 @@ public class LocationService extends Service implements LocationListener {
         double latitude = location.getLatitude();
         Log.d("Location Service", "a new position: " + longitude + ", " + latitude);
 
-        LocationDbAdapter dbAdapter = new LocationDbAdapter(mContext);
-        try {
-            dbAdapter.openWriteDB();
-            LocationEntry entry = new LocationEntry("Location", longitude, latitude, Calendar.getInstance());
-            dbAdapter.insert(entry);
-        }catch (SQLException e){
-            dbAdapter.close();
-        }finally {
-            dbAdapter.close();
-        }
+        DbAdapter mDbAdapter = new DbAdapter(mContext);
+        LocationDataManager manager = new LocationDataManager(mDbAdapter);
+        LocationEntry entry = new LocationEntry("Location", longitude, latitude, Calendar.getInstance());
+        manager.addPoint(entry);
     }
 
     @Override

@@ -1,23 +1,16 @@
 package org.onelibrary;
 
 import android.app.ListActivity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.SimpleAdapter;
 
+import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.LocationDataManager;
-import org.onelibrary.data.LocationDbAdapter;
-import org.onelibrary.data.LocationDbHelper;
 import org.onelibrary.data.LocationEntry;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 
@@ -25,12 +18,16 @@ public class LocationActivity extends ListActivity {
 
     //LocationService gps;
     private List<String> listItems;
-    private SimpleAdapter listItemAdapter;
+    DbAdapter mDbAdapter;
+    LocationDataManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
+
+        mDbAdapter = new DbAdapter(getBaseContext());
+        manager = new LocationDataManager(mDbAdapter);
 
         initListView();
 
@@ -83,15 +80,7 @@ public class LocationActivity extends ListActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_clear) {
-            LocationDbAdapter dbAdapter = new LocationDbAdapter(getBaseContext());
-            try {
-                dbAdapter.openWriteDB();
-                dbAdapter.deleteAll();
-            }catch (SQLException e){
-                dbAdapter.close();
-            }finally {
-                dbAdapter.close();
-            }
+            manager.clearPoints();
             initListView();
         }
 
@@ -102,29 +91,20 @@ public class LocationActivity extends ListActivity {
     }
 
     private void initListView()   {
-        LocationDbAdapter dbAdapter = new LocationDbAdapter(getBaseContext());
-        try {
-            listItems = new ArrayList<String>();
+        listItems = new ArrayList<String>();
+        List<LocationEntry> points = manager.getPoints();
 
-            dbAdapter.openWriteDB();
-            List<LocationEntry> points = dbAdapter.getLocationList();
-
-            for (LocationEntry entry:points){
-                listItems.add(entry.toString());
-            }
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                    this,
-                    android.R.layout.simple_list_item_1,
-                    listItems
-            );
-            setListAdapter(adapter);
-
-        }catch (SQLException e){
-            dbAdapter.close();
-        }finally {
-            dbAdapter.close();
+        for (LocationEntry entry:points){
+            listItems.add(entry.toString());
         }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                listItems
+        );
+        setListAdapter(adapter);
+
 
     }
 
