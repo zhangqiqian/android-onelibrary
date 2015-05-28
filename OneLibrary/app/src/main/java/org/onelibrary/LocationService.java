@@ -180,7 +180,7 @@ public class LocationService extends Service implements LocationListener {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 
         // Setting Dialog Title
-        alertDialog.setTitle(R.string.location_alert_title);
+        //alertDialog.setTitle(R.string.location_alert_title);
 
         // Setting Dialog Message
         alertDialog.setMessage(R.string.location_alert_content);

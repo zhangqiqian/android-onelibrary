@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -81,7 +80,7 @@ public class MainActivity extends FragmentActivity {
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if(networkInfo != null){
+        if(networkInfo != null && networkInfo.isConnected()){
             SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
             Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
             long last_login_time = preferences.getLong(LAST_LOGIN, 0);
@@ -93,10 +92,7 @@ public class MainActivity extends FragmentActivity {
                 String password = preferences.getString(PASSWORD, "");
 
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                if(username.equals("") || password.equals("")){
-                    //logout
-                    startActivity(intent);
-                }else{
+                if(!(username.isEmpty() || password.isEmpty())){
                     Bundle params = new Bundle();
                     params.putString("username", username);
                     params.putString("password", password);
