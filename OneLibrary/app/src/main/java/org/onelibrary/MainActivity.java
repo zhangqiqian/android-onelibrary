@@ -91,7 +91,6 @@ public class MainActivity extends FragmentActivity {
                 String username = preferences.getString(USERNAME, "");
                 String password = preferences.getString(PASSWORD, "");
 
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 if(!(username.isEmpty() || password.isEmpty())){
                     Bundle params = new Bundle();
                     params.putString("username", username);
@@ -183,8 +182,6 @@ public class MainActivity extends FragmentActivity {
             Log.i(TAG, "Auto login result: " + result);
             if(!result){
                 Toast.makeText(getBaseContext(), "Failure to login.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
             }
         }
     }

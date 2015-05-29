@@ -132,14 +132,7 @@ public class IndexActivity extends Activity {
         listener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-                Boolean isLogin = session.getBoolean(IS_LOGIN, false);
-                Intent intent = null;
-                if (isLogin){
-                    intent = new Intent(IndexActivity.this, MainActivity.class);
-                }else{
-                    intent = new Intent(IndexActivity.this, LoginActivity.class);
-                }
+                Intent intent = new Intent(IndexActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         };
