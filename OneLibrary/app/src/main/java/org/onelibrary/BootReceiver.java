@@ -14,11 +14,13 @@ import android.content.Intent;
 // BEGIN_INCLUDE(autostart)
 public class BootReceiver extends BroadcastReceiver {
     AlarmReceiver alarm = new AlarmReceiver();
+    NetworkReceiver network = new NetworkReceiver();
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED"))
         {
-            alarm.setAlarm(context);
+            alarm.setFetchAlarm(context);
+            network.setNetworkAlarm(context);
         }
     }
 }
