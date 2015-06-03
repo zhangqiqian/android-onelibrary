@@ -105,7 +105,7 @@ public class SchedulingService extends IntentService {
 
         mBuilder.setContentIntent(contentIntent);
         Notification notification = mBuilder.build();
-        notification.defaults = Notification.DEFAULT_SOUND;
+        //notification.defaults = Notification.DEFAULT_SOUND;
         mNotificationManager.notify(NOTIFICATION_ID, notification);
     }
  
