@@ -66,7 +66,6 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         alarm.setAlarm(this);
-        //networkAlarm.setNetworkAlarm(this);
 
         /*mHandler = new Handler();
         mHandler.postDelayed(updateTimerThread, 0);*/
