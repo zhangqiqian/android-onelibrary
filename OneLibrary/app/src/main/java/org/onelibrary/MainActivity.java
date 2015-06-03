@@ -33,8 +33,6 @@ public class MainActivity extends FragmentActivity {
     public final static String PASSWORD = "password";
     public final static String LAST_LOGIN = "last_login_time";
 
-    AlarmReceiver alarm = new AlarmReceiver();
-
     LocationService locationService;
     /*private int interval = 5000; //5 seconds.
     private Handler mHandler;
@@ -64,8 +62,6 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        alarm.setAlarm(this);
 
         /*mHandler = new Handler();
         mHandler.postDelayed(updateTimerThread, 0);*/
