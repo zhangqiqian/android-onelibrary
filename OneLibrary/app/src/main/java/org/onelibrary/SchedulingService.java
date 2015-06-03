@@ -34,11 +34,11 @@ public class SchedulingService extends IntentService {
     public static final int NOTIFICATION_ID = 1;
     // The string the app searches for in the Google home page content. If the app finds 
     // the string, it indicates the presence of a doodle.  
-    public static final String SEARCH_STRING = "doodle";
+    public static final String SEARCH_STRING = "android";
     // The Google home page URL from which the app fetches content.
     // You can find a list of other Google domains with possible doodles here:
     // http://en.wikipedia.org/wiki/List_of_Google_domains
-    public static final String URL = "http://www.baidu.com";
+    public static final String URL = "https://www.baidu.com";
 
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
@@ -59,13 +59,13 @@ public class SchedulingService extends IntentService {
     private void fetchNewItems() {
         // BEGIN_INCLUDE(service_onhandle)
         // The URL from which to fetch content.
-        String urlString = URL;
+        String urlString = URL + "/s?wd=" + SEARCH_STRING;
 
         String result ="";
 
         // Try to connect to the Google homepage and download content.
         try {
-            Log.i("SchedulingService", "------handleActionFetchNewItems url "+URL+"------");
+            Log.i("SchedulingService", "------handleActionFetchNewItems url "+URL+" ------");
 
             result = loadFromNetwork(urlString);
         } catch (IOException e) {
@@ -76,8 +76,9 @@ public class SchedulingService extends IntentService {
         // indicates the presence of a doodle. Post a "Doodle Alert" notification.
         Log.i("SchedulingService", "------will sendNotification------");
         if (result.contains(SEARCH_STRING)) {
-            sendNotification("Found doodle, length: " +result.length()+ ".");
-            Log.i(TAG, "Found doodle!!");
+            String msg = "Found doodle, length: " +result.length()+ ".";
+            sendNotification(msg);
+            Log.i(TAG, msg);
         } else {
             sendNotification("No doodle found. :-(");
             Log.i(TAG, "No doodle found. :-(");
@@ -97,7 +98,7 @@ public class SchedulingService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.ic_launcher)
-        .setContentTitle("Test Notification.")
+        .setContentTitle("New Notification.")
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
         .setContentText(msg).setAutoCancel(true);
