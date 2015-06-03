@@ -33,8 +33,7 @@ public class MainActivity extends FragmentActivity {
     public final static String PASSWORD = "password";
     public final static String LAST_LOGIN = "last_login_time";
 
-    AlarmReceiver fetchAlarm = new AlarmReceiver();
-    NetworkReceiver networkAlarm = new NetworkReceiver();
+    AlarmReceiver alarm = new AlarmReceiver();
 
     LocationService locationService;
     /*private int interval = 5000; //5 seconds.
@@ -66,7 +65,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fetchAlarm.setFetchAlarm(this);
+        alarm.setAlarm(this);
         //networkAlarm.setNetworkAlarm(this);
 
         /*mHandler = new Handler();
