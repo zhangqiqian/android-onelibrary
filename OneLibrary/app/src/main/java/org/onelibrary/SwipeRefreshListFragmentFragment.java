@@ -109,8 +109,8 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
         ListAdapter adapter = new ArrayAdapter<String>(
                 getActivity(),
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
+                R.layout.list_item,
+                R.id.item_text,
                 titles);
 
         // Set the adapter between the ListView and its backing data.
@@ -233,26 +233,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         MessageDataManager messageDataManager = new MessageDataManager(mDbAdapter);
 
         return messageDataManager.getMessageList();
-        /*MessageCollection messagesCollect = new MessageCollection();
-        mDbAdapter = new DatabaseAdapter(getActivity());
-        try {
-            mDbAdapter.openReadDB();
-        }catch (SQLException e){
-            mDbAdapter.close();
-        }
-
-        Cursor cursor = mDbAdapter.getAllMessages();
-        for (int i = 0; i < cursor.getCount(); i++){
-            MessageItem item = new MessageItem();
-            item.setId(cursor.getInt(0));
-            item.setPublishId(cursor.getInt(1));
-            item.setMessageId(cursor.getInt(2));
-            item.setTitle(cursor.getString(3));
-            messagesCollect.addMessageItem(item);
-            cursor.moveToNext();
-        }
-        mDbAdapter.close();
-        return messagesCollect;*/
     }
 
     private List<MessageItem> getRemoteMessages(){
@@ -341,25 +321,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
                     manager.addMessage(item);
                 }
             }
-
-            /*mDbAdapter = new DatabaseAdapter(getActivity());
-            int size = result.size();
-            try {
-                mDbAdapter.openWriteDB();
-                for (MessageItem item : result){
-                    if(mDbAdapter.MessageIsExist(item.getPublishId())){
-                        size--;
-                    }else{
-                        mDbAdapter.createMessage(item);
-                    }
-                }
-            }catch (SQLException e){
-                mDbAdapter.close();
-            }finally {
-                mDbAdapter.close();
-            }*/
-
-            // Tell the Fragment that the refresh has completed
             onRefreshComplete(size);
         }
     }
