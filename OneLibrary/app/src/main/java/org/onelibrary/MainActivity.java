@@ -90,7 +90,6 @@ public class MainActivity extends FragmentActivity {
                 //auto login
                 String username = preferences.getString(USERNAME, "");
                 String password = preferences.getString(PASSWORD, "");
-
                 if(!(username.isEmpty() || password.isEmpty())){
                     Bundle params = new Bundle();
                     params.putString("username", username);
