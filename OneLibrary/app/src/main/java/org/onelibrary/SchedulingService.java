@@ -101,7 +101,7 @@ public class SchedulingService extends IntentService {
         .setContentTitle("New Notification.")
         .setStyle(new NotificationCompat.BigTextStyle()
         .bigText(msg))
-        .setContentText(msg).setAutoCancel(true);
+        .setContentText(msg).setAutoCancel(true).setDefaults(Notification.DEFAULT_LIGHTS);
 
         mBuilder.setContentIntent(contentIntent);
         Notification notification = mBuilder.build();
