@@ -33,6 +33,8 @@ public class MainActivity extends FragmentActivity {
     public final static String PASSWORD = "password";
     public final static String LAST_LOGIN = "last_login_time";
 
+    AlarmReceiver alarm = new AlarmReceiver();
+
     LocationService locationService;
     /*private int interval = 5000; //5 seconds.
     private Handler mHandler;
@@ -96,6 +98,7 @@ public class MainActivity extends FragmentActivity {
                     params.putString("password", password);
                     new LoginTask().execute(params);
                 }
+                alarm.setAlarm(this);
             }
         }else{
             Toast.makeText(MainActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
