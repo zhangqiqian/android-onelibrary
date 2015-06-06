@@ -167,4 +167,12 @@ public class SchedulingService extends IntentService {
         reader.close();
         return builder.toString();
     }
+
+    @Override
+    public void onDestroy() {
+        Intent intent = new Intent("org.onelibrary.scheduling.destroy");
+        sendBroadcast(intent);
+        super.onDestroy();
+
+    }
 }
