@@ -58,9 +58,6 @@ public class IndexActivity extends Activity {
 
     private OnClickListener listener = null;
 
-    public final static String SESSION_INFO = "session_info";
-    public final static String IS_LOGIN = "is_login";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
