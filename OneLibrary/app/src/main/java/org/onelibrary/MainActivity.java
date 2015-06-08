@@ -71,11 +71,7 @@ public class MainActivity extends FragmentActivity {
         // create location object
         locationService = new LocationService(MainActivity.this);
         // check if location enabled
-        if(locationService.canGetLocation()){
-            double latitude = locationService.getLatitude();
-            double longitude = locationService.getLongitude();
-            Toast.makeText(getApplicationContext(), "Your Location is \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-        }else{
+        if(!locationService.canGetLocation()){
             locationService.showSettingsAlert();
         }
 
