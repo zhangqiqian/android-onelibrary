@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        Log.i("MainActivity", "-------------- onCreate ------------");
         /*mHandler = new Handler();
         mHandler.postDelayed(updateTimerThread, 0);*/
 
@@ -84,17 +84,22 @@ public class MainActivity extends FragmentActivity {
             long last_login_time = preferences.getLong(LAST_LOGIN, 0);
             long now = System.currentTimeMillis()/1000;
             long interval = now - last_login_time;
-            if (!isLogin || interval > 300){
-                //auto login
+            Log.i("MainActivity", "Login status: " + isLogin + ", interval: " + interval);
+            if (!isLogin || interval > 600){
                 String username = preferences.getString(USERNAME, "");
                 String password = preferences.getString(PASSWORD, "");
-                if(!(username.isEmpty() || password.isEmpty())){
+                if(username.isEmpty() || password.isEmpty()){
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    //logout
+                    startActivity(intent);
+                } else {
+                    //auto login
                     Bundle params = new Bundle();
                     params.putString("username", username);
                     params.putString("password", password);
                     new LoginTask().execute(params);
+                    alarm.setAlarm(this);
                 }
-                alarm.setAlarm(this);
             }
         }else{
             Toast.makeText(MainActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
@@ -166,7 +171,6 @@ public class MainActivity extends FragmentActivity {
                 }else{
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
                 }
-                return is_ok;
             }catch (IOException e){
                 e.printStackTrace();
             }catch (JSONException e){
@@ -193,4 +197,12 @@ public class MainActivity extends FragmentActivity {
         }
         back_pressed = System.currentTimeMillis();
     }
+
+    @Override
+    public void onDestroy(){
+        Intent intent = new Intent("org.onelibrary.scheduling.start");
+        sendBroadcast(intent);
+        super.onDestroy();
+    }
+
 }

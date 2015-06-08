@@ -137,6 +137,8 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
                 if(result.getInt("errno") == 0){
                     is_ok = true;
+                    Intent intent = new Intent("org.onelibrary.scheduling.start");
+                    sendBroadcast(intent);
                     long now = System.currentTimeMillis()/1000;
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).apply();
                 }else{
