@@ -71,7 +71,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis() + 60 * 1000, 60 * 1000, alarmIntent);
 
-        Log.d("AlarmReceiver", "------creating alarmMgr------");
+        Log.d("AlarmReceiver", context.getClass().getName()+" call ------ set scheduling alarm ------");
         // Enable {@code BootReceiver} to automatically restart the alarm when the
         // device is rebooted.
         ComponentName receiver = new ComponentName(context, BootReceiver.class);
@@ -91,7 +91,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     public void cancelAlarm(Context context) {
         // If the alarm has been set, cancel it.
         if (alarmMgr == null) {
-            Log.d("AlarmReceiver","---- cancelAlarm ---- alarmMgr is null");
+            Log.d("AlarmReceiver", context.getClass().getName()+" call ------ cancel scheduling alarm ------");
             alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(context, AlarmReceiver.class);
             alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
