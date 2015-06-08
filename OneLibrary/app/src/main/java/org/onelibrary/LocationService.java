@@ -45,6 +45,10 @@ public class LocationService extends Service implements LocationListener {
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
+    public LocationService() {
+        this.mContext = getBaseContext();
+    }
+
     public LocationService(Context context) {
         this.mContext = context;
         getLocation();
