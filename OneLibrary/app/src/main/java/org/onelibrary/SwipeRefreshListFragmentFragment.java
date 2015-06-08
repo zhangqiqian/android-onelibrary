@@ -47,9 +47,9 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * A sample which shows how to use {@link android.support.v4.widget.SwipeRefreshLayout} within a
+ * A sample which shows how to use {@link SwipeRefreshLayout} within a
  * {@link android.support.v4.app.ListFragment} to add the 'swipe-to-refresh' gesture to a
- * {@link android.widget.ListView}. This is provided through the provided re-usable
+ * {@link ListView}. This is provided through the provided re-usable
  * {@link SwipeRefreshListFragment} class.
  *
  * <p>To provide an accessible way to trigger the refresh, this app also provides a refresh
@@ -58,7 +58,7 @@ import java.util.List;
  * <p>In this sample app, the refresh updates the ListView with a random set of new items.
  *
  * <p>This sample also provides the functionality to change the colors displayed in the
- * {@link android.support.v4.widget.SwipeRefreshLayout} through the options menu. This is meant to
+ * {@link SwipeRefreshLayout} through the options menu. This is meant to
  * showcase the use of color rather than being something that should be integrated into apps.
  */
 public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
@@ -92,8 +92,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo != null){
             initiateRefresh();
-            // Stop the refreshing indicator
-            setRefreshing(true);
         }
 
         /**
@@ -118,10 +116,10 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
         // BEGIN_INCLUDE (setup_refreshlistener)
         /**
-         * Implement {@link android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener}. When users do the "swipe to
+         * Implement {@link SwipeRefreshLayout.OnRefreshListener}. When users do the "swipe to
          * refresh" gesture, SwipeRefreshLayout invokes
-         * {@link android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener#onRefresh onRefresh()}. In
-         * {@link android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener#onRefresh onRefresh()}, call a method that
+         * {@link SwipeRefreshLayout.OnRefreshListener#onRefresh onRefresh()}. In
+         * {@link SwipeRefreshLayout.OnRefreshListener#onRefresh onRefresh()}, call a method that
          * refreshes the content. Call the same method in response to the Refresh action from the
          * action bar.
          */
@@ -134,6 +132,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
                 initiateRefresh();
             }
         });
+
         // END_INCLUDE (setup_refreshlistener)
     }
     // END_INCLUDE (setup_views)
@@ -194,12 +193,13 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
      * SwipeGestureLayout onRefresh() method and the Refresh action item to refresh the content.
      */
     private void initiateRefresh() {
-        Log.i(LOG_TAG, "initiateRefresh");
+        Log.i(LOG_TAG, "------- initiateRefresh -------");
+        LocationService locationService = new LocationService(getActivity());
+        double longitude = locationService.getLongitude();
+        double latitude  = locationService.getLatitude();
+        // check if location enabled
+        new LoadMessagesTask().execute(longitude, latitude);
 
-        /**
-         * Execute the background task, which uses {@link android.os.AsyncTask} to load the data.
-         */
-        new LoadMessagesTask().execute();
     }
     // END_INCLUDE (initiate_refresh)
 
@@ -235,78 +235,18 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         return messageDataManager.getMessageList();
     }
 
-    private List<MessageItem> getRemoteMessages(){
-        List<MessageItem> messageItems = new ArrayList<MessageItem>();
-        try {
-            NetworkAdapter adapter = new NetworkAdapter(getActivity());
-            SharedPreferences session = getActivity().getSharedPreferences(MAIN_INFO, 0);
-            long last_time = session.getLong(LAST_TIME, 0);
-            long last_message_id = session.getLong(LAST_MESSAGE_ID, 0);
-            double longitude = session.getFloat(LAST_LONGITUDE, 0);
-            double latitude = session.getFloat(LAST_LATITUDE, 0);
-            int next_start = session.getInt(NEXT_START, 0);
-
-            long new_last_time = System.currentTimeMillis()/1000;
-            if(new_last_time - last_time > 60){
-                next_start = 0;
-            }
-
-            Bundle params = new Bundle();
-            params.putString(LAST_TIME, String.valueOf(last_time));
-            params.putString(LAST_MESSAGE_ID, String.valueOf(last_message_id));
-            params.putString(LAST_LONGITUDE, String.valueOf(longitude));
-            params.putString(LAST_LATITUDE, String.valueOf(latitude));
-            params.putString(NEXT_START, String.valueOf(next_start));
-
-            Log.i(LOG_TAG, "Request params: " + params.toString());
-            JSONObject result = adapter.request(getString(R.string.get_messages_url), params);
-            if(result.getInt("errno") == 0){
-                Log.i(LOG_TAG, "success to get messages");
-
-                int start = result.getInt("start");
-
-                JSONArray messagesArray = result.getJSONArray("result");
-                if(messagesArray.length() > 0){
-                    for (int i = 0;i< messagesArray.length();i++){
-                        JSONObject message = messagesArray.getJSONObject(i);
-                        MessageItem item = new MessageItem();
-                        item.setPublishId(message.getInt("publish_id"));
-                        item.setMessageId(message.getInt("message_id"));
-                        item.setTitle(message.getString("title"));
-                        item.setAuthor("");
-                        item.setContent("");
-                        item.setCategory("");
-                        item.setTags("");
-                        item.setLink("");
-                        item.setPubdate("");
-                        item.setStatus(0);
-                        item.setCtime(Calendar.getInstance());
-                        messageItems.add(item);
-                    }
-                    session.edit().putInt(NEXT_START, start).putLong(LAST_TIME, new_last_time).apply();
-                    Log.i(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
-                }
-            }else{
-                Log.i(LOG_TAG, "failure: " + result.getString("errmsg"));
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return messageItems;
-    }
-
     /**
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
      */
-    private class LoadMessagesTask extends AsyncTask<Void, Void, List<MessageItem>> {
+    private class LoadMessagesTask extends AsyncTask<Double, Void, List<MessageItem>> {
 
         @Override
-        protected List<MessageItem> doInBackground(Void...params) {
+        protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
-            return getRemoteMessages();
+            mDbAdapter = new DbAdapter(getActivity());
+            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            return manager.getRemoteMessages(getActivity(), params[0], params[1]);
         }
 
         @Override
