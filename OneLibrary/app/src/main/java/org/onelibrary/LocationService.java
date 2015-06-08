@@ -45,11 +45,6 @@ public class LocationService extends Service implements LocationListener {
     // Declaring a Location Manager
     protected LocationManager locationManager;
 
-    public LocationService() {
-        this.mContext = getBaseContext();
-        getLocation();
-    }
-
     public LocationService(Context context) {
         this.mContext = context;
         getLocation();
@@ -99,7 +94,7 @@ public class LocationService extends Service implements LocationListener {
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                     Log.d("LocationActivity", "LocationService is from network.");
                     if (locationManager != null) {
-                        location = locationManager                                .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
@@ -115,8 +110,7 @@ public class LocationService extends Service implements LocationListener {
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                         Log.d("LocationActivity", "GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
-                            location = locationManager
-                                    .getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
