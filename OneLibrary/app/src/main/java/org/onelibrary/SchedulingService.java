@@ -110,7 +110,7 @@ public class SchedulingService extends IntentService {
  
     @Override
     public void onDestroy() {
-        Intent intent = new Intent("org.onelibrary.scheduling.destroy");
+        Intent intent = new Intent("org.onelibrary.scheduling.start");
         sendBroadcast(intent);
         super.onDestroy();
 
