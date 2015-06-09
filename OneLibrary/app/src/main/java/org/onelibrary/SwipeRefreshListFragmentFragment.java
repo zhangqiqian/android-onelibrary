@@ -18,8 +18,6 @@ package org.onelibrary;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -33,17 +31,11 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
-import org.onelibrary.util.NetworkAdapter;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -64,13 +56,6 @@ import java.util.List;
 public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
     private static final String LOG_TAG = SwipeRefreshListFragmentFragment.class.getSimpleName();
-
-    public final static String MAIN_INFO = "main_info";
-    public final static String LAST_TIME = "last_time";
-    public final static String LAST_MESSAGE_ID = "last_message_id";
-    public final static String LAST_LONGITUDE = "longitude";
-    public final static String LAST_LATITUDE = "latitude";
-    public final static String NEXT_START = "next_start";
 
     private DbAdapter mDbAdapter;
     private List<MessageItem> messages;
@@ -197,6 +182,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         LocationService locationService = new LocationService(getActivity());
         double longitude = locationService.getLongitude();
         double latitude  = locationService.getLatitude();
+
         // check if location enabled
         new LoadMessagesTask().execute(longitude, latitude);
 

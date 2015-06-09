@@ -92,11 +92,11 @@ public class LocationService extends Service implements LocationListener {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
-                    locationManager.requestLocationUpdates(
+                    /*locationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.d("LocationActivity", "LocationService is from network.");
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);*/
+                    Log.d("LocationService", "LocationService is from network.");
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
@@ -108,11 +108,11 @@ public class LocationService extends Service implements LocationListener {
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        locationManager.requestLocationUpdates(
+                        /*locationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("LocationActivity", "GPS Enabled, and locationService is from gps.");
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);*/
+                        Log.d("LocationService", "GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {

@@ -31,16 +31,8 @@ public class SchedulingService extends IntentService {
     public static final String TAG = "Scheduling";
     // An ID used to post the notification.
     public static final int NOTIFICATION_ID = 1;
-    // The string the app searches for in the Google home page content. If the app finds 
-    // the string, it indicates the presence of a doodle.  
-    public static final String SEARCH_STRING = "android";
-    // The Google home page URL from which the app fetches content.
-    // You can find a list of other Google domains with possible doodles here:
-    // http://en.wikipedia.org/wiki/List_of_Google_domains
-    public static final String URL = "https://www.baidu.com";
 
     private NotificationManager mNotificationManager;
-    NotificationCompat.Builder builder;
 
     @Override
     protected void onHandleIntent(Intent intent) {
