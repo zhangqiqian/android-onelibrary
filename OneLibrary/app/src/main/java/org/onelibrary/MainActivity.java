@@ -64,7 +64,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("MainActivity", "-------------- onCreate ------------");
+        Log.d(TAG, "-------------- onCreate ------------");
         /*mHandler = new Handler();
         mHandler.postDelayed(updateTimerThread, 0);*/
 
@@ -84,7 +84,7 @@ public class MainActivity extends FragmentActivity {
             long last_login_time = preferences.getLong(LAST_LOGIN, 0);
             long now = System.currentTimeMillis()/1000;
             long interval = now - last_login_time;
-            Log.i("MainActivity", "Login status: " + isLogin + ", interval: " + interval);
+            Log.d(TAG, "Login status: " + isLogin + ", interval: " + interval);
             if (!isLogin || interval > 600){
                 String username = preferences.getString(USERNAME, "");
                 String password = preferences.getString(PASSWORD, "");
@@ -181,7 +181,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            Log.i(TAG, "Auto login result: " + result);
+            Log.d(TAG, "Auto login result: " + result);
             if(!result){
                 Toast.makeText(getBaseContext(), "Failure to login.", Toast.LENGTH_LONG).show();
             }

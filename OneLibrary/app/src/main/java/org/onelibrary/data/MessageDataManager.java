@@ -151,12 +151,12 @@ public class MessageDataManager {
             params.putString(REQUEST_LAST_LATITUDE, String.valueOf(latitude));
             params.putString(REQUEST_NEXT_START, String.valueOf(next_start));
 
-            Log.i(LOG_TAG, "Request params: " + params.toString());
+            Log.d(LOG_TAG, "Request params: " + params.toString());
             try{
                 JSONObject result = adapter.request(ctx.getString(R.string.get_messages_url), params);
 
                 if(result.getInt("errno") == 0){
-                    Log.i(LOG_TAG, "success to get messages");
+                    Log.d(LOG_TAG, "success to get messages");
 
                     int start = result.getInt("start");
 
@@ -179,10 +179,10 @@ public class MessageDataManager {
                             messageItems.add(item);
                         }
                         session.edit().putInt(REQUEST_NEXT_START, start).putLong(REQUEST_LAST_TIME, new_last_time).apply();
-                        Log.i(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
+                        Log.d(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
                     }
                 }else{
-                    Log.i(LOG_TAG, "failure: " + result.getString("errmsg"));
+                    Log.d(LOG_TAG, "failure: " + result.getString("errmsg"));
                 }
             }catch (IOException e){
                 e.printStackTrace();

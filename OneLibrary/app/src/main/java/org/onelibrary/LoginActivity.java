@@ -155,7 +155,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
 
         @Override
         protected void onPostExecute(Boolean result) {
-            Log.i(TAG, "Login result: " + result);
+            Log.d(TAG, "Login result: " + result);
             if(result){
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);

@@ -117,10 +117,10 @@ public class DetailActivity extends Activity {
             Bundle params = new Bundle();
             params.putString("message_id", String.valueOf(message_id));
 
-            Log.i(LOG_TAG, "Request params: " + params.toString());
+            Log.d(LOG_TAG, "Request params: " + params.toString());
             JSONObject result = adapter.request(getString(R.string.get_message_detail_url), params);
             if(result.getInt("errno") == 0){
-                Log.i(LOG_TAG, "success to get message detail: " + result.getString("result"));
+                Log.d(LOG_TAG, "success to get message detail: " + result.getString("result"));
 
                 JSONObject messageResult = result.getJSONObject("result");
                 item.setId(id);
@@ -138,7 +138,7 @@ public class DetailActivity extends Activity {
                 item.setStatus(1);
                 item.setCtime(Calendar.getInstance());
             }else{
-                Log.i(LOG_TAG, "failure: " + result.getString("errmsg"));
+                Log.d(LOG_TAG, "failure: " + result.getString("errmsg"));
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -163,7 +163,7 @@ public class DetailActivity extends Activity {
         @Override
         protected void onPostExecute(MessageItem result) {
             if(result != null){
-                Log.i(LOG_TAG, "AsyncTask result: " + result.toString());
+                Log.d(LOG_TAG, "AsyncTask result: " + result.toString());
                 renderDetail(result);
                 manager = new MessageDataManager(mDbAdapter);
                 result.setStatus(1);

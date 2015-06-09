@@ -111,7 +111,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+                Log.d(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
                 setColorScheme(R.color.holo_blue_bright, R.color.holo_green_light,
                         R.color.holo_purple_light, R.color.holo_orange_light);
                 initiateRefresh();
@@ -141,7 +141,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                Log.i(LOG_TAG, "Refresh menu item selected");
+                Log.d(LOG_TAG, "Refresh menu item selected");
 
                 setColorScheme(R.color.holo_blue_bright, R.color.holo_green_light,
                         R.color.holo_purple_light, R.color.holo_orange_light);
@@ -178,7 +178,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
      * SwipeGestureLayout onRefresh() method and the Refresh action item to refresh the content.
      */
     private void initiateRefresh() {
-        Log.i(LOG_TAG, "------- initiateRefresh -------");
+        Log.d(LOG_TAG, "------- initiateRefresh -------");
         LocationService locationService = new LocationService(getActivity());
         double longitude = locationService.getLongitude();
         double latitude  = locationService.getLatitude();
@@ -195,7 +195,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
      * ListAdapter and turns off the progress bar.
      */
     private void onRefreshComplete(int itemSize ) {
-        Log.i(LOG_TAG, "onRefreshComplete");
+        Log.d(LOG_TAG, "onRefreshComplete");
 
         // Remove all items from the ListAdapter, and then replace them with the new items
         ArrayAdapter<String> adapter = (ArrayAdapter<String>) getListAdapter();
