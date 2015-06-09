@@ -35,7 +35,7 @@ public class DetailActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        getActionBar().setDisplayShowTitleEnabled(false);
+        //getActionBar().setDisplayShowTitleEnabled(false);
 
         Intent intent = getIntent();
         Bundle item = intent.getBundleExtra("message");
@@ -50,7 +50,6 @@ public class DetailActivity extends Activity {
             new LoadMessageTask().execute(id, message_id);
         }
 
-
         message = mDbAdapter.getMessage(id);
         renderDetail(message);
 
@@ -61,21 +60,31 @@ public class DetailActivity extends Activity {
         TextView titleView = (TextView) findViewById(R.id.title);
         titleView.setText(item.getTitle());
 
-        //publish date
-        TextView categoryView = (TextView) findViewById(R.id.category);
-        categoryView.setText("["+item.getCategory()+"]");
+        //category
+        if(!item.getCategory().isEmpty()){
+            TextView categoryView = (TextView) findViewById(R.id.category);
+            categoryView.setText("["+item.getCategory()+"]");
+        }
 
         //publish date
-        TextView pubdateView = (TextView) findViewById(R.id.pubdate);
-        pubdateView.setText(item.getPubdate());
+        if(!item.getPubdate().isEmpty()) {
+            TextView pubdateView = (TextView) findViewById(R.id.pubdate);
+            pubdateView.setText(item.getPubdate());
+        }
 
         //content
         TextView contentView = (TextView) findViewById(R.id.content);
-        contentView.setText(item.getContent());
+        if(!item.getContent().isEmpty()){
+            contentView.setText(item.getContent());
+        }else{
+            contentView.setText("Loading...");
+        }
 
         //Tags
-        TextView tagsView = (TextView) findViewById(R.id.tags);
-        tagsView.setText("Tags: "+item.getTags());
+        if(!item.getTags().isEmpty()) {
+            TextView tagsView = (TextView) findViewById(R.id.tags);
+            tagsView.setText("Tags: "+item.getTags());
+        }
     }
 
 
@@ -153,11 +162,13 @@ public class DetailActivity extends Activity {
 
         @Override
         protected void onPostExecute(MessageItem result) {
-            Log.i(LOG_TAG, "AsyncTask result: " + result.toString());
-            renderDetail(result);
-            manager = new MessageDataManager(mDbAdapter);
-            result.setStatus(1);
-            manager.updateMessage(result);
+            if(result != null){
+                Log.i(LOG_TAG, "AsyncTask result: " + result.toString());
+                renderDetail(result);
+                manager = new MessageDataManager(mDbAdapter);
+                result.setStatus(1);
+                manager.updateMessage(result);
+            }
         }
     }
 }
