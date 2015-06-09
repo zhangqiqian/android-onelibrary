@@ -46,7 +46,7 @@ public class SchedulingService extends IntentService {
         List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude);
 
         int size = messageItems.size();
-        String content = "New Messages.";
+        String content = getBaseContext().getString(R.string.notification_content);
         for (MessageItem item : messageItems){
             if(mDbAdapter.messageIsExist(item)){
                 size--;
@@ -57,8 +57,8 @@ public class SchedulingService extends IntentService {
         }
 
         Log.i("SchedulingService", "------ send notification ------");
-        String msg = "You have new messages.";
-        String title = "New Notification";
+        String msg;
+        String title = getBaseContext().getString(R.string.notification_title);
         if (size > 0) {
             if(size == 1){
                 int notification_id = (int)(Math.random() * 10 + 1);
