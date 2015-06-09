@@ -28,15 +28,15 @@ public class SchedulingService extends IntentService {
         super("SchedulingService");
     }
 
-    public static final String TAG = "Scheduling";
+    public static final String TAG = "SchedulingService";
     // An ID used to post the notification.
     public static final int NOTIFICATION_ID = 1;
 
-    private NotificationManager mNotificationManager;
+    NotificationManager mNotificationManager;
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("SchedulingService", "------onHandleIntent------");
+        Log.d(TAG, "------onHandleIntent------");
         LocationService locationService = new LocationService(getBaseContext());
         double longitude = locationService.getLongitude();
         double latitude  = locationService.getLatitude();
@@ -56,10 +56,10 @@ public class SchedulingService extends IntentService {
             }
         }
 
-        Log.i("SchedulingService", "------ send notification ------");
         String msg;
         String title = getBaseContext().getString(R.string.notification_title);
         if (size > 0) {
+            Log.d(TAG, "------ send notification ------");
             if(size == 1){
                 int notification_id = (int)(Math.random() * 10 + 1);
                 msg = content;
@@ -68,7 +68,7 @@ public class SchedulingService extends IntentService {
                 msg = "You have " + size + "new messages.";
                 sendNotification(NOTIFICATION_ID, title, msg);
             }
-            Log.i(TAG, msg);
+            Log.d(TAG, msg);
         }
 
         // Release the wake lock provided by the BroadcastReceiver.
@@ -85,7 +85,7 @@ public class SchedulingService extends IntentService {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MainActivity.class), 0);
 
-        Log.i("SchedulingService", "------sendNotification: " + msg + "------");
+        Log.d(TAG, "------sendNotification: " + msg + "------");
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -105,6 +105,5 @@ public class SchedulingService extends IntentService {
         Intent intent = new Intent("org.onelibrary.scheduling.start");
         sendBroadcast(intent);
         super.onDestroy();
-
     }
 }
