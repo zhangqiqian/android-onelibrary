@@ -36,5 +36,10 @@
     <string name="location_alert_settings_btn">Settings</string>
     <string name="location_alert_cancel_btn">Cancel</string>
 
+    <string name="network_connected">Network Connected</string>
+    <string name="lost_connection">Lost Connection</string>
+
+    <string name="notification_title">New Notification</string>
+    <string name="notification_content">You have new messages.</string>
 
 </resources>
