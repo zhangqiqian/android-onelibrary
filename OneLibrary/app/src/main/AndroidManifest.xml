@@ -77,6 +77,7 @@
         <activity
             android:name=".DetailActivity"
             android:label="@string/title_activity_detail"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
@@ -105,7 +106,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="org.onelibrary.scheduling.destroy"/>
+                <action android:name="org.onelibrary.scheduling.start"/>
             </intent-filter>
         </receiver>
 
