@@ -16,6 +16,8 @@ import java.util.Calendar;
  * and then starts the IntentService {@code SchedulingService} to do some work.
  */
 public class AlarmReceiver extends WakefulBroadcastReceiver {
+
+    public static final String TAG = "AlarmReceiver";
     // The app's AlarmManager, which provides access to the system alarm services.
     private AlarmManager alarmMgr;
     // The pending intent that is triggered when the alarm fires.
@@ -41,7 +43,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
          */
         Intent service = new Intent(context, SchedulingService.class);
 
-        Log.d("AlarmReceiver", "------onReceive and startWakefulService------");
+        Log.d(TAG, "------onReceive and startWakefulService------");
 
         // Start the service, keeping the device awake while it is launching.
         startWakefulService(context, service);
@@ -71,7 +73,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis() + 60 * 1000, 60 * 1000, alarmIntent);
 
-        Log.d("AlarmReceiver", context.getClass().getName()+" call ------ set scheduling alarm ------");
+        Log.d(TAG, context.getClass().getName()+" call ------ set scheduling alarm ------");
         // Enable {@code BootReceiver} to automatically restart the alarm when the
         // device is rebooted.
         ComponentName receiver = new ComponentName(context, BootReceiver.class);
@@ -91,7 +93,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     public void cancelAlarm(Context context) {
         // If the alarm has been set, cancel it.
         if (alarmMgr == null) {
-            Log.d("AlarmReceiver", context.getClass().getName()+" call ------ cancel scheduling alarm ------");
+            Log.d(TAG, context.getClass().getName()+" call ------ cancel scheduling alarm ------");
             alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(context, AlarmReceiver.class);
             alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
