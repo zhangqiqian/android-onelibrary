@@ -8,16 +8,21 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.LocationDataManager;
 import org.onelibrary.data.LocationEntry;
+import org.onelibrary.data.MessageDataManager;
+import org.onelibrary.data.MessageItem;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class LocationService extends Service implements LocationListener {
 
@@ -32,6 +37,7 @@ public class LocationService extends Service implements LocationListener {
     // flag for GPS status
     boolean canGetLocation = false;
 
+    DbAdapter mDbAdapter;
     Location location; // location
     double latitude; // latitude
     double longitude; // longitude
@@ -51,7 +57,7 @@ public class LocationService extends Service implements LocationListener {
 
     public LocationService(Context context) {
         this.mContext = context;
-        getLocation();
+        getLastLocation();
     }
 
     @Override
@@ -73,7 +79,7 @@ public class LocationService extends Service implements LocationListener {
         super.onDestroy();
     }
 
-    public Location getLocation() {
+    public void registerLocationUpdates() {
         try {
             locationManager = (LocationManager) mContext
                     .getSystemService(LOCATION_SERVICE);
@@ -92,10 +98,10 @@ public class LocationService extends Service implements LocationListener {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
-                    /*locationManager.requestLocationUpdates(
+                    locationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);*/
+                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                     Log.d("LocationService", "LocationService is from network.");
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -108,10 +114,58 @@ public class LocationService extends Service implements LocationListener {
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        /*locationManager.requestLocationUpdates(
+                        locationManager.requestLocationUpdates(
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);*/
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                        Log.d("LocationService", "GPS Enabled, and locationService is from gps.");
+                        if (locationManager != null) {
+                            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Location getLastLocation() {
+        try {
+            locationManager = (LocationManager) mContext
+                    .getSystemService(LOCATION_SERVICE);
+
+            // getting GPS status
+            isGPSEnabled = locationManager
+                    .isProviderEnabled(LocationManager.GPS_PROVIDER);
+
+            // getting network status
+            isNetworkEnabled = locationManager
+                    .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+            if (!isGPSEnabled && !isNetworkEnabled) {
+                // no network provider is enabled
+            } else {
+                this.canGetLocation = true;
+                // First get location from Network Provider
+                if (isNetworkEnabled) {
+                    Log.d("LocationService", "LocationService is from network.");
+                    if (locationManager != null) {
+                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                        }
+                    }
+                }
+                // if GPS Enabled get lat/long using GPS Services
+                if (isGPSEnabled) {
+                    if (location == null) {
                         Log.d("LocationService", "GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -209,10 +263,24 @@ public class LocationService extends Service implements LocationListener {
         double latitude = location.getLatitude();
         Log.d("Location Service", "a new position: " + longitude + ", " + latitude);
 
-        DbAdapter mDbAdapter = new DbAdapter(mContext);
+        mDbAdapter = new DbAdapter(mContext);
         LocationDataManager manager = new LocationDataManager(mDbAdapter);
         LocationEntry entry = new LocationEntry("Location", longitude, latitude, Calendar.getInstance());
         manager.addPoint(entry);
+
+        /*MessageDataManager mssageManager = new MessageDataManager(mDbAdapter);
+        List<MessageItem> messageItems = mssageManager.getRemoteMessages(getBaseContext(), longitude, latitude);
+
+        int size = messageItems.size();
+        for (MessageItem item : messageItems){
+            if(mDbAdapter.messageIsExist(item)){
+                size--;
+            }else{
+                mssageManager.addMessage(item);
+            }
+        }
+        Toast.makeText(getBaseContext(), "Location has been changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
+        */
     }
 
     @Override
@@ -233,4 +301,33 @@ public class LocationService extends Service implements LocationListener {
         return null;
     }
 
+    /**
+     * Implementation of AsyncTask, to fetch the data in the background away from
+     * the UI thread.
+     */
+    private class LoadMessagesTask extends AsyncTask<Double, Void, List<MessageItem>> {
+
+        @Override
+        protected List<MessageItem> doInBackground(Double...params) {
+            //get remote message, and save to db.
+            mDbAdapter = new DbAdapter(getBaseContext());
+            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            return manager.getRemoteMessages(getBaseContext(), params[0], params[1]);
+        }
+
+        @Override
+        protected void onPostExecute(List<MessageItem> result) {
+            mDbAdapter = new DbAdapter(getBaseContext());
+            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            int size = result.size();
+            for (MessageItem item : result){
+                if(mDbAdapter.messageIsExist(item)){
+                    size--;
+                }else{
+                    manager.addMessage(item);
+                }
+            }
+            Toast.makeText(getBaseContext(), "Location has been changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
+        }
+    }
 }

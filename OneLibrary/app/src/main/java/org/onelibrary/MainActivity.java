@@ -74,6 +74,7 @@ public class MainActivity extends FragmentActivity {
         if(!locationService.canGetLocation()){
             locationService.showSettingsAlert();
         }
+        locationService.registerLocationUpdates();
 
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);

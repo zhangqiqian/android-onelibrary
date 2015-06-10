@@ -185,7 +185,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
         // check if location enabled
         new LoadMessagesTask().execute(longitude, latitude);
-
     }
     // END_INCLUDE (initiate_refresh)
 
