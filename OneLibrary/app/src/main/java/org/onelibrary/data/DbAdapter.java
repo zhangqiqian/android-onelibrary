@@ -141,6 +141,9 @@ public class DbAdapter extends SQLiteOpenHelper {
             item.setStatus(cursor.getInt(10));
         }
         cursor.close();
+        if (db.isOpen()){
+            db.close();
+        }
         return item;
     }
 
@@ -170,7 +173,9 @@ public class DbAdapter extends SQLiteOpenHelper {
 
         int count = cursor.getCount();
         cursor.close();
-
+        if (db.isOpen()){
+            db.close();
+        }
         return count > 0;
     }
 
@@ -197,7 +202,11 @@ public class DbAdapter extends SQLiteOpenHelper {
         values.put(MessageItem.CTIME, item.getCtime().getTimeInMillis());
 
         // Insert the new row, returning the primary key value of the new row
-        return db.insert(TABLE_NAME_MESSAGE, "null", values);
+        long ret = db.insert(TABLE_NAME_MESSAGE, "null", values);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -257,6 +266,9 @@ public class DbAdapter extends SQLiteOpenHelper {
             }
         }
         cursor.close();
+        if (db.isOpen()){
+            db.close();
+        }
         return result;
     }
 
@@ -278,7 +290,11 @@ public class DbAdapter extends SQLiteOpenHelper {
         values.put(MessageItem.STATUS, item.getStatus());
         values.put(MessageItem.CTIME, item.getCtime().getTimeInMillis());
 
-        return db.update(TABLE_NAME_MESSAGE, values, MessageItem.ID + "=" + item.getId(), null);
+        int ret = db.update(TABLE_NAME_MESSAGE, values, MessageItem.ID + "=" + item.getId(), null);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -289,7 +305,11 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = MessageItem.ID + " = ?";
         String[] selectionArgs = {String.valueOf(item.getId())};
-        return db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
+        int ret = db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -300,7 +320,11 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = MessageItem.MESSAGEID + " = ?";
         String[] selectionArgs = {String.valueOf(message_id)};
-        return db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
+        int ret = db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -308,7 +332,11 @@ public class DbAdapter extends SQLiteOpenHelper {
      */
     public final int deleteAllMessages() {
         SQLiteDatabase db = getWritableDatabase();
-        return db.delete(TABLE_NAME_MESSAGE, null, null);
+        int ret = db.delete(TABLE_NAME_MESSAGE, null, null);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -327,7 +355,12 @@ public class DbAdapter extends SQLiteOpenHelper {
         values.put(LocationEntry.CTIME, entry.getCtime().getTimeInMillis());
 
         // Insert the new row, returning the primary key value of the new row
-        return db.insert(TABLE_NAME_LOCATION, null, values);
+
+        long ret = db.insert(TABLE_NAME_LOCATION, null, values);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -379,6 +412,9 @@ public class DbAdapter extends SQLiteOpenHelper {
             }
         }
         cursor.close();
+        if (db.isOpen()){
+            db.close();
+        }
         return result;
     }
 
@@ -391,7 +427,12 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = LocationEntry.ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
-        return db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
+        int ret =  db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
+
     }
 
     /**
@@ -403,7 +444,11 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = LocationEntry.NAME + " = ?";
         String[] selectionArgs = {name};
-        return db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
+        int ret = db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 
     /**
@@ -412,6 +457,10 @@ public class DbAdapter extends SQLiteOpenHelper {
      */
     public final int deleteAllLocations() {
         SQLiteDatabase db = getWritableDatabase();
-        return db.delete(TABLE_NAME_LOCATION, null, null);
+        int ret = db.delete(TABLE_NAME_LOCATION, null, null);
+        if (db.isOpen()){
+            db.close();
+        }
+        return ret;
     }
 }
