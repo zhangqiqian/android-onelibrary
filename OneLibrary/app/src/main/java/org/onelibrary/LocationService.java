@@ -26,6 +26,8 @@ import java.util.List;
 
 public class LocationService extends Service implements LocationListener {
 
+    public static final String TAG = "LocationService";
+
     private Context mContext;
 
     // flag for GPS status
@@ -63,19 +65,19 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onCreate(){
         super.onCreate();
-        Log.d("Location Service", "------ onCreate ------");
+        Log.d(TAG, "------ onCreate ------");
         mContext = getBaseContext();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
-        Log.d("Location Service", "------ onStartCommand ------");
+        Log.d(TAG, "------ onStartCommand ------");
         return START_STICKY;
     }
 
     @Override
     public void onDestroy(){
-        Log.d("Location Service", "------ onDestroy ------");
+        Log.d(TAG, "------ onDestroy ------");
         super.onDestroy();
     }
 
@@ -102,7 +104,7 @@ public class LocationService extends Service implements LocationListener {
                             LocationManager.NETWORK_PROVIDER,
                             MIN_TIME_BW_UPDATES,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                    Log.d("LocationService", "LocationService is from network.");
+                    Log.d(TAG, "Register location updates, locationService is from network.");
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
@@ -118,7 +120,7 @@ public class LocationService extends Service implements LocationListener {
                                 LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
                                 MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-                        Log.d("LocationService", "GPS Enabled, and locationService is from gps.");
+                        Log.d(TAG, "Register location updates, GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
@@ -154,7 +156,7 @@ public class LocationService extends Service implements LocationListener {
                 this.canGetLocation = true;
                 // First get location from Network Provider
                 if (isNetworkEnabled) {
-                    Log.d("LocationService", "LocationService is from network.");
+                    Log.d(TAG, "Get last location, LocationService is from network.");
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                         if (location != null) {
@@ -166,7 +168,7 @@ public class LocationService extends Service implements LocationListener {
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        Log.d("LocationService", "GPS Enabled, and locationService is from gps.");
+                        Log.d(TAG, "Get last location, GPS Enabled, and locationService is from gps.");
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             if (location != null) {
@@ -258,29 +260,17 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d("Location Service", "position has changed!");
+        Log.d(TAG, "position has changed!");
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
-        Log.d("Location Service", "a new position: " + longitude + ", " + latitude);
+        Log.d(TAG, "a new position: " + longitude + ", " + latitude);
 
         mDbAdapter = new DbAdapter(mContext);
         LocationDataManager manager = new LocationDataManager(mDbAdapter);
         LocationEntry entry = new LocationEntry("Location", longitude, latitude, Calendar.getInstance());
         manager.addPoint(entry);
 
-        /*MessageDataManager mssageManager = new MessageDataManager(mDbAdapter);
-        List<MessageItem> messageItems = mssageManager.getRemoteMessages(getBaseContext(), longitude, latitude);
-
-        int size = messageItems.size();
-        for (MessageItem item : messageItems){
-            if(mDbAdapter.messageIsExist(item)){
-                size--;
-            }else{
-                mssageManager.addMessage(item);
-            }
-        }
-        Toast.makeText(getBaseContext(), "Location has been changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
-        */
+        new LoadMessagesTask().execute(longitude, latitude);
     }
 
     @Override
@@ -297,7 +287,7 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("Location Service", "onBind");
+        Log.d(TAG, "onBind");
         return null;
     }
 
@@ -310,14 +300,14 @@ public class LocationService extends Service implements LocationListener {
         @Override
         protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
-            mDbAdapter = new DbAdapter(getBaseContext());
+            mDbAdapter = new DbAdapter(mContext);
             MessageDataManager manager = new MessageDataManager(mDbAdapter);
-            return manager.getRemoteMessages(getBaseContext(), params[0], params[1]);
+            return manager.getRemoteMessages(mContext, params[0], params[1]);
         }
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            mDbAdapter = new DbAdapter(getBaseContext());
+            mDbAdapter = new DbAdapter(mContext);
             MessageDataManager manager = new MessageDataManager(mDbAdapter);
             int size = result.size();
             for (MessageItem item : result){
@@ -327,7 +317,7 @@ public class LocationService extends Service implements LocationListener {
                     manager.addMessage(item);
                 }
             }
-            Toast.makeText(getBaseContext(), "Location has been changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "Location has changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
         }
     }
 }
