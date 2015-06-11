@@ -33,9 +33,6 @@ public class MainActivity extends FragmentActivity {
     public final static String PASSWORD = "password";
     public final static String LAST_LOGIN = "last_login_time";
 
-    AlarmReceiver alarm = new AlarmReceiver();
-
-    LocationService locationService;
     /*private int interval = 5000; //5 seconds.
     private Handler mHandler;
 
@@ -68,14 +65,6 @@ public class MainActivity extends FragmentActivity {
         /*mHandler = new Handler();
         mHandler.postDelayed(updateTimerThread, 0);*/
 
-        // create location object
-        locationService = new LocationService(MainActivity.this);
-        // check if location enabled
-        if(!locationService.canGetLocation()){
-            locationService.showSettingsAlert();
-        }
-        locationService.registerLocationUpdates();
-
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -99,7 +88,6 @@ public class MainActivity extends FragmentActivity {
                     params.putString("username", username);
                     params.putString("password", password);
                     new LoginTask().execute(params);
-                    alarm.setAlarm(this);
                 }
             }
         }else{
@@ -144,7 +132,7 @@ public class MainActivity extends FragmentActivity {
             if (isLogin){
                 session.edit().putBoolean(IS_LOGIN, false).remove(PASSWORD).apply();
             }
-            Intent intent = new Intent(MainActivity.this, IndexActivity.class);
+            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
             startActivity(intent);
         }
 
@@ -201,8 +189,6 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     public void onDestroy(){
-        Intent intent = new Intent("org.onelibrary.scheduling.start");
-        sendBroadcast(intent);
         super.onDestroy();
     }
 
