@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -27,6 +28,9 @@ import java.util.List;
 public class LocationService extends Service implements LocationListener {
 
     public static final String TAG = "LocationService";
+
+    public final static String APP_STATUS = "app_status";
+    public final static String STATUS_DATA_UPDATE = "data_update";
 
     private Context mContext;
 
@@ -298,6 +302,10 @@ public class LocationService extends Service implements LocationListener {
                 }else{
                     manager.addMessage(item);
                 }
+            }
+            if(size > 0){
+                SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
+                preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }
             Toast.makeText(mContext, "Location has changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
         }

@@ -19,9 +19,6 @@ public class OneApplication extends Application {
         //register Location Updates
         Log.d(TAG, "---- register location updates ----");
         LocationService locationService = new LocationService(this);
-        if(!locationService.canGetLocation()){
-            locationService.showSettingsAlert();
-        }
         locationService.registerLocationUpdates();
 
         //set scheduling alarm

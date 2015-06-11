@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -33,37 +34,41 @@ public class MainActivity extends FragmentActivity {
     public final static String PASSWORD = "password";
     public final static String LAST_LOGIN = "last_login_time";
 
-    /*private int interval = 5000; //5 seconds.
-    private Handler mHandler;
+    public final static String APP_STATUS = "app_status";
+    public final static String STATUS_DATA_UPDATE = "data_update";
+
+    int AUTO_REFRESH_INTERVAL = 10 * 1000; //10 seconds.
+    private Handler mHandler = new Handler();
 
     private Runnable updateTimerThread = new Runnable() {
         @Override
         public void run() {
-            // create class object
-            locationService = new LocationService(getBaseContext());
-            // check if GPS enabled
-            if(locationService.canGetLocation()){
-                double latitude = locationService.getLatitude();
-                double longitude = locationService.getLongitude();
-                // \n is for new line
-                Toast.makeText(getApplicationContext(), "Your Location is \nLat: " + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-            }else{
-                // can't get location
-                // GPS or Network is not enabled
-                // Ask user to enable GPS/network in settings
-                locationService.showSettingsAlert();
+            SharedPreferences pref = getSharedPreferences(APP_STATUS, 0);
+            Boolean isUpdated = pref.getBoolean(STATUS_DATA_UPDATE, false);
+
+            Log.d(TAG, "---- Timer: updated? " + isUpdated);
+            if(isUpdated){
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
+                transaction.replace(R.id.sample_content_fragment, fragment);
+                transaction.commit();
+                Log.d(TAG, "refresh updated");
             }
-            //mHandler.postDelayed(this, interval);
+            mHandler.postDelayed(this, AUTO_REFRESH_INTERVAL);
         }
-    };*/
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "-------------- onCreate ------------");
-        /*mHandler = new Handler();
-        mHandler.postDelayed(updateTimerThread, 0);*/
+        mHandler.postDelayed(updateTimerThread, AUTO_REFRESH_INTERVAL);
+
+        LocationService locationService = new LocationService(MainActivity.this);
+        if(!locationService.canGetLocation()){
+            locationService.showSettingsAlert();
+        }
 
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
