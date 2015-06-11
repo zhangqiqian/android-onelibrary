@@ -16,7 +16,9 @@
 
 package org.onelibrary;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -26,6 +28,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -53,7 +56,7 @@ import java.util.List;
  * {@link SwipeRefreshLayout} through the options menu. This is meant to
  * showcase the use of color rather than being something that should be integrated into apps.
  */
-public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
+public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment implements AdapterView.OnItemLongClickListener{
 
     private static final String LOG_TAG = SwipeRefreshListFragmentFragment.class.getSimpleName();
 
@@ -118,6 +121,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             }
         });
 
+        getListView().setOnItemLongClickListener(this);
         // END_INCLUDE (setup_refreshlistener)
     }
     // END_INCLUDE (setup_views)
@@ -246,6 +250,26 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
             }
             onRefreshComplete(size);
         }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage("Delete the message?");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+        return true; // let the system show the context menu
     }
 
 }
