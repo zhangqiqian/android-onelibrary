@@ -52,6 +52,10 @@ public class MessageDataManager {
 
     private final List<MessageItem> mMessagesList = new ArrayList<MessageItem>();
 
+    public MessageDataManager(Context context) {
+        mDbAdapter = DbAdapter.getInstance(context);
+    }
+
     public MessageDataManager(DbAdapter dbAdapter) {
         mDbAdapter = dbAdapter;
     }

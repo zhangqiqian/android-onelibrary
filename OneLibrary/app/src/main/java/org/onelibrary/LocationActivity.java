@@ -18,7 +18,6 @@ public class LocationActivity extends ListActivity {
 
     //LocationService gps;
     private List<String> listItems;
-    DbAdapter mDbAdapter;
     LocationDataManager manager;
 
     @Override
@@ -26,8 +25,7 @@ public class LocationActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
 
-        mDbAdapter = new DbAdapter(getBaseContext());
-        manager = new LocationDataManager(mDbAdapter);
+        manager = new LocationDataManager(getBaseContext());
 
         initListView();
 

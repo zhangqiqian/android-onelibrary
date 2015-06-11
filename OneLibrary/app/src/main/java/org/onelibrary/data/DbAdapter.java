@@ -73,6 +73,15 @@ public class DbAdapter extends SQLiteOpenHelper {
     private static final String SQL_DELETE_ENTRIES_LOCATION = "DROP TABLE IF EXISTS " + TABLE_NAME_LOCATION;
 
 
+    public static DbAdapter instance;
+
+    public static DbAdapter getInstance(Context context){
+        if(instance == null){
+            instance = new DbAdapter(context);
+        }
+        return instance;
+    }
+
     public DbAdapter(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

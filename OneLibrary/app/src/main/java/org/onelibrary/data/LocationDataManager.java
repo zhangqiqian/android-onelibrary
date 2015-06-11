@@ -16,6 +16,8 @@
 
 package org.onelibrary.data;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -28,6 +30,10 @@ public class LocationDataManager {
     private DbAdapter mDbAdapter;
 
     private final List<LocationEntry> mPointsList = new ArrayList<LocationEntry>();
+
+    public LocationDataManager(Context context) {
+        mDbAdapter = DbAdapter.getInstance(context);
+    }
 
     public LocationDataManager(DbAdapter dbAdapter) {
         mDbAdapter = dbAdapter;

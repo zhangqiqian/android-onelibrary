@@ -3,6 +3,8 @@ package org.onelibrary;
 import android.app.Application;
 import android.util.Log;
 
+import org.onelibrary.data.DbAdapter;
+
 import java.lang.annotation.Target;
 
 /**
@@ -15,6 +17,8 @@ public class OneApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        DbAdapter.getInstance(this);
 
         //register Location Updates
         Log.d(TAG, "---- register location updates ----");

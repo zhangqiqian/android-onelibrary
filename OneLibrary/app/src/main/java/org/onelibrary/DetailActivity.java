@@ -41,8 +41,8 @@ public class DetailActivity extends Activity {
         Bundle item = intent.getBundleExtra("message");
         int id = item.getInt("id");
         int message_id = item.getInt("message_id");
-        mDbAdapter = new DbAdapter(getBaseContext());
-        manager = new MessageDataManager(mDbAdapter);
+        mDbAdapter = DbAdapter.getInstance(getBaseContext());
+        manager = new MessageDataManager(getBaseContext());
 
         message = mDbAdapter.getMessage(id);
 

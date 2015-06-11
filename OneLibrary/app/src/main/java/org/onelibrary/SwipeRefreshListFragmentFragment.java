@@ -214,8 +214,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
 
 
     private List<MessageItem> getLocalMessages(){
-        mDbAdapter = new DbAdapter(getActivity());
-        MessageDataManager messageDataManager = new MessageDataManager(mDbAdapter);
+        MessageDataManager messageDataManager = new MessageDataManager(getActivity());
 
         return messageDataManager.getMessageList();
     }
@@ -229,15 +228,14 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment {
         @Override
         protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
-            mDbAdapter = new DbAdapter(getActivity());
-            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            MessageDataManager manager = new MessageDataManager(getActivity());
             return manager.getRemoteMessages(getActivity(), params[0], params[1]);
         }
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            mDbAdapter = new DbAdapter(getActivity());
-            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            mDbAdapter = DbAdapter.getInstance(getActivity());
+            MessageDataManager manager = new MessageDataManager(getActivity());
             int size = result.size();
             for (MessageItem item : result){
                 if(mDbAdapter.messageIsExist(item)){

@@ -251,8 +251,7 @@ public class LocationService extends Service implements LocationListener {
         double latitude = location.getLatitude();
         Log.d(TAG, "a new position: " + longitude + ", " + latitude);
 
-        mDbAdapter = new DbAdapter(mContext);
-        LocationDataManager manager = new LocationDataManager(mDbAdapter);
+        LocationDataManager manager = new LocationDataManager(mContext);
         LocationEntry entry = new LocationEntry("Location", longitude, latitude, Calendar.getInstance());
         manager.addPoint(entry);
 
@@ -286,15 +285,14 @@ public class LocationService extends Service implements LocationListener {
         @Override
         protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
-            mDbAdapter = new DbAdapter(mContext);
-            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            MessageDataManager manager = new MessageDataManager(mContext);
             return manager.getRemoteMessages(mContext, params[0], params[1]);
         }
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            mDbAdapter = new DbAdapter(mContext);
-            MessageDataManager manager = new MessageDataManager(mDbAdapter);
+            mDbAdapter = DbAdapter.getInstance(mContext);
+            MessageDataManager manager = new MessageDataManager(mContext);
             int size = result.size();
             for (MessageItem item : result){
                 if(mDbAdapter.messageIsExist(item)){

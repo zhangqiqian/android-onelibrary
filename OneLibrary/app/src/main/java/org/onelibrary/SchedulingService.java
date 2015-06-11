@@ -41,8 +41,8 @@ public class SchedulingService extends IntentService {
         double longitude = locationService.getLongitude();
         double latitude  = locationService.getLatitude();
 
-        DbAdapter mDbAdapter = new DbAdapter(getBaseContext());
-        MessageDataManager manager = new MessageDataManager(mDbAdapter);
+        DbAdapter mDbAdapter = DbAdapter.getInstance(getBaseContext());
+        MessageDataManager manager = new MessageDataManager(getBaseContext());
         List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude);
 
         int size = messageItems.size();
