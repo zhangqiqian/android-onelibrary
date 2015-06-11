@@ -7,7 +7,6 @@ import org.onelibrary.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +22,7 @@ import android.widget.Button;
  *
  * @see SystemUiHider
  */
-public class IndexActivity extends Activity {
+public class SplashActivity extends Activity {
 
     ShimmerTextView tv;
     Shimmer shimmer;
@@ -58,11 +57,22 @@ public class IndexActivity extends Activity {
 
     private OnClickListener listener = null;
 
+    private int SPLASH_DISPLAY_WAIT = 5000; //5 seconds.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_index);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(mainIntent);
+                finish();
+            }
+        }, SPLASH_DISPLAY_WAIT);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
         final View contentView = findViewById(R.id.fullscreen_content);
@@ -129,7 +139,7 @@ public class IndexActivity extends Activity {
         listener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(IndexActivity.this, MainActivity.class);
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         };
