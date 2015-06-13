@@ -107,7 +107,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="org.onelibrary.scheduling.start"/>
+                <action android:name="org.onelibrary.scheduling.restart"/>
             </intent-filter>
         </receiver>
 
