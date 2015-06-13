@@ -19,7 +19,7 @@
     <string name="button_sign_in">Sign in</string>
     <string name="button_sign_up">Sign up</string>
     <string name="success">Success</string>
-    <string name="loading">Loading..</string>
+    <string name="loading">Loading...</string>
     <string name="being_sign_in">Signing in ...</string>
     <string name="being_sign_up">Signing up ...</string>
     <string name="forget_password">Forget password</string>
