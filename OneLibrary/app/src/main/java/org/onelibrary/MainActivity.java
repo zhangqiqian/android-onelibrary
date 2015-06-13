@@ -36,6 +36,9 @@ public class MainActivity extends FragmentActivity {
 
     public final static String APP_STATUS = "app_status";
     public final static String STATUS_DATA_UPDATE = "data_update";
+    public final static String STATUS_NOTIFICATION = "is_notified";
+
+    private SharedPreferences pref;
 
     int AUTO_REFRESH_INTERVAL = 10 * 1000; //10 seconds.
     private Handler mHandler = new Handler();
@@ -43,7 +46,9 @@ public class MainActivity extends FragmentActivity {
     private Runnable updateTimerThread = new Runnable() {
         @Override
         public void run() {
-            SharedPreferences pref = getSharedPreferences(APP_STATUS, 0);
+            if (pref == null){
+                pref = getSharedPreferences(APP_STATUS, 0);
+            }
             Boolean isUpdated = pref.getBoolean(STATUS_DATA_UPDATE, false);
 
             Log.d(TAG, "---- Timer: updated? " + isUpdated);
@@ -60,6 +65,9 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        pref = getSharedPreferences(APP_STATUS, 0);
+
         Log.d(TAG, "-------------- onCreate ------------");
         mHandler.postDelayed(updateTimerThread, 0);
 
@@ -105,8 +113,28 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     public void onResume(){
+        Log.d(TAG, "---- onResume ---");
         refreshListView();
+
+        if (pref == null){
+            pref = getSharedPreferences(APP_STATUS, 0);
+        }
+        pref.edit().putBoolean(STATUS_NOTIFICATION, false).apply();
+        Log.d(TAG, "---- set notification to false ---");
+
         super.onResume();
+    }
+
+    @Override
+    public void onStop(){
+        Log.d(TAG, "---- onStop ---");
+        if (pref == null){
+            pref = getSharedPreferences(APP_STATUS, 0);
+        }
+        pref.edit().putBoolean(STATUS_NOTIFICATION, true).apply();
+        Log.d(TAG, "---- set notification to true ---");
+
+        super.onStop();
     }
 
     @Override
@@ -147,10 +175,11 @@ public class MainActivity extends FragmentActivity {
 
 
     private void refreshListView(){
+        Log.d(TAG, "---- refresh List View ---");
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
         transaction.replace(R.id.sample_content_fragment, fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     /**

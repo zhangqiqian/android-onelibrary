@@ -35,6 +35,7 @@ public class SchedulingService extends IntentService {
 
     public final static String APP_STATUS = "app_status";
     public final static String STATUS_DATA_UPDATE = "data_update";
+    public final static String STATUS_NOTIFICATION = "is_notified";
 
     NotificationManager mNotificationManager;
 
@@ -63,20 +64,23 @@ public class SchedulingService extends IntentService {
         String msg;
         String title = getBaseContext().getString(R.string.notification_title);
         if (size > 0) {
-            Log.d(TAG, "------ send notification ------");
-            if(size == 1){
-                int notification_id = (int)(Math.random() * 10 + 1);
-                msg = content;
-                sendNotification(notification_id, title, msg);
-            }else{
-                msg = "You have " + size + "new messages.";
-                sendNotification(NOTIFICATION_ID, title, msg);
-            }
             SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
-            preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
-            Log.d(TAG, msg);
-        }
+            Boolean is_notified = preferences.getBoolean(STATUS_NOTIFICATION, false);
+            if (is_notified){
+                Log.d(TAG, "------ send notification ------");
+                if(size == 1){
+                    int notification_id = (int)(Math.random() * 10 + 1);
+                    msg = content;
+                    sendNotification(notification_id, title, msg);
+                }else{
+                    msg = "You have " + size + "new messages.";
+                    sendNotification(NOTIFICATION_ID, title, msg);
 
+                }
+                Log.d(TAG, "------ notification: " + msg);
+            }
+            preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
+        }
         // Release the wake lock provided by the BroadcastReceiver.
         AlarmReceiver.completeWakefulIntent(intent);
         // END_INCLUDE(service_onhandle)
