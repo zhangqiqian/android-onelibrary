@@ -69,7 +69,7 @@ public class MainActivity extends FragmentActivity {
         pref = getSharedPreferences(APP_STATUS, 0);
 
         Log.d(TAG, "-------------- onCreate ------------");
-        mHandler.postDelayed(updateTimerThread, 0);
+        mHandler.postDelayed(updateTimerThread, AUTO_REFRESH_INTERVAL);
 
         LocationService locationService = new LocationService(MainActivity.this);
         if(!locationService.canGetLocation()){
