@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -31,6 +32,9 @@ public class SchedulingService extends IntentService {
     public static final String TAG = "SchedulingService";
     // An ID used to post the notification.
     public static final int NOTIFICATION_ID = 1;
+
+    public final static String APP_STATUS = "app_status";
+    public final static String STATUS_DATA_UPDATE = "data_update";
 
     NotificationManager mNotificationManager;
 
@@ -68,6 +72,8 @@ public class SchedulingService extends IntentService {
                 msg = "You have " + size + "new messages.";
                 sendNotification(NOTIFICATION_ID, title, msg);
             }
+            SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
+            preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             Log.d(TAG, msg);
         }
 

@@ -48,11 +48,9 @@ public class MainActivity extends FragmentActivity {
 
             Log.d(TAG, "---- Timer: updated? " + isUpdated);
             if(isUpdated){
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
-                transaction.replace(R.id.sample_content_fragment, fragment);
-                transaction.commit();
-                Log.d(TAG, "refresh updated");
+                refreshListView();
+                pref.edit().putBoolean(STATUS_DATA_UPDATE, false).apply();
+                Log.d(TAG, "---- refresh updated");
             }
             mHandler.postDelayed(this, AUTO_REFRESH_INTERVAL);
         }
@@ -63,7 +61,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "-------------- onCreate ------------");
-        mHandler.postDelayed(updateTimerThread, AUTO_REFRESH_INTERVAL);
+        mHandler.postDelayed(updateTimerThread, 0);
 
         LocationService locationService = new LocationService(MainActivity.this);
         if(!locationService.canGetLocation()){
@@ -100,12 +98,15 @@ public class MainActivity extends FragmentActivity {
         }
 
         if (savedInstanceState == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
-            transaction.replace(R.id.sample_content_fragment, fragment);
-            transaction.commit();
+            refreshListView();
         }
 
+    }
+
+    @Override
+    public void onResume(){
+        refreshListView();
+        super.onResume();
     }
 
     @Override
@@ -142,6 +143,14 @@ public class MainActivity extends FragmentActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void refreshListView(){
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
+        transaction.replace(R.id.sample_content_fragment, fragment);
+        transaction.commit();
     }
 
     /**

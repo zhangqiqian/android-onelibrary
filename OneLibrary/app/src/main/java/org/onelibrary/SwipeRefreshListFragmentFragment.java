@@ -62,6 +62,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
     private DbAdapter mDbAdapter;
     private List<MessageItem> messages;
+    private ArrayAdapter<String> adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,31 +77,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if(networkInfo != null){
-            initiateRefresh();
-        }
-
-        /**
-         * Create an ArrayAdapter to contain the data for the ListView. Each item in the ListView
-         * uses the system-defined simple_list_item_1 layout that contains one TextView.
-         */
-        messages = getLocalMessages();
-
-        ArrayList<String> titles = new ArrayList<String>();
-        for (MessageItem item : messages){
-            titles.add(item.getTitle());
-        }
-
-        ListAdapter adapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item,
-                R.id.item_text,
-                titles);
-
-        // Set the adapter between the ListView and its backing data.
-        setListAdapter(adapter);
+        renderListView();
 
         // BEGIN_INCLUDE (setup_refreshlistener)
         /**
@@ -176,6 +153,36 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         startActivityForResult(intent, 0);
     }
 
+    private void renderListView() {
+        /**
+         * Create an ArrayAdapter to contain the data for the ListView. Each item in the ListView
+         * uses the system-defined simple_list_item_1 layout that contains one TextView.
+         */
+
+        messages = getLocalMessages();
+
+        adapter = (ArrayAdapter<String>) getListAdapter();
+        if (adapter == null){
+            ArrayList<String> titles = new ArrayList<String>();
+            for (MessageItem item : messages){
+                titles.add(item.getTitle());
+            }
+            adapter = new ArrayAdapter<String>(
+                    getActivity(),
+                    R.layout.list_item,
+                    R.id.item_text,
+                    titles);
+            // Set the adapter between the ListView and its backing data.
+            setListAdapter(adapter);
+        }else{
+            adapter.clear();
+            messages = getLocalMessages();
+            for (MessageItem item : messages){
+                adapter.add(item.getTitle());
+            }
+        }
+    }
+
     // BEGIN_INCLUDE (initiate_refresh)
     /**
      * By abstracting the refresh process to a single method, the app allows both the
@@ -197,17 +204,19 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
      * When the AsyncTask finishes, it calls onRefreshComplete(), which updates the data in the
      * ListAdapter and turns off the progress bar.
      */
-    private void onRefreshComplete(int itemSize ) {
+    private void onRefreshComplete(int itemSize) {
         Log.d(LOG_TAG, "onRefreshComplete");
 
         // Remove all items from the ListAdapter, and then replace them with the new items
-        ArrayAdapter<String> adapter = (ArrayAdapter<String>) getListAdapter();
+        /*adapter = (ArrayAdapter<String>) getListAdapter();
         adapter.clear();
 
         messages = getLocalMessages();
         for (MessageItem item : messages){
             adapter.add(item.getTitle());
-        }
+        }*/
+
+        renderListView();
 
         // Stop the refreshing indicator
         setRefreshing(false);
@@ -219,7 +228,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
     private List<MessageItem> getLocalMessages(){
         MessageDataManager messageDataManager = new MessageDataManager(getActivity());
-
         return messageDataManager.getMessageList();
     }
 
@@ -253,18 +261,25 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage("Delete the message?");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                MessageDataManager manager = new MessageDataManager(getActivity());
+                Log.d(LOG_TAG, "---- remove message: " + which + " position: " + position);
+                MessageItem item = messages.get(position);
+                messages.remove(position);
+                manager.removeMessage(item);
+                renderListView();
                 dialog.dismiss();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Log.d(LOG_TAG, "---- remove message: "+which);
                 dialog.dismiss();
             }
         });
