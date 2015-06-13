@@ -254,8 +254,8 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Delete the message?");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.del_dialog_content);
+        builder.setPositiveButton(R.string.dialog_btn_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 MessageDataManager manager = new MessageDataManager(getActivity());
@@ -267,7 +267,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
                 dialog.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(LOG_TAG, "---- remove message: "+which);
