@@ -207,15 +207,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     private void onRefreshComplete(int itemSize) {
         Log.d(LOG_TAG, "onRefreshComplete");
 
-        // Remove all items from the ListAdapter, and then replace them with the new items
-        /*adapter = (ArrayAdapter<String>) getListAdapter();
-        adapter.clear();
-
-        messages = getLocalMessages();
-        for (MessageItem item : messages){
-            adapter.add(item.getTitle());
-        }*/
-
         renderListView();
 
         // Stop the refreshing indicator
