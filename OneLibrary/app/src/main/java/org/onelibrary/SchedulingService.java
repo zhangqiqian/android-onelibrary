@@ -73,9 +73,8 @@ public class SchedulingService extends IntentService {
                     msg = content;
                     sendNotification(notification_id, title, msg);
                 }else{
-                    msg = "You have " + size + "new messages.";
+                    msg = "You have " + size + " new messages.";
                     sendNotification(NOTIFICATION_ID, title, msg);
-
                 }
                 Log.d(TAG, "------ notification: " + msg);
             }
