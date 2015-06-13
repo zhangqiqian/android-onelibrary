@@ -57,7 +57,7 @@ public class SplashActivity extends Activity {
 
     private OnClickListener listener = null;
 
-    private int SPLASH_DISPLAY_WAIT = 5000; //5 seconds.
+    private int SPLASH_DISPLAY_WAIT = 3000; //3 seconds.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
