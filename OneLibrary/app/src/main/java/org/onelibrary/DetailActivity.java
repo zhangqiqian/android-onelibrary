@@ -1,6 +1,7 @@
 package org.onelibrary;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,14 +29,13 @@ public class DetailActivity extends Activity {
 
     private DbAdapter mDbAdapter;
     private MessageDataManager manager;
-    private MessageItem message;
+    MessageItem message;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-
-        //getActionBar().setDisplayShowTitleEnabled(false);
 
         Intent intent = getIntent();
         Bundle item = intent.getBundleExtra("message");
@@ -47,6 +47,7 @@ public class DetailActivity extends Activity {
         message = mDbAdapter.getMessage(id);
 
         if (message.getContent().isEmpty() || message.getContent().contentEquals("")){
+            progressDialog = ProgressDialog.show(DetailActivity.this, "", getString(R.string.loading), true, false);
             new LoadMessageTask().execute(id, message_id);
         }
 
@@ -76,8 +77,6 @@ public class DetailActivity extends Activity {
         TextView contentView = (TextView) findViewById(R.id.content);
         if(!item.getContent().isEmpty()){
             contentView.setText(item.getContent());
-        }else{
-            contentView.setText("Loading...");
         }
 
         //Tags
@@ -169,6 +168,7 @@ public class DetailActivity extends Activity {
                 result.setStatus(1);
                 manager.updateMessage(result);
             }
+            progressDialog.dismiss();
         }
     }
 }
