@@ -37,6 +37,7 @@
     <string name="location_alert_cancel_btn">Cancel</string>
 
     <string name="network_connected">Network Connected</string>
+    <string name="network_disconnected">Network Disconnected</string>
     <string name="lost_connection">Lost Connection</string>
 
     <string name="notification_title">New Notification</string>
