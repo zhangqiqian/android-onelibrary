@@ -42,4 +42,8 @@
     <string name="notification_title">New Notification</string>
     <string name="notification_content">You have new messages.</string>
 
+    <string name="del_dialog_content">Delete the message?</string>
+    <string name="dialog_btn_ok">OK</string>
+    <string name="dialog_btn_cancel">Cancel</string>
+
 </resources>
