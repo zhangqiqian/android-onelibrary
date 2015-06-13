@@ -102,7 +102,7 @@ public class MainActivity extends FragmentActivity {
                 }
             }
         }else{
-            Toast.makeText(MainActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
         }
 
         if (savedInstanceState == null) {

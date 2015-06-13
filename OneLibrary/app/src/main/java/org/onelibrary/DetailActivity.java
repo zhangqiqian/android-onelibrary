@@ -2,32 +2,25 @@ package org.onelibrary;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
-import org.onelibrary.util.NetworkAdapter;
-
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 public class DetailActivity extends Activity {
 
     private static final String LOG_TAG = "DetailActivity";
 
-    private DbAdapter mDbAdapter;
     private MessageDataManager manager;
     MessageItem message;
     private ProgressDialog progressDialog;
@@ -41,17 +34,21 @@ public class DetailActivity extends Activity {
         Bundle item = intent.getBundleExtra("message");
         int id = item.getInt("id");
         int message_id = item.getInt("message_id");
-        mDbAdapter = DbAdapter.getInstance(getBaseContext());
         manager = new MessageDataManager(getBaseContext());
+        message = manager.getMessage(id);
 
-        message = mDbAdapter.getMessage(id);
-
-        if (message.getContent().isEmpty() || message.getContent().contentEquals("")){
-            progressDialog = ProgressDialog.show(DetailActivity.this, "", getString(R.string.loading), true, false);
-            new LoadMessageTask().execute(id, message_id);
+        if (message != null && (message.getContent().isEmpty() || message.getContent().contentEquals(""))){
+            ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            if(networkInfo != null && networkInfo.isConnected()){
+                progressDialog = ProgressDialog.show(DetailActivity.this, "", getString(R.string.loading), true, false);
+                new LoadMessageTask().execute(id, message_id);
+            }else{
+                Toast.makeText(DetailActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
+            }
         }
 
-        message = mDbAdapter.getMessage(id);
+        message = manager.getMessage(id);
         renderDetail(message);
 
     }
@@ -108,45 +105,6 @@ public class DetailActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private MessageItem getMessageDetail(int id, int message_id){
-        MessageItem item = new MessageItem();
-        try {
-            NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
-
-            Bundle params = new Bundle();
-            params.putString("message_id", String.valueOf(message_id));
-
-            Log.d(LOG_TAG, "Request params: " + params.toString());
-            JSONObject result = adapter.request(getString(R.string.get_message_detail_url), params);
-            if(result.getInt("errno") == 0){
-                Log.d(LOG_TAG, "success to get message detail: " + result.getString("result"));
-
-                JSONObject messageResult = result.getJSONObject("result");
-                item.setId(id);
-                item.setTitle(messageResult.getString("title"));
-                item.setAuthor(messageResult.getString("author"));
-                item.setContent(messageResult.getString("content"));
-                item.setCategory(messageResult.getString("category"));
-                item.setTags(messageResult.getString("tags"));
-                item.setLink(messageResult.getString("link"));
-
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                Date date = new Date(messageResult.getLong("pubdate") *1000);
-                String pub_date = format.format(date);
-                item.setPubdate(pub_date);
-                item.setStatus(1);
-                item.setCtime(Calendar.getInstance());
-            }else{
-                Log.d(LOG_TAG, "failure: " + result.getString("errmsg"));
-            }
-        }catch (IOException e){
-            e.printStackTrace();
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return item;
-    }
-
     /**
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
@@ -156,7 +114,8 @@ public class DetailActivity extends Activity {
         @Override
         protected MessageItem doInBackground(Integer...params) {
             //get remote message, and save to db.
-            return getMessageDetail(params[0], params[1]);
+            manager = new MessageDataManager(getBaseContext());
+            return manager.getMessageDetail(getBaseContext(), params[0], params[1]);
         }
 
         @Override
@@ -164,7 +123,7 @@ public class DetailActivity extends Activity {
             if(result != null){
                 Log.d(LOG_TAG, "AsyncTask result: " + result.toString());
                 renderDetail(result);
-                manager = new MessageDataManager(mDbAdapter);
+                manager = new MessageDataManager(getBaseContext());
                 result.setStatus(1);
                 manager.updateMessage(result);
             }

@@ -28,8 +28,11 @@ import org.onelibrary.R;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,6 +73,22 @@ public class MessageDataManager {
         }
         return mMessagesList;
     }
+
+    /**
+     * Returns a list of Message
+     */
+    public final MessageItem getMessage(int id) {
+        synchronized (mMessagesList) {
+            List<MessageItem> messages = mDbAdapter.getMessageList();
+            for (MessageItem message : messages){
+                if(message.getId() == id){
+                    return message;
+                }
+            }
+        }
+        return null;
+    }
+
 
     /**
      * Clears the data.
@@ -195,5 +214,44 @@ public class MessageDataManager {
             e.printStackTrace();
         }
         return messageItems;
+    }
+
+    public MessageItem getMessageDetail(Context ctx, int id, int message_id){
+        MessageItem item = new MessageItem();
+        try {
+            NetworkAdapter adapter = new NetworkAdapter(ctx);
+
+            Bundle params = new Bundle();
+            params.putString("message_id", String.valueOf(message_id));
+
+            Log.d(LOG_TAG, "Request params: " + params.toString());
+            JSONObject result = adapter.request(ctx.getString(R.string.get_message_detail_url), params);
+            if(result.getInt("errno") == 0){
+                Log.d(LOG_TAG, "success to get message detail: " + result.getString("result"));
+
+                JSONObject messageResult = result.getJSONObject("result");
+                item.setId(id);
+                item.setTitle(messageResult.getString("title"));
+                item.setAuthor(messageResult.getString("author"));
+                item.setContent(messageResult.getString("content"));
+                item.setCategory(messageResult.getString("category"));
+                item.setTags(messageResult.getString("tags"));
+                item.setLink(messageResult.getString("link"));
+
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                Date date = new Date(messageResult.getLong("pubdate") *1000);
+                String pub_date = format.format(date);
+                item.setPubdate(pub_date);
+                item.setStatus(1);
+                item.setCtime(Calendar.getInstance());
+            }else{
+                Log.d(LOG_TAG, "failure: " + result.getString("errmsg"));
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        return item;
     }
 }
