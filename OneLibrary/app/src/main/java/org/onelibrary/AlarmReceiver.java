@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
@@ -58,6 +59,18 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
      * @param context
      */
     public void setAlarm(Context context) {
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        //两个参数,一个是key，就是在PreferenceActivity的xml中设置的,另一个是取不到值时的默认值
+        String intervalTime = settings.getString("update_frequency", "1");
+        int intervalMinutes = Integer.parseInt(intervalTime);
+        Log.d(TAG, "---- get update frequency: " + intervalMinutes + " minutes");
+        if(intervalMinutes == -1){
+            Log.d(TAG, "---- never set alarm ----");
+            return;
+        }
+        long interval = intervalMinutes > 0 ? intervalMinutes * 60 * 1000 : 60 * 1000;
+
         alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
@@ -73,9 +86,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         // Set the alarm to fire at approximately 8:30 a.m., according to the device's
         // clock, and to repeat once a day.
         alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(), 60 * 1000, alarmIntent);
+                calendar.getTimeInMillis(), interval, alarmIntent);
 
-        Log.d(TAG, context.getClass().getName()+" call ------ set scheduling alarm ------");
+        Log.d(TAG, context.getClass().getName()+" call ------ set scheduling alarm and start in "+intervalMinutes+" minutes ------");
         // Enable {@code BootReceiver} to automatically restart the alarm when the
         // device is rebooted.
         ComponentName receiver = new ComponentName(context, BootReceiver.class);

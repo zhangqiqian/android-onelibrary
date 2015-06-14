@@ -17,11 +17,8 @@
 package org.onelibrary;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -30,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -102,11 +98,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         // END_INCLUDE (setup_refreshlistener)
     }
     // END_INCLUDE (setup_views)
-
-    /*@Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main_menu, menu);
-    }*/
 
     // BEGIN_INCLUDE (setup_refresh_menu_listener)
     /**

@@ -16,7 +16,6 @@ import android.widget.Toast;
 import org.onelibrary.ui.processbutton.ProgressGenerator;
 import org.onelibrary.ui.processbutton.iml.ActionProcessButton;
 
-
 public class RegisterActivity extends Activity implements ProgressGenerator.OnCompleteListener {
 
     public final static String SESSION_INFO = "session_info";
@@ -50,7 +49,7 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
 
                 //TODO sign up a user
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-                session.edit().putString(USERNAME, editEmail.getText().toString()).commit();
+                session.edit().putString(USERNAME, editEmail.getText().toString()).apply();
             }
         });
     }

@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -34,10 +35,14 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     public final static String IS_LOGIN = "is_login";
     public final static String LAST_LOGIN = "last_login_time";
 
+    private SharedPreferences settings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
         String username = session.getString(USERNAME, "");
@@ -130,8 +135,11 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
+                String domain = settings.getString("server_address", "http://192.168.1.105");
+                Log.d(TAG, "---- server domain settings: " + domain + " ----");
+
                 NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
-                JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
+                JSONObject result = adapter.request(domain + getString(R.string.login_url), params[0]);
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
                 session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();

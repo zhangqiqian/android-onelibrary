@@ -1,6 +1,8 @@
 package org.onelibrary;
 
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -39,6 +42,7 @@ public class MainActivity extends FragmentActivity {
     public final static String STATUS_NOTIFICATION = "is_notified";
 
     private SharedPreferences pref;
+    private SharedPreferences settings;
 
     int AUTO_REFRESH_INTERVAL = 10 * 1000; //10 seconds.
     private Handler mHandler = new Handler();
@@ -66,6 +70,7 @@ public class MainActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         pref = getSharedPreferences(APP_STATUS, 0);
 
         Log.d(TAG, "-------------- onCreate ------------");
@@ -89,7 +94,7 @@ public class MainActivity extends FragmentActivity {
             if (!isLogin || interval > 600){
                 String username = preferences.getString(USERNAME, "");
                 String password = preferences.getString(PASSWORD, "");
-                if(username.isEmpty() || password.isEmpty()){
+                if(username == null || username.isEmpty() || password == null || password.isEmpty()){
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     //logout
                     startActivity(intent);
@@ -121,6 +126,12 @@ public class MainActivity extends FragmentActivity {
         }
         pref.edit().putBoolean(STATUS_NOTIFICATION, false).apply();
         Log.d(TAG, "---- set notification to false ---");
+
+        //cancel new notification
+        NotificationManager mNotificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancelAll();
+        Log.d(TAG, "---- cancel new notification ----");
 
         super.onResume();
     }
@@ -192,8 +203,11 @@ public class MainActivity extends FragmentActivity {
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
+                String domain = settings.getString("server_address", "http://192.168.1.105");
+                Log.d(TAG, "---- server domain settings: " + domain + " ----");
+
                 NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
-                JSONObject result = adapter.request(getString(R.string.login_url), params[0]);
+                JSONObject result = adapter.request(domain + getString(R.string.login_url), params[0]);
                 SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
                 if(result.getInt("errno") == 0){

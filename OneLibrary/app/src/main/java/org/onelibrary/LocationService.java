@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -87,6 +88,18 @@ public class LocationService extends Service implements LocationListener {
 
     public void registerLocationUpdates() {
         try {
+
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+            //两个参数,一个是key，就是在PreferenceActivity的xml中设置的,另一个是取不到值时的默认值
+            String intervalTime = settings.getString("update_frequency", "1");
+            int intervalMinutes = Integer.parseInt(intervalTime);
+            if(intervalMinutes == -1){
+                Log.d(TAG, "---- never register location updates ----");
+                return;
+            }
+            long interval = intervalMinutes > 0 ? intervalMinutes * 60 * 1000 : MIN_TIME_BW_UPDATES;
+            Log.d(TAG, "---- get update frequency: " + intervalMinutes + " minutes");
+
             locationManager = (LocationManager) mContext
                     .getSystemService(LOCATION_SERVICE);
 
@@ -106,7 +119,7 @@ public class LocationService extends Service implements LocationListener {
                 if (isNetworkEnabled) {
                     locationManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
+                            interval,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                     Log.d(TAG, "Register location updates, locationService is from network.");
                 }
@@ -114,7 +127,7 @@ public class LocationService extends Service implements LocationListener {
                 if (isGPSEnabled) {
                     locationManager.requestLocationUpdates(
                             LocationManager.GPS_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
+                            interval,
                             MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                     Log.d(TAG, "Register location updates, GPS Enabled, and locationService is from gps.");
                 }
