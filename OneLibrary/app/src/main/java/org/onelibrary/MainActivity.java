@@ -1,7 +1,6 @@
 package org.onelibrary;
 
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
