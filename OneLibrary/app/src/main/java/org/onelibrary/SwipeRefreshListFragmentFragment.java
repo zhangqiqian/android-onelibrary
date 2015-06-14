@@ -17,17 +17,21 @@
 package org.onelibrary;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.onelibrary.data.DbAdapter;
@@ -56,9 +60,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
     private static final String LOG_TAG = SwipeRefreshListFragmentFragment.class.getSimpleName();
 
-    private DbAdapter mDbAdapter;
     private List<MessageItem> messages;
-    private ArrayAdapter<String> adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -152,24 +154,24 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
         messages = getLocalMessages();
 
-        adapter = (ArrayAdapter<String>) getListAdapter();
+        MessageAdapter adapter = (MessageAdapter) getListAdapter();
         if (adapter == null){
             ArrayList<String> titles = new ArrayList<String>();
             for (MessageItem item : messages){
                 titles.add(item.getTitle());
             }
-            adapter = new ArrayAdapter<String>(
+            adapter = new MessageAdapter(
                     getActivity(),
                     R.layout.list_item,
                     R.id.item_text,
-                    titles);
+                    messages);
             // Set the adapter between the ListView and its backing data.
             setListAdapter(adapter);
         }else{
             adapter.clear();
             messages = getLocalMessages();
             for (MessageItem item : messages){
-                adapter.add(item.getTitle());
+                adapter.add(item);
             }
         }
     }
@@ -228,7 +230,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            mDbAdapter = DbAdapter.getInstance(getActivity());
+            DbAdapter mDbAdapter = DbAdapter.getInstance(getActivity());
             MessageDataManager manager = new MessageDataManager(getActivity());
             int size = result.size();
             for (MessageItem item : result){
@@ -267,6 +269,33 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         });
         builder.create().show();
         return true; // let the system show the context menu
+    }
+
+    /**
+     * rewrite getView method
+     * @author lance
+     */
+    private class MessageAdapter extends ArrayAdapter<MessageItem>{
+
+        public MessageAdapter(Context context, int resource, int textViewResourceId, List<MessageItem> messages) {
+            super(context, resource, textViewResourceId, messages);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if(convertView == null) {
+                convertView = getActivity().getLayoutInflater().inflate(R.layout.list_item, null);
+            }
+            MessageItem message = getItem(position);
+            TextView itemText = (TextView)convertView.findViewById(R.id.item_text);
+            itemText.setText(message.getTitle());
+            if(message.getStatus() == 0){
+                itemText.setTextColor(getResources().getColor(R.color.blue_pressed));
+                TextPaint tp = itemText.getPaint();
+                tp.setFakeBoldText(true);
+            }
+            return convertView;
+        }
     }
 
 }
