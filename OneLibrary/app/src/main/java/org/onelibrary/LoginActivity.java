@@ -93,7 +93,6 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
 
     @Override
     public void onComplete() {
-        //Toast.makeText(this, "Success to sign in.", Toast.LENGTH_LONG).show();
         final EditText editEmail = (EditText) findViewById(R.id.editEmail);
         final EditText editPassword = (EditText) findViewById(R.id.editPassword);
         final ActionProcessButton btnSignIn = (ActionProcessButton) findViewById(R.id.btnSignIn);
