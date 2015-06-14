@@ -39,6 +39,7 @@
     <string name="network_connected">Network Connected</string>
     <string name="network_disconnected">Network Disconnected</string>
     <string name="lost_connection">Lost Connection</string>
+    <string name="access_failure">Failure to access to service.</string>
 
     <string name="notification_title">New Notification</string>
     <string name="notification_content">You have new messages.</string>
