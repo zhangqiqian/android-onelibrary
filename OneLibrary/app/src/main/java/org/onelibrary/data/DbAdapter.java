@@ -150,9 +150,6 @@ public class DbAdapter extends SQLiteOpenHelper {
             item.setStatus(cursor.getInt(10));
         }
         cursor.close();
-        if (db.isOpen()){
-            db.close();
-        }
         return item;
     }
 
@@ -182,9 +179,6 @@ public class DbAdapter extends SQLiteOpenHelper {
 
         int count = cursor.getCount();
         cursor.close();
-        if (db.isOpen()){
-            db.close();
-        }
         return count > 0;
     }
 
@@ -212,9 +206,6 @@ public class DbAdapter extends SQLiteOpenHelper {
 
         // Insert the new row, returning the primary key value of the new row
         long ret = db.insert(TABLE_NAME_MESSAGE, "null", values);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -275,9 +266,6 @@ public class DbAdapter extends SQLiteOpenHelper {
             }
         }
         cursor.close();
-        if (db.isOpen()){
-            db.close();
-        }
         return result;
     }
 
@@ -300,9 +288,6 @@ public class DbAdapter extends SQLiteOpenHelper {
         values.put(MessageItem.CTIME, item.getCtime().getTimeInMillis());
 
         int ret = db.update(TABLE_NAME_MESSAGE, values, MessageItem.ID + "=" + item.getId(), null);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -315,9 +300,6 @@ public class DbAdapter extends SQLiteOpenHelper {
         String selection = MessageItem.ID + " = ?";
         String[] selectionArgs = {String.valueOf(item.getId())};
         int ret = db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -330,9 +312,6 @@ public class DbAdapter extends SQLiteOpenHelper {
         String selection = MessageItem.MESSAGEID + " = ?";
         String[] selectionArgs = {String.valueOf(message_id)};
         int ret = db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -342,9 +321,6 @@ public class DbAdapter extends SQLiteOpenHelper {
     public final int deleteAllMessages() {
         SQLiteDatabase db = getWritableDatabase();
         int ret = db.delete(TABLE_NAME_MESSAGE, null, null);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -366,9 +342,6 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Insert the new row, returning the primary key value of the new row
 
         long ret = db.insert(TABLE_NAME_LOCATION, null, values);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -421,9 +394,6 @@ public class DbAdapter extends SQLiteOpenHelper {
             }
         }
         cursor.close();
-        if (db.isOpen()){
-            db.close();
-        }
         return result;
     }
 
@@ -437,9 +407,6 @@ public class DbAdapter extends SQLiteOpenHelper {
         String selection = LocationEntry.ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
         int ret =  db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
 
     }
@@ -454,9 +421,6 @@ public class DbAdapter extends SQLiteOpenHelper {
         String selection = LocationEntry.NAME + " = ?";
         String[] selectionArgs = {name};
         int ret = db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 
@@ -467,9 +431,6 @@ public class DbAdapter extends SQLiteOpenHelper {
     public final int deleteAllLocations() {
         SQLiteDatabase db = getWritableDatabase();
         int ret = db.delete(TABLE_NAME_LOCATION, null, null);
-        if (db.isOpen()){
-            db.close();
-        }
         return ret;
     }
 }
