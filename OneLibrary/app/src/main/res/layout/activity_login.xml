@@ -57,12 +57,6 @@
             custom:pb_textComplete="@string/button_sign_in"
             custom:pb_textProgress="@string/being_sign_in" />
 
-        <TextView android:text="@string/forget_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@color/holo_green_light"
-            android:gravity="right" />
     </LinearLayout>
 
     <Button android:id="@+id/regBtn"
