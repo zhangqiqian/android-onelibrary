@@ -179,7 +179,7 @@ public class MessageDataManager {
             try{
                 JSONObject result = adapter.request(domain + ctx.getString(R.string.get_messages_url), params);
 
-                if(result.getInt("errno") == 0){
+                if(result != null && result.getInt("errno") == 0){
                     Log.d(LOG_TAG, "success to get messages");
 
                     int start = result.getInt("start");
@@ -206,7 +206,7 @@ public class MessageDataManager {
                         Log.d(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
                     }
                 }else{
-                    Log.d(LOG_TAG, "failure: " + result.getString("errmsg"));
+                    Log.d(LOG_TAG, "failure");
                 }
             }catch (IOException e){
                 e.printStackTrace();
@@ -218,7 +218,7 @@ public class MessageDataManager {
     }
 
     public MessageItem getMessageDetail(Context ctx, int id, int message_id){
-        MessageItem item = new MessageItem();
+        MessageItem item = null;
         try {
             NetworkAdapter adapter = new NetworkAdapter(ctx);
 
@@ -227,9 +227,10 @@ public class MessageDataManager {
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
             JSONObject result = adapter.request(domain + ctx.getString(R.string.get_message_detail_url), params);
-            if(result.getInt("errno") == 0){
+            if(result != null && result.getInt("errno") == 0){
                 Log.d(LOG_TAG, "success to get message detail: " + result.getString("result"));
 
+                item = new MessageItem();
                 JSONObject messageResult = result.getJSONObject("result");
                 item.setId(id);
                 item.setTitle(messageResult.getString("title"));
@@ -246,7 +247,7 @@ public class MessageDataManager {
                 item.setStatus(1);
                 item.setCtime(Calendar.getInstance());
             }else{
-                Log.d(LOG_TAG, "failure: " + result.getString("errmsg"));
+                Log.d(LOG_TAG, "failure");
             }
         }catch (IOException e){
             e.printStackTrace();
