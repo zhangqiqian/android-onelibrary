@@ -126,6 +126,8 @@ public class DetailActivity extends Activity {
                 manager = new MessageDataManager(getBaseContext());
                 result.setStatus(1);
                 manager.updateMessage(result);
+            }else{
+                Toast.makeText(DetailActivity.this, R.string.access_failure, Toast.LENGTH_SHORT).show();
             }
             progressDialog.dismiss();
         }
