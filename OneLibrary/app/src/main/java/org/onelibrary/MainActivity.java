@@ -188,7 +188,7 @@ public class MainActivity extends FragmentActivity {
         Log.d(TAG, "---- refresh List View ---");
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
-        transaction.replace(R.id.sample_content_fragment, fragment);
+        transaction.replace(R.id.content_fragment, fragment);
         transaction.commitAllowingStateLoss();
     }
 

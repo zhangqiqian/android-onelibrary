@@ -60,7 +60,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         //TODO for test
         session.edit().putBoolean(IS_LOGIN, true).apply();
 
-        if (username.length() > 0){
+        if (username != null && username.length() > 0){
             editEmail.setText(username);
         }
         final ProgressGenerator progressGenerator = new ProgressGenerator(this);
@@ -150,7 +150,6 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
                 }else{
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
                 }
-                return is_ok;
             }catch (IOException e){
                 e.printStackTrace();
             }catch (JSONException e){
