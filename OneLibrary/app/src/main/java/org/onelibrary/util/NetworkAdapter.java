@@ -70,7 +70,7 @@ public class NetworkAdapter {
         Set<String> keys = params.keySet();
 
         StringBuilder sb = new StringBuilder();
-        if(params != null && !params.isEmpty()){
+        if(!params.isEmpty()){
             for (String key : keys){
                 String value = params.getString(key);
                 sb.append(key).append('=')
@@ -87,7 +87,7 @@ public class NetworkAdapter {
             InputStream stream = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             String line = null;
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             while ((line = reader.readLine()) != null){
                 buffer.append(line);
             }
@@ -113,8 +113,7 @@ public class NetworkAdapter {
     public JSONObject parseJSON(String jsonString) {
         //Map<String, Object> resultMap = new HashMap<String, Object>();
         try {
-            JSONObject result = new JSONObject(jsonString);
-            return result;
+            return new JSONObject(jsonString);
         } catch (JSONException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -168,7 +167,7 @@ public class NetworkAdapter {
     private String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String line = null;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         while ((line = reader.readLine()) != null){
             buffer.append(line);
         }
