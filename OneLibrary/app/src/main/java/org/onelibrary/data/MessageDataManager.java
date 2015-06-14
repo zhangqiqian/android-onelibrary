@@ -19,6 +19,7 @@ package org.onelibrary.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -54,13 +55,13 @@ public class MessageDataManager {
 
 
     private final List<MessageItem> mMessagesList = new ArrayList<MessageItem>();
+    private String domain;
 
     public MessageDataManager(Context context) {
         mDbAdapter = DbAdapter.getInstance(context);
-    }
-
-    public MessageDataManager(DbAdapter dbAdapter) {
-        mDbAdapter = dbAdapter;
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        domain = settings.getString("server_address", "http://192.168.1.105");
+        Log.d(LOG_TAG, "---- server domain settings: " + domain + " ----");
     }
 
     /**
@@ -176,7 +177,7 @@ public class MessageDataManager {
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
             try{
-                JSONObject result = adapter.request(ctx.getString(R.string.get_messages_url), params);
+                JSONObject result = adapter.request(domain + ctx.getString(R.string.get_messages_url), params);
 
                 if(result.getInt("errno") == 0){
                     Log.d(LOG_TAG, "success to get messages");
@@ -225,7 +226,7 @@ public class MessageDataManager {
             params.putString("message_id", String.valueOf(message_id));
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
-            JSONObject result = adapter.request(ctx.getString(R.string.get_message_detail_url), params);
+            JSONObject result = adapter.request(domain + ctx.getString(R.string.get_message_detail_url), params);
             if(result.getInt("errno") == 0){
                 Log.d(LOG_TAG, "success to get message detail: " + result.getString("result"));
 
