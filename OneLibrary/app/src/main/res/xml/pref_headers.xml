@@ -8,7 +8,4 @@
     <header android:fragment="org.onelibrary.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
-    <header android:fragment="org.onelibrary.SettingsActivity$DataSyncPreferenceFragment"
-        android:title="@string/pref_header_data_sync" />
-
 </preference-headers>
