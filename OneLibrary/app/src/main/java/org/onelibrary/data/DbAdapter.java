@@ -230,7 +230,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         };
 
         // sort ASC based on the time of the entry
-        String sortOrder = MessageItem.CTIME + " DESC";
+        String sortOrder = MessageItem.ID + " DESC";
         String selection = null; //LocationEntry.NAME + " LIKE ?";
 
         Cursor cursor = db.query(

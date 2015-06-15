@@ -20,9 +20,9 @@ public class MessageItem {
     public static final String STATUS = "status";
     public static final String CTIME = "ctime";
 
-    private int id;
-    private int publishId;
-    private int messageId;
+    private long id;
+    private long publishId;
+    private long messageId;
     private String title;
     private String author;
     private String content;
@@ -57,27 +57,27 @@ public class MessageItem {
         this.status = status;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
-    public int getPublishId() {
+    public long getPublishId() {
         return publishId;
     }
 
-    public void setPublishId(int publishId) {
+    public void setPublishId(long publishId) {
         this.publishId = publishId;
     }
 
-    public int getMessageId() {
+    public long getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(int messageId) {
+    public void setMessageId(long messageId) {
         this.messageId = messageId;
     }
 

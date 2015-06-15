@@ -78,7 +78,7 @@ public class MessageDataManager {
     /**
      * Returns a list of Message
      */
-    public final MessageItem getMessage(int id) {
+    public final MessageItem getMessage(long id) {
         synchronized (mMessagesList) {
             List<MessageItem> messages = mDbAdapter.getMessageList();
             for (MessageItem message : messages){
@@ -94,7 +94,7 @@ public class MessageDataManager {
     /**
      * Clears the data.
      */
-    public final int clearMessages() {
+    public final long clearMessages() {
         synchronized (mMessagesList) {
             mMessagesList.clear();
             return mDbAdapter.deleteAllMessages();
@@ -104,10 +104,11 @@ public class MessageDataManager {
     /**
      * Adds a message to database and cache if it is a new message.
      */
-    public final void addMessage(MessageItem item) {
+    public final long addMessage(MessageItem item) {
         synchronized (mMessagesList) {
-            mDbAdapter.insertMessage(item);
+            long id = mDbAdapter.insertMessage(item);
             mMessagesList.add(item);
+            return id;
         }
     }
 
@@ -217,7 +218,7 @@ public class MessageDataManager {
         return messageItems;
     }
 
-    public MessageItem getMessageDetail(Context ctx, int id, int message_id){
+    public MessageItem getMessageDetail(Context ctx, long id, long message_id){
         MessageItem item = null;
         try {
             NetworkAdapter adapter = new NetworkAdapter(ctx);
