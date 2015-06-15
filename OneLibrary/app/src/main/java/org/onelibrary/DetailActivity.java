@@ -32,11 +32,10 @@ public class DetailActivity extends Activity {
 
         Intent intent = getIntent();
         Bundle item = intent.getBundleExtra("message");
-        int id = item.getInt("id");
-        int message_id = item.getInt("message_id");
+        long id = item.getLong("id");
+        long message_id = item.getLong("message_id");
         manager = new MessageDataManager(getBaseContext());
         message = manager.getMessage(id);
-
         if (message != null && (message.getContent().isEmpty() || message.getContent().contentEquals(""))){
             ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = cm.getActiveNetworkInfo();
@@ -50,7 +49,6 @@ public class DetailActivity extends Activity {
 
         message = manager.getMessage(id);
         renderDetail(message);
-
     }
 
     private void renderDetail(MessageItem item){
@@ -109,10 +107,10 @@ public class DetailActivity extends Activity {
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
      */
-    private class LoadMessageTask extends AsyncTask<Integer, Void, MessageItem> {
+    private class LoadMessageTask extends AsyncTask<Long, Void, MessageItem> {
 
         @Override
-        protected MessageItem doInBackground(Integer...params) {
+        protected MessageItem doInBackground(Long...params) {
             //get remote message, and save to db.
             manager = new MessageDataManager(getBaseContext());
             return manager.getMessageDetail(getBaseContext(), params[0], params[1]);

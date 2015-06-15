@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -39,6 +40,7 @@ import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -61,6 +63,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     private static final String LOG_TAG = SwipeRefreshListFragmentFragment.class.getSimpleName();
 
     private List<MessageItem> messages;
+    MessageAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -140,8 +143,8 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         Bundle bundle = new Bundle();
 
         MessageItem item = messages.get(position);
-        bundle.putInt("id", item.getId());
-        bundle.putInt("message_id", item.getMessageId());
+        bundle.putLong("id", item.getId());
+        bundle.putLong("message_id", item.getMessageId());
         intent.putExtra("message", bundle);
         startActivityForResult(intent, 0);
     }
@@ -154,25 +157,17 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
         messages = getLocalMessages();
 
-        MessageAdapter adapter = (MessageAdapter) getListAdapter();
+        adapter = (MessageAdapter) getListAdapter();
         if (adapter == null){
-            ArrayList<String> titles = new ArrayList<String>();
-            for (MessageItem item : messages){
-                titles.add(item.getTitle());
-            }
             adapter = new MessageAdapter(
                     getActivity(),
                     R.layout.list_item,
                     R.id.item_text,
                     messages);
+
             // Set the adapter between the ListView and its backing data.
+            adapter.setNotifyOnChange(true);
             setListAdapter(adapter);
-        }else{
-            adapter.clear();
-            messages = getLocalMessages();
-            for (MessageItem item : messages){
-                adapter.add(item);
-            }
         }
     }
 
@@ -199,8 +194,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
      */
     private void onRefreshComplete(int itemSize) {
         Log.d(LOG_TAG, "onRefreshComplete");
-
-        renderListView();
 
         // Stop the refreshing indicator
         setRefreshing(false);
@@ -237,7 +230,9 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
                 if(mDbAdapter.messageIsExist(item)){
                     size--;
                 }else{
-                    manager.addMessage(item);
+                    long id = manager.addMessage(item);
+                    item.setId(id);
+                    adapter.insert(item, 0);
                 }
             }
             onRefreshComplete(size);
@@ -256,7 +251,12 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
                 MessageItem item = messages.get(position);
                 messages.remove(position);
                 manager.removeMessage(item);
-                renderListView();
+                adapter = (MessageAdapter) getListAdapter();
+                if(adapter == null){
+                    renderListView();
+                }else{
+                    adapter.remove(item);
+                }
                 dialog.dismiss();
             }
         });
