@@ -232,7 +232,7 @@ public class MainActivity extends FragmentActivity {
         protected void onPostExecute(Boolean result) {
             Log.d(TAG, "Auto login result: " + result);
             if(!result){
-                Toast.makeText(getBaseContext(), "Failure to login.", Toast.LENGTH_LONG).show();
+                Toast.makeText(getBaseContext(), R.string.login_failure, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -242,7 +242,7 @@ public class MainActivity extends FragmentActivity {
         if(back_pressed + 2000 > System.currentTimeMillis()){
             super.onBackPressed();
         }else{
-            Toast.makeText(getBaseContext(), "Press once again to exit.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getBaseContext(), R.string.backpressed_tip, Toast.LENGTH_LONG).show();
         }
         back_pressed = System.currentTimeMillis();
     }

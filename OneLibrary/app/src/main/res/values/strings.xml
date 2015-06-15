@@ -29,6 +29,7 @@
     <string name="connection_error">Connection Error.</string>
     <string name="title_activity_location">Location</string>
     <string name="action_location">Location</string>
+    <string name="login_failure">Failure to login.</string>
 
     <string name="location_alert_title">Location Settings</string>
     <string name="location_alert_content">Location service is disabled, Do you want to enabled it?</string>
@@ -47,4 +48,5 @@
     <string name="dialog_btn_ok">OK</string>
     <string name="dialog_btn_cancel">Cancel</string>
 
+    <string name="backpressed_tip">Press once again to exit.</string>
 </resources>
