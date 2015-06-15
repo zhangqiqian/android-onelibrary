@@ -36,7 +36,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     public final static String LAST_LOGIN = "last_login_time";
 
     private SharedPreferences settings;
-    NetworkInfo networkInfo;
+    private NetworkInfo networkInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +103,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_login, menu);
+        getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
     }
 
