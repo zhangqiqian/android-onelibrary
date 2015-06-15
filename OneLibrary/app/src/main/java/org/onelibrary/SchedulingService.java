@@ -7,9 +7,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.MessageDataManager;
@@ -46,45 +49,50 @@ public class SchedulingService extends IntentService {
         Log.d(TAG, "------onHandleIntent------");
 
         settings = PreferenceManager.getDefaultSharedPreferences(this);
+        ConnectivityManager cm = (ConnectivityManager)getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()){
 
-        LocationService locationService = new LocationService(getBaseContext());
-        double longitude = locationService.getLongitude();
-        double latitude  = locationService.getLatitude();
+            LocationService locationService = new LocationService(getBaseContext());
+            double longitude = locationService.getLongitude();
+            double latitude  = locationService.getLatitude();
 
-        DbAdapter mDbAdapter = DbAdapter.getInstance(getBaseContext());
-        MessageDataManager manager = new MessageDataManager(getBaseContext());
-        List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude);
+            DbAdapter mDbAdapter = DbAdapter.getInstance(getBaseContext());
+            MessageDataManager manager = new MessageDataManager(getBaseContext());
+            List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude);
 
-        int size = messageItems.size();
-        String content = getBaseContext().getString(R.string.notification_content);
-        for (MessageItem item : messageItems){
-            if(mDbAdapter.messageIsExist(item)){
-                size--;
-            }else{
-                manager.addMessage(item);
-                content = item.getTitle();
-            }
-        }
-
-        String msg;
-        String title = getBaseContext().getString(R.string.notification_title);
-        if (size > 0) {
-            SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
-            Boolean is_notified = preferences.getBoolean(STATUS_NOTIFICATION, false);
-            if (is_notified){
-                Log.d(TAG, "------ send notification ------");
-                if(size == 1){
-                    int notification_id = (int)(Math.random() * 10 + 1);
-                    msg = content;
-                    sendNotification(notification_id, title, msg);
+            int size = messageItems.size();
+            String content = getBaseContext().getString(R.string.notification_content);
+            for (MessageItem item : messageItems){
+                if(mDbAdapter.messageIsExist(item)){
+                    size--;
                 }else{
-                    msg = "You have " + size + " new messages.";
-                    sendNotification(NOTIFICATION_ID, title, msg);
+                    manager.addMessage(item);
+                    content = item.getTitle();
                 }
-                Log.d(TAG, "------ notification: " + msg);
             }
-            preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
+
+            String msg;
+            String title = getBaseContext().getString(R.string.notification_title);
+            if (size > 0) {
+                SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
+                Boolean is_notified = preferences.getBoolean(STATUS_NOTIFICATION, false);
+                if (is_notified){
+                    Log.d(TAG, "------ send notification ------");
+                    if(size == 1){
+                        int notification_id = (int)(Math.random() * 10 + 1);
+                        msg = content;
+                        sendNotification(notification_id, title, msg);
+                    }else{
+                        msg = "You have " + size + " new messages.";
+                        sendNotification(NOTIFICATION_ID, title, msg);
+                    }
+                    Log.d(TAG, "------ notification: " + msg);
+                }
+                preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
+            }
         }
+
         // Release the wake lock provided by the BroadcastReceiver.
         AlarmReceiver.completeWakefulIntent(intent);
         // END_INCLUDE(service_onhandle)

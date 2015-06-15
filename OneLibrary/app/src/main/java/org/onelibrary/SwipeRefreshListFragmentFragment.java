@@ -20,7 +20,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DataSetObserver;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -197,7 +198,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
         // Stop the refreshing indicator
         setRefreshing(false);
-
         Toast.makeText(getActivity(), "Updated "+ itemSize +" message(s).", Toast.LENGTH_LONG).show();
     }
     // END_INCLUDE (refresh_complete)
@@ -217,22 +217,31 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         @Override
         protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
-            MessageDataManager manager = new MessageDataManager(getActivity());
-            return manager.getRemoteMessages(getActivity(), params[0], params[1]);
+            ConnectivityManager cm = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            List<MessageItem> items = null;
+            if(networkInfo != null && networkInfo.isConnected()){
+                MessageDataManager manager = new MessageDataManager(getActivity());
+                items = manager.getRemoteMessages(getActivity(), params[0], params[1]);
+            }
+            return items;
         }
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
             DbAdapter mDbAdapter = DbAdapter.getInstance(getActivity());
             MessageDataManager manager = new MessageDataManager(getActivity());
-            int size = result.size();
-            for (MessageItem item : result){
-                if(mDbAdapter.messageIsExist(item)){
-                    size--;
-                }else{
-                    long id = manager.addMessage(item);
-                    item.setId(id);
-                    adapter.insert(item, 0);
+            int size = 0;
+            if (result != null && result.size() > 0){
+                size = result.size();
+                for (MessageItem item : result){
+                    if(mDbAdapter.messageIsExist(item)){
+                        size--;
+                    }else{
+                        long id = manager.addMessage(item);
+                        item.setId(id);
+                        adapter.insert(item, 0);
+                    }
                 }
             }
             onRefreshComplete(size);
