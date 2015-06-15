@@ -42,6 +42,7 @@ public class MainActivity extends FragmentActivity {
 
     private SharedPreferences pref;
     private SharedPreferences settings;
+    private ConnectivityManager cm;
 
     int AUTO_REFRESH_INTERVAL = 10 * 1000; //10 seconds.
     private Handler mHandler = new Handler();
@@ -66,13 +67,13 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "-------------- onCreate ------------");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         pref = getSharedPreferences(APP_STATUS, 0);
 
-        Log.d(TAG, "-------------- onCreate ------------");
         mHandler.postDelayed(updateTimerThread, AUTO_REFRESH_INTERVAL);
 
         LocationService locationService = new LocationService(MainActivity.this);
@@ -80,34 +81,9 @@ public class MainActivity extends FragmentActivity {
             locationService.showSettingsAlert();
         }
 
-        //assert if network is ok
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()){
-            SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
-            Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
-            long last_login_time = preferences.getLong(LAST_LOGIN, 0);
-            long now = System.currentTimeMillis()/1000;
-            long interval = now - last_login_time;
-            Log.d(TAG, "Login status: " + isLogin + ", interval: " + interval);
-            if (!isLogin || interval > 600){
-                String username = preferences.getString(USERNAME, "");
-                String password = preferences.getString(PASSWORD, "");
-                if(username == null || username.isEmpty() || password == null || password.isEmpty()){
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    //logout
-                    startActivity(intent);
-                } else {
-                    //auto login
-                    Bundle params = new Bundle();
-                    params.putString("username", username);
-                    params.putString("password", password);
-                    new LoginTask().execute(params);
-                }
-            }
-        }else{
-            Toast.makeText(MainActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
-        }
+        cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        autoLogin();
 
         if (savedInstanceState == null) {
             refreshListView();
@@ -131,6 +107,8 @@ public class MainActivity extends FragmentActivity {
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancelAll();
         Log.d(TAG, "---- cancel new notification ----");
+
+        autoLogin();
 
         super.onResume();
     }
@@ -161,7 +139,6 @@ public class MainActivity extends FragmentActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
@@ -172,11 +149,8 @@ public class MainActivity extends FragmentActivity {
         }
         if (id == R.id.action_logout) {
             SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-            Boolean isLogin = session.getBoolean(IS_LOGIN, false);
-            if (isLogin){
-                session.edit().putBoolean(IS_LOGIN, false).remove(PASSWORD).apply();
-            }
-            Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+            session.edit().putBoolean(IS_LOGIN, false).putString(PASSWORD, null).putString(NetworkAdapter.PHPSESSID, null).apply();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         }
 
@@ -190,6 +164,36 @@ public class MainActivity extends FragmentActivity {
         SwipeRefreshListFragmentFragment fragment = new SwipeRefreshListFragmentFragment();
         transaction.replace(R.id.content_fragment, fragment);
         transaction.commitAllowingStateLoss();
+    }
+
+
+    private void autoLogin(){
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected()){
+            SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
+            Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
+            long last_login_time = preferences.getLong(LAST_LOGIN, 0);
+            long now = System.currentTimeMillis()/1000;
+            long interval = now - last_login_time;
+            Log.d(TAG, "Login status: " + isLogin + ", interval: " + interval);
+            if (!isLogin || interval > 600){
+                String username = preferences.getString(USERNAME, null);
+                String password = preferences.getString(PASSWORD, null);
+                if(username == null || username.isEmpty() || password == null || password.isEmpty()){
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    //logout
+                    startActivity(intent);
+                } else {
+                    //auto login
+                    Bundle params = new Bundle();
+                    params.putString("username", username);
+                    params.putString("password", password);
+                    new LoginTask().execute(params);
+                }
+            }
+        }else{
+            Toast.makeText(MainActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

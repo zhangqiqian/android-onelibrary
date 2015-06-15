@@ -36,6 +36,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     public final static String LAST_LOGIN = "last_login_time";
 
     private SharedPreferences settings;
+    NetworkInfo networkInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +46,17 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
         SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-        String username = session.getString(USERNAME, "");
+        String username = session.getString(USERNAME, null);
 
         final EditText editEmail = (EditText) findViewById(R.id.editEmail);
         final EditText editPassword = (EditText) findViewById(R.id.editPassword);
 
         //assert if network is ok
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo == null){
             Toast.makeText(LoginActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
         }
-
-        //TODO for test
-        session.edit().putBoolean(IS_LOGIN, true).apply();
 
         if (username != null && username.length() > 0){
             editEmail.setText(username);
@@ -118,7 +116,8 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -134,20 +133,21 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
-                String domain = settings.getString("server_address", "http://192.168.1.105");
-                Log.d(TAG, "---- server domain settings: " + domain + " ----");
+                if(networkInfo != null && networkInfo.isConnected()){
+                    String domain = settings.getString("server_address", "http://192.168.1.105");
+                    Log.d(TAG, "---- server domain settings: " + domain + " ----");
 
-                NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
-                JSONObject result = adapter.request(domain + getString(R.string.login_url), params[0]);
-                SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
+                    NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
+                    JSONObject result = adapter.request(domain + getString(R.string.login_url), params[0]);
+                    SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
 
-                session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).apply();
-                if(result.getInt("errno") == 0){
-                    is_ok = true;
-                    long now = System.currentTimeMillis()/1000;
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).apply();
-                }else{
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
+                    if(result != null && result.getInt("errno") == 0){
+                        is_ok = true;
+                        long now = System.currentTimeMillis()/1000;
+                        session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).apply();
+                    }else{
+                        session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
+                    }
                 }
             }catch (IOException e){
                 e.printStackTrace();
