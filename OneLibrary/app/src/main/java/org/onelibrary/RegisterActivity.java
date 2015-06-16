@@ -2,61 +2,84 @@ package org.onelibrary;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.onelibrary.ui.processbutton.ProgressGenerator;
 import org.onelibrary.ui.processbutton.iml.ActionProcessButton;
+import org.onelibrary.util.NetworkAdapter;
+
+import java.io.IOException;
 
 public class RegisterActivity extends Activity implements ProgressGenerator.OnCompleteListener {
 
-    public final static String SESSION_INFO = "session_info";
-    public final static String USERNAME = "username";
+    public final static String TAG = "RegisterActivity";
+
+    private ConnectivityManager cm;
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
         final EditText editEmail = (EditText) findViewById(R.id.editEmail);
         final EditText editPassword = (EditText) findViewById(R.id.editPassword);
+        final EditText confirmPassword = (EditText) findViewById(R.id.editConfirmPassword);
 
         //assert if network is ok
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo == null){
-            Toast.makeText(RegisterActivity.this, "Unconnected to network.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegisterActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
         }
 
         final ProgressGenerator progressGenerator = new ProgressGenerator(this);
-        final ActionProcessButton btnSignIn = (ActionProcessButton) findViewById(R.id.btnSignIn);
-        btnSignIn.setOnClickListener(new View.OnClickListener() {
+        final ActionProcessButton btnSignUp = (ActionProcessButton) findViewById(R.id.btnSignUp);
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                btnSignIn.setMode(ActionProcessButton.Mode.ENDLESS);
-                progressGenerator.start(btnSignIn);
-                btnSignIn.setEnabled(false);
+                btnSignUp.setMode(ActionProcessButton.Mode.ENDLESS);
+                progressGenerator.start(btnSignUp);
+                btnSignUp.setEnabled(false);
                 editEmail.setEnabled(false);
                 editPassword.setEnabled(false);
+                confirmPassword.setEnabled(false);
 
-                //TODO sign up a user
-                SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-                session.edit().putString(USERNAME, editEmail.getText().toString()).apply();
+                Bundle params = new Bundle();
+                params.putString("username", editEmail.getText().toString());
+                params.putString("password", editPassword.getText().toString());
+                params.putString("repassword", confirmPassword.getText().toString());
+                new SignupTask().execute(params); //sign up
             }
         });
     }
 
     @Override
     public void onComplete() {
-        Toast.makeText(this, "Success to sign in system", Toast.LENGTH_LONG).show();
+        final EditText editEmail = (EditText) findViewById(R.id.editEmail);
+        final EditText editPassword = (EditText) findViewById(R.id.editPassword);
+        final EditText confirmPassword = (EditText) findViewById(R.id.editConfirmPassword);
+        final ActionProcessButton btnSignUp = (ActionProcessButton) findViewById(R.id.btnSignUp);
+
+        btnSignUp.setEnabled(true);
+        editEmail.setEnabled(true);
+        editPassword.setEnabled(true);
+        confirmPassword.setEnabled(true);
     }
 
     @Override
@@ -79,5 +102,52 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.i(TAG, "onBackPressed");
+        setResult(RESULT_CANCELED);
+        super.onBackPressed();
+    }
+
+    /**
+     * Implementation of AsyncTask, to fetch the data in the background away from
+     * the UI thread.
+     */
+    private class SignupTask extends AsyncTask<Bundle, Void, JSONObject> {
+
+        @Override
+        protected JSONObject doInBackground(Bundle...params) {
+            JSONObject result = null;
+            try {
+                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+                if(networkInfo != null && networkInfo.isConnected()){
+                    String domain = settings.getString("server_address", "http://192.168.1.105");
+                    NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
+                    result = adapter.request(domain + getString(R.string.signup_url), params[0]);
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            Log.d(TAG, "Sign up result: " + result.toString());
+            try {
+                if(result != null && result.getInt("errno") == 0){
+                    setResult(RESULT_OK);
+                    finish();
+                }else{
+                    Toast.makeText(RegisterActivity.this, getString(R.string.signup_failure)+" "+result.getString("errmsg"), Toast.LENGTH_LONG).show();
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+
+
+        }
     }
 }
