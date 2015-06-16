@@ -23,7 +23,7 @@
         android:layout_marginBottom="16dp"
         android:inputType="textEmailAddress"
         android:fontFamily="sans-serif"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:hint="@string/input_email_hint" />
 
     <EditText
@@ -33,7 +33,7 @@
         android:layout_marginBottom="16dp"
         android:inputType="textPassword"
         android:fontFamily="sans-serif"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:hint="@string/input_password_hint" />
 
     <EditText
@@ -43,22 +43,22 @@
         android:layout_marginBottom="16dp"
         android:inputType="textPassword"
         android:fontFamily="sans-serif"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:hint="@string/input_repassword_hint" />
 
     <org.onelibrary.ui.processbutton.iml.ActionProcessButton
-        android:id="@+id/btnSignIn"
+        android:id="@+id/btnSignUp"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="4dp"
         android:text="@string/button_sign_up"
         android:textColor="@android:color/white"
-        android:textSize="18sp"
-        custom:pb_colorComplete="@color/green_complete"
+        android:textSize="16sp"
+        custom:pb_colorComplete="@color/blue_normal"
         custom:pb_colorNormal="@color/blue_normal"
         custom:pb_colorPressed="@color/blue_pressed"
         custom:pb_colorProgress="@color/purple_progress"
-        custom:pb_textComplete="@string/success"
+        custom:pb_textComplete="@string/button_sign_up"
         custom:pb_textProgress="@string/being_sign_up" />
 
     </LinearLayout>
