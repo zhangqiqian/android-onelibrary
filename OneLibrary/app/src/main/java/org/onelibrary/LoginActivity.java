@@ -36,7 +36,8 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     public final static String LAST_LOGIN = "last_login_time";
 
     private SharedPreferences settings;
-    private NetworkInfo networkInfo;
+    private ConnectivityManager cm;
+    private static long back_pressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +53,10 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         final EditText editPassword = (EditText) findViewById(R.id.editPassword);
 
         //assert if network is ok
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        networkInfo = cm.getActiveNetworkInfo();
+        cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo == null){
-            Toast.makeText(LoginActivity.this, "Network disconnect.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
         }
 
         if (username != null && username.length() > 0){
@@ -84,10 +85,11 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
     }
+
 
     @Override
     public void onComplete() {
@@ -123,6 +125,17 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (resultCode) { //resultCode为回传的标记，it is RESULT_OK
+            case RESULT_OK:
+                Toast.makeText(LoginActivity.this, R.string.signup_success, Toast.LENGTH_LONG).show();
+                break;
+            default:
+                break;
+        }
+    }
+
     /**
      * Implementation of AsyncTask, to fetch the data in the background away from
      * the UI thread.
@@ -133,6 +146,7 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
+                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
                 if(networkInfo != null && networkInfo.isConnected()){
                     String domain = settings.getString("server_address", "http://192.168.1.105");
                     Log.d(TAG, "---- server domain settings: " + domain + " ----");
@@ -163,9 +177,21 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
             if(result){
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish();
             }else{
-                Toast.makeText(LoginActivity.this, "Failure to login.", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, R.string.login_failure, Toast.LENGTH_LONG).show();
             }
         }
     }
+
+    @Override
+    public void onBackPressed(){
+        if(back_pressed + 2000 > System.currentTimeMillis()){
+            super.onBackPressed();
+        }else{
+            Toast.makeText(getBaseContext(), R.string.backpressed_tip, Toast.LENGTH_LONG).show();
+        }
+        back_pressed = System.currentTimeMillis();
+    }
+
 }
