@@ -1,8 +1,10 @@
 package org.onelibrary;
 
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.onelibrary.data.LocationDataManager;
+import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
@@ -42,7 +46,9 @@ public class MainActivity extends FragmentActivity {
 
     private SharedPreferences pref;
     private SharedPreferences settings;
+    private SharedPreferences session;
     private ConnectivityManager cm;
+
 
     int AUTO_REFRESH_INTERVAL = 10 * 1000; //10 seconds.
     private Handler mHandler = new Handler();
@@ -73,6 +79,7 @@ public class MainActivity extends FragmentActivity {
 
         settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         pref = getSharedPreferences(APP_STATUS, 0);
+        session = getSharedPreferences(SESSION_INFO, 0);
 
         mHandler.postDelayed(updateTimerThread, AUTO_REFRESH_INTERVAL);
 
@@ -148,11 +155,13 @@ public class MainActivity extends FragmentActivity {
             startActivity(intent);
         }
         if (id == R.id.action_logout) {
-            SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
+            //if logout, all data will be delete.
+            /*SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
             session.edit().putBoolean(IS_LOGIN, false).putString(PASSWORD, null).putString(NetworkAdapter.PHPSESSID, null).apply();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
-            finish();
+            finish();*/
+            showLogoutAlert();
         }
 
         return super.onOptionsItemSelected(item);
@@ -171,15 +180,14 @@ public class MainActivity extends FragmentActivity {
     private void autoLogin(){
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         if(networkInfo != null && networkInfo.isConnected()){
-            SharedPreferences preferences = getSharedPreferences(SESSION_INFO, 0);
-            Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
-            long last_login_time = preferences.getLong(LAST_LOGIN, 0);
+            Boolean isLogin = session.getBoolean(IS_LOGIN, false);
+            long last_login_time = session.getLong(LAST_LOGIN, 0);
             long now = System.currentTimeMillis()/1000;
             long interval = now - last_login_time;
             Log.d(TAG, "Login status: " + isLogin + ", interval: " + interval);
             if (!isLogin || interval > 600){
-                String username = preferences.getString(USERNAME, null);
-                String password = preferences.getString(PASSWORD, null);
+                String username = session.getString(USERNAME, null);
+                String password = session.getString(PASSWORD, null);
                 if(username == null || username.isEmpty() || password == null || password.isEmpty()){
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     //logout
@@ -251,6 +259,37 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
+    }
+
+    private void showLogoutAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK);
+
+        // Setting Dialog Message
+        alertDialog.setMessage(R.string.logout_alert_tip);
+
+        // On pressing Settings button
+        alertDialog.setPositiveButton(R.string.action_logout, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                session.edit().putBoolean(IS_LOGIN, false).putString(PASSWORD, null).putString(NetworkAdapter.PHPSESSID, null).putLong(LAST_LOGIN, 0).apply();
+                MessageDataManager messageManager = new MessageDataManager(getBaseContext());
+                messageManager.clearMessages();
+                LocationDataManager locationManager = new LocationDataManager(getBaseContext());
+                locationManager.clearPoints();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        // on pressing cancel button
+        alertDialog.setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        // Showing Alert Message
+        alertDialog.show();
     }
 
 }
