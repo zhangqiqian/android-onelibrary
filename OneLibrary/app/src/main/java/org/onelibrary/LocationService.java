@@ -230,7 +230,7 @@ public class LocationService extends Service implements LocationListener {
      * On pressing Settings button will lauch Settings Options
      * */
     public void showSettingsAlert(){
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext, AlertDialog.THEME_HOLO_DARK);
 
         // Setting Dialog Title
         //alertDialog.setTitle(R.string.location_alert_title);
