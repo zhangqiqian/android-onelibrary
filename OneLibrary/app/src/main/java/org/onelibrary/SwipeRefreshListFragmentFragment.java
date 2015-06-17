@@ -250,7 +250,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_DARK);
         builder.setMessage(R.string.del_dialog_content);
         builder.setPositiveButton(R.string.dialog_btn_ok, new DialogInterface.OnClickListener() {
             @Override
