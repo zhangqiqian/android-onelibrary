@@ -13,7 +13,7 @@
     <string name="title_activity_login">Sign in</string>
     <string name="title_activity_register">Sign up</string>
     <string name="title_activity_detail">Detail</string>
-    <string name="input_email_hint">Username, Email or Phone</string>
+    <string name="input_email_hint">Email</string>
     <string name="input_password_hint">Password</string>
     <string name="input_repassword_hint">Confirm password</string>
     <string name="button_sign_in">Sign in</string>
@@ -23,16 +23,16 @@
     <string name="being_sign_in">Signing in ...</string>
     <string name="being_sign_up">Signing up ...</string>
     <string name="signup_success">Success to sign up, please sign in.</string>
+    <string name="logout_alert_tip">All messages will be deleted, continue?</string>
 
     <string name="login_url">/Api/Public/login</string>
-    <string name="signup_url">/Api/Public/signup</string>
+    <string name="signup_url">/Api/Public/register</string>
     <string name="get_messages_url">/Api/Index/messages</string>
     <string name="get_message_detail_url">/Api/Index/message</string>
     <string name="connection_error">Connection Error.</string>
     <string name="title_activity_location">Location</string>
     <string name="action_location">Location</string>
     <string name="login_failure">Failure to login.</string>
-    <string name="signup_failure">Failure to sign up.</string>
 
     <string name="location_alert_title">Location Settings</string>
     <string name="location_alert_content">Location service is disabled, Do you want to enabled it?</string>
