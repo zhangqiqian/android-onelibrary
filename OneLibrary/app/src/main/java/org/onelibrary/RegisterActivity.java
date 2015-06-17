@@ -30,6 +30,13 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
     private ConnectivityManager cm;
     private SharedPreferences settings;
 
+    private EditText editEmail;
+    private EditText editPassword;
+    private EditText confirmPassword;
+    private ProgressGenerator progressGenerator;
+    private ActionProcessButton btnSignUp;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,9 +44,11 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
 
         settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        final EditText editEmail = (EditText) findViewById(R.id.editEmail);
-        final EditText editPassword = (EditText) findViewById(R.id.editPassword);
-        final EditText confirmPassword = (EditText) findViewById(R.id.editConfirmPassword);
+        editEmail = (EditText) findViewById(R.id.editEmail);
+        editPassword = (EditText) findViewById(R.id.editPassword);
+        confirmPassword = (EditText) findViewById(R.id.editConfirmPassword);
+        btnSignUp = (ActionProcessButton) findViewById(R.id.btnSignUp);
+        progressGenerator = new ProgressGenerator(this);
 
         //assert if network is ok
         cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -48,20 +57,20 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
             Toast.makeText(RegisterActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
         }
 
-        final ProgressGenerator progressGenerator = new ProgressGenerator(this);
-        final ActionProcessButton btnSignUp = (ActionProcessButton) findViewById(R.id.btnSignUp);
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 btnSignUp.setMode(ActionProcessButton.Mode.ENDLESS);
                 progressGenerator.start(btnSignUp);
-                btnSignUp.setEnabled(false);
                 editEmail.setEnabled(false);
                 editPassword.setEnabled(false);
                 confirmPassword.setEnabled(false);
+                btnSignUp.setEnabled(false);
+                btnSignUp.setText(R.string.being_sign_up);
 
                 Bundle params = new Bundle();
                 params.putString("username", editEmail.getText().toString());
+                params.putString("email", editEmail.getText().toString());
                 params.putString("password", editPassword.getText().toString());
                 params.putString("repassword", confirmPassword.getText().toString());
                 new SignupTask().execute(params); //sign up
@@ -71,15 +80,11 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
 
     @Override
     public void onComplete() {
-        final EditText editEmail = (EditText) findViewById(R.id.editEmail);
-        final EditText editPassword = (EditText) findViewById(R.id.editPassword);
-        final EditText confirmPassword = (EditText) findViewById(R.id.editConfirmPassword);
-        final ActionProcessButton btnSignUp = (ActionProcessButton) findViewById(R.id.btnSignUp);
-
         btnSignUp.setEnabled(true);
         editEmail.setEnabled(true);
         editPassword.setEnabled(true);
         confirmPassword.setEnabled(true);
+        btnSignUp.setText(R.string.button_sign_up);
     }
 
     @Override
@@ -127,6 +132,11 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
                     NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
                     result = adapter.request(domain + getString(R.string.signup_url), params[0]);
                 }
+                try{
+                    Thread.sleep(2000);
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
             }catch (IOException e){
                 e.printStackTrace();
             }
@@ -141,8 +151,9 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
                     setResult(RESULT_OK);
                     finish();
                 }else{
-                    Toast.makeText(RegisterActivity.this, getString(R.string.signup_failure)+" "+result.getString("errmsg"), Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegisterActivity.this, result.getString("errmsg"), Toast.LENGTH_LONG).show();
                 }
+                btnSignUp.setText(R.string.button_sign_up);
             }catch (JSONException e){
                 e.printStackTrace();
             }
