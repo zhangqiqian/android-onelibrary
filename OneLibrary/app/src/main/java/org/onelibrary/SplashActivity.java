@@ -1,5 +1,6 @@
 package org.onelibrary;
 
+import org.apache.commons.logging.Log;
 import org.onelibrary.ui.shimmer.Shimmer;
 import org.onelibrary.ui.shimmer.ShimmerTextView;
 import org.onelibrary.util.SystemUiHider;
@@ -7,6 +8,7 @@ import org.onelibrary.util.SystemUiHider;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +25,9 @@ import android.widget.Button;
  * @see SystemUiHider
  */
 public class SplashActivity extends Activity {
+
+    public final static String SESSION_INFO = "session_info";
+    public final static String IS_LOGIN = "is_login";
 
     ShimmerTextView tv;
     Shimmer shimmer;
@@ -54,22 +59,23 @@ public class SplashActivity extends Activity {
      * The instance of the {@link SystemUiHider} for this activity.
      */
     private SystemUiHider mSystemUiHider;
+    private SharedPreferences preferences;
 
-    private OnClickListener listener = null;
-
-    private int SPLASH_DISPLAY_WAIT = 3000; //3 seconds.
+    int SPLASH_DISPLAY_WAIT = 3000; //3 seconds.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_index);
+        preferences = getSharedPreferences(SESSION_INFO, 0);
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(mainIntent);
+                Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
+                Intent intent = new Intent(SplashActivity.this, isLogin ? MainActivity.class : LoginActivity.class);
+                startActivity(intent);
                 finish();
             }
         }, SPLASH_DISPLAY_WAIT);
@@ -136,10 +142,11 @@ public class SplashActivity extends Activity {
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
 
-        listener = new OnClickListener() {
+        OnClickListener listener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                Boolean isLogin = preferences.getBoolean(IS_LOGIN, false);
+                Intent intent = new Intent(SplashActivity.this, isLogin ? MainActivity.class : LoginActivity.class);
                 startActivity(intent);
             }
         };
