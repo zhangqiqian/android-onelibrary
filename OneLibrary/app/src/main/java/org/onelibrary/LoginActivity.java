@@ -110,7 +110,18 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         //return true;
         setIconEnable(menu, true);
 
-        MenuItem item2 = menu.add(0, 1, 0, R.string.action_settings);
+        MenuItem item1 = menu.add(0, 1, 0, R.string.action_settings);
+        item1.setIcon(android.R.drawable.ic_menu_preferences);
+        item1.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem item2 = menu.add(0, 1, 0, R.string.action_logout);
         item2.setIcon(android.R.drawable.ic_menu_preferences);
         item2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override

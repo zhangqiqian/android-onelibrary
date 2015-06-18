@@ -284,6 +284,7 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     public void onDestroy(){
+        mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 
@@ -297,6 +298,7 @@ public class MainActivity extends FragmentActivity {
         alertDialog.setPositiveButton(R.string.action_logout, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 session.edit().putBoolean(IS_LOGIN, false).putString(PASSWORD, null).putString(NetworkAdapter.PHPSESSID, null).putLong(LAST_LOGIN, 0).apply();
+                pref.edit().putBoolean(STATUS_DATA_UPDATE, false).apply();
                 MessageDataManager messageManager = new MessageDataManager(getBaseContext());
                 messageManager.clearMessages();
                 LocationDataManager locationManager = new LocationDataManager(getBaseContext());
