@@ -198,7 +198,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
         // Stop the refreshing indicator
         setRefreshing(false);
-        Toast.makeText(getActivity(), "Updated "+ itemSize +" message(s).", Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), getString(R.string.tip_updated)+" "+ itemSize +" "+getString(R.string.tip_messages), Toast.LENGTH_LONG).show();
     }
     // END_INCLUDE (refresh_complete)
 

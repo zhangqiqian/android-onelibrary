@@ -12,7 +12,6 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.MessageDataManager;

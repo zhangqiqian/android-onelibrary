@@ -318,7 +318,6 @@ public class LocationService extends Service implements LocationListener {
                 SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
                 preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }
-            Toast.makeText(mContext, "Location has changed, updated " + size + " message(s).", Toast.LENGTH_LONG).show();
         }
     }
 }
