@@ -117,7 +117,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        /*switch (item.getItemId()) {
             case R.id.menu_refresh:
                 Log.d(LOG_TAG, "Refresh menu item selected");
 
@@ -132,7 +132,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
                 // Start our refresh background task
                 initiateRefresh();
                 return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }

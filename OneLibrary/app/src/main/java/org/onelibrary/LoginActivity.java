@@ -24,6 +24,7 @@ import org.onelibrary.ui.processbutton.iml.ActionProcessButton;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 public class LoginActivity extends Activity implements ProgressGenerator.OnCompleteListener {
 
@@ -105,8 +106,45 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
-        return true;
+        //getMenuInflater().inflate(R.menu.menu_login, menu);
+        //return true;
+        setIconEnable(menu, true);
+
+        MenuItem item2 = menu.add(0, 1, 0, R.string.action_settings);
+        item2.setIcon(android.R.drawable.ic_menu_preferences);
+        item2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu)
+    {
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    //enable为true时，菜单添加图标有效，enable为false时无效。4.0系统默认无效
+    private void setIconEnable(Menu menu, boolean enable)
+    {
+        try
+        {
+            Class<?> clazz = Class.forName("com.android.internal.view.menu.MenuBuilder");
+            Method m = clazz.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            m.setAccessible(true);
+
+            //MenuBuilder实现Menu接口，创建菜单时，传进来的menu其实就是MenuBuilder对象(java的多态特征)
+            m.invoke(menu, enable);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -114,14 +152,6 @@ public class LoginActivity extends Activity implements ProgressGenerator.OnCompl
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        }
-
         return super.onOptionsItemSelected(item);
     }
 

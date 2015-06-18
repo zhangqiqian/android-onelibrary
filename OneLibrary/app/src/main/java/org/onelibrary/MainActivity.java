@@ -27,6 +27,7 @@ import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.util.NetworkAdapter;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 public class MainActivity extends FragmentActivity {
 
@@ -115,8 +116,68 @@ public class MainActivity extends FragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        //getMenuInflater().inflate(R.menu.menu_main, menu);
+        /*利用反射机制调用MenuBuilder的setOptionalIconsVisible方法设置mOptionalIconsVisible为true，
+        * 给菜单设置图标时才可见
+        */
+        setIconEnable(menu, true);
+
+        MenuItem item1 = menu.add(0, 1, 0, R.string.action_location);
+        item1.setIcon(android.R.drawable.ic_menu_mylocation);
+        item1.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, LocationActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem item2 = menu.add(0, 1, 0, R.string.action_settings);
+        item2.setIcon(android.R.drawable.ic_menu_preferences);
+        item2.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem item3 = menu.add(0, 1, 0, R.string.action_logout);
+        item3.setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+        item3.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                showLogoutAlert();
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu)
+    {
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    //enable为true时，菜单添加图标有效，enable为false时无效。4.0系统默认无效
+    private void setIconEnable(Menu menu, boolean enable)
+    {
+        try
+        {
+            Class<?> clazz = Class.forName("com.android.internal.view.menu.MenuBuilder");
+            Method m = clazz.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            m.setAccessible(true);
+
+            //MenuBuilder实现Menu接口，创建菜单时，传进来的menu其实就是MenuBuilder对象(java的多态特征)
+            m.invoke(menu, enable);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -124,26 +185,6 @@ public class MainActivity extends FragmentActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        }
-        if (id == R.id.action_location) {
-            Intent intent = new Intent(MainActivity.this, LocationActivity.class);
-            startActivity(intent);
-        }
-        if (id == R.id.action_logout) {
-            //if logout, all data will be delete.
-            /*SharedPreferences session = getSharedPreferences(SESSION_INFO, 0);
-            session.edit().putBoolean(IS_LOGIN, false).putString(PASSWORD, null).putString(NetworkAdapter.PHPSESSID, null).apply();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();*/
-            showLogoutAlert();
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
