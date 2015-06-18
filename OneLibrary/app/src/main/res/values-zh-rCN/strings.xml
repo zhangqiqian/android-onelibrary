@@ -7,6 +7,7 @@
     <string name="title_activity_main">OneLibrary</string>
     <!--<string name="action_search">Search</string>-->
     <string name="menu_refresh">刷新</string>
+    <string name="menu_clear">清空</string>
     <string name="action_settings">设置</string>
     <string name="action_logout">退出</string>
     <string name="search_hint">关键词</string>
