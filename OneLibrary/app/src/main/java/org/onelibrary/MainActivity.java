@@ -42,7 +42,6 @@ public class MainActivity extends FragmentActivity {
 
     public final static String APP_STATUS = "app_status";
     public final static String STATUS_DATA_UPDATE = "data_update";
-    public final static String STATUS_NOTIFICATION = "is_notified";
 
     private SharedPreferences pref;
     private SharedPreferences settings;
@@ -101,13 +100,6 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onResume(){
         Log.d(TAG, "---- onResume ---");
-        refreshListView();
-
-        if (pref == null){
-            pref = getSharedPreferences(APP_STATUS, 0);
-        }
-        pref.edit().putBoolean(STATUS_NOTIFICATION, false).apply();
-        Log.d(TAG, "---- set notification to false ---");
 
         //cancel new notification
         NotificationManager mNotificationManager = (NotificationManager)
@@ -118,18 +110,6 @@ public class MainActivity extends FragmentActivity {
         autoLogin();
 
         super.onResume();
-    }
-
-    @Override
-    public void onStop(){
-        Log.d(TAG, "---- onStop ---");
-        if (pref == null){
-            pref = getSharedPreferences(APP_STATUS, 0);
-        }
-        pref.edit().putBoolean(STATUS_NOTIFICATION, true).apply();
-        Log.d(TAG, "---- set notification to true ---");
-
-        super.onStop();
     }
 
     @Override
