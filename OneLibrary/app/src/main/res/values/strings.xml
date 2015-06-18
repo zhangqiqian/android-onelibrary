@@ -53,4 +53,7 @@
     <string name="dialog_btn_cancel">Cancel</string>
 
     <string name="backpressed_tip">Press once again to exit.</string>
+
+    <string name="tip_updated">Updated</string>
+    <string name="tip_messages">message(s).</string>
 </resources>

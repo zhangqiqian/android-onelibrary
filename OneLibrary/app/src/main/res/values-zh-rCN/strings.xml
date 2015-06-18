@@ -52,4 +52,7 @@
     <string name="dialog_btn_cancel">取消</string>
 
     <string name="backpressed_tip">再按一次将退出。</string>
+
+    <string name="tip_updated">更新了</string>
+    <string name="tip_messages">条信息。</string>
 </resources>
