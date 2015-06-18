@@ -50,7 +50,7 @@ public class MainActivity extends FragmentActivity {
     private ConnectivityManager cm;
 
 
-    int AUTO_REFRESH_INTERVAL = 10 * 1000; //10 seconds.
+    int AUTO_REFRESH_INTERVAL = 20 * 1000; //20 seconds.
     private Handler mHandler = new Handler();
 
     private Runnable updateTimerThread = new Runnable() {
@@ -101,6 +101,11 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onResume(){
         Log.d(TAG, "---- onResume ---");
+        Boolean isUpdated = pref.getBoolean(STATUS_DATA_UPDATE, false);
+        if(isUpdated){
+            refreshListView();
+            pref.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
+        }
 
         //cancel new notification
         NotificationManager mNotificationManager = (NotificationManager)

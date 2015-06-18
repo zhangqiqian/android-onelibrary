@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -20,6 +21,9 @@ import org.onelibrary.data.MessageItem;
 public class DetailActivity extends Activity {
 
     private static final String LOG_TAG = "DetailActivity";
+
+    public final static String APP_STATUS = "app_status";
+    public final static String STATUS_DATA_UPDATE = "data_update";
 
     private MessageDataManager manager;
     MessageItem message;
@@ -93,13 +97,6 @@ public class DetailActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        /*int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }*/
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -124,6 +121,9 @@ public class DetailActivity extends Activity {
                 manager = new MessageDataManager(getBaseContext());
                 result.setStatus(1);
                 manager.updateMessage(result);
+                //notify main to update UI.
+                SharedPreferences prefStatus = getSharedPreferences(APP_STATUS, 0);
+                prefStatus.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }else{
                 Toast.makeText(DetailActivity.this, R.string.access_failure, Toast.LENGTH_SHORT).show();
             }
