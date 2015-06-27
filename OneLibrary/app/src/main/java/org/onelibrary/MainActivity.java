@@ -241,7 +241,7 @@ public class MainActivity extends FragmentActivity {
         protected Boolean doInBackground(Bundle...params) {
             boolean is_ok = false;
             try {
-                String domain = settings.getString("server_address", "http://192.168.1.105");
+                String domain = settings.getString("server_address", "http://115.28.223.203:8080");
                 Log.d(TAG, "---- server domain settings: " + domain + " ----");
 
                 NetworkAdapter adapter = new NetworkAdapter(getBaseContext());

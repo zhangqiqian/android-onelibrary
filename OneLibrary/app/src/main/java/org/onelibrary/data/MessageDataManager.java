@@ -60,7 +60,7 @@ public class MessageDataManager {
     public MessageDataManager(Context context) {
         mDbAdapter = DbAdapter.getInstance(context);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        domain = settings.getString("server_address", "http://192.168.1.105");
+        domain = settings.getString("server_address", "http://115.28.223.203:8080");
     }
 
     /**

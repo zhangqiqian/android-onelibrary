@@ -128,7 +128,7 @@ public class RegisterActivity extends Activity implements ProgressGenerator.OnCo
             try {
                 NetworkInfo networkInfo = cm.getActiveNetworkInfo();
                 if(networkInfo != null && networkInfo.isConnected()){
-                    String domain = settings.getString("server_address", "http://192.168.1.105");
+                    String domain = settings.getString("server_address", "http://115.28.223.203:8080");
                     NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
                     result = adapter.request(domain + getString(R.string.signup_url), params[0]);
                 }
