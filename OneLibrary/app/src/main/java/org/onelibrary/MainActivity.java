@@ -211,7 +211,7 @@ public class MainActivity extends FragmentActivity {
             long now = System.currentTimeMillis()/1000;
             long interval = now - last_login_time;
             Log.d(TAG, "Login status: " + isLogin + ", interval: " + interval);
-            if (!isLogin || interval > 600){
+            if (!isLogin || interval > 1800){
                 String username = session.getString(USERNAME, null);
                 String password = session.getString(PASSWORD, null);
                 if(username == null || username.isEmpty() || password == null || password.isEmpty()){
@@ -267,7 +267,7 @@ public class MainActivity extends FragmentActivity {
         protected void onPostExecute(Boolean result) {
             Log.d(TAG, "Auto login result: " + result);
             if(!result){
-                Toast.makeText(getBaseContext(), R.string.login_failure, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getBaseContext(), R.string.login_failure, Toast.LENGTH_LONG).show();
             }
         }
     }
