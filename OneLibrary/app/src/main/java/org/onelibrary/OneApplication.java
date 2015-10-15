@@ -5,8 +5,6 @@ import android.util.Log;
 
 import org.onelibrary.data.DbAdapter;
 
-import java.lang.annotation.Target;
-
 /**
  * Created by niko on 6/11/15.
  */
