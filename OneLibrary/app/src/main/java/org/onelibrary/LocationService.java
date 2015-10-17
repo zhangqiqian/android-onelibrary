@@ -17,12 +17,9 @@ import android.provider.Settings;
 import android.util.Log;
 
 import org.onelibrary.data.DbAdapter;
-import org.onelibrary.data.LocationDataManager;
-import org.onelibrary.data.LocationEntry;
 import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
 
-import java.util.Calendar;
 import java.util.List;
 
 public class LocationService extends Service implements LocationListener {
@@ -263,7 +260,7 @@ public class LocationService extends Service implements LocationListener {
         double latitude = location.getLatitude();
         Log.d(TAG, "a new position: " + longitude + ", " + latitude);
 
-        new ConvertWGS2BD().execute(latitude, longitude);
+        new LoadMessagesTask().execute(longitude, latitude);
     }
 
     @Override
@@ -313,33 +310,6 @@ public class LocationService extends Service implements LocationListener {
                 SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
                 preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }
-        }
-    }
-
-
-    /**
-     * Implementation of AsyncTask, to fetch the data in the background away from
-     * the UI thread.
-     */
-    private class ConvertWGS2BD extends AsyncTask<Double, Void, Bundle> {
-        LocationDataManager manager;
-
-        @Override
-        protected Bundle doInBackground(Double...params) {
-            manager = new LocationDataManager(mContext);
-            return manager.getBDLocation(mContext, params[0], params[1]);
-        }
-
-        @Override
-        protected void onPostExecute(Bundle result) {
-            double bdLongitude = result.getDouble("longitude");
-            double bdLatitude = result.getDouble("latitude");
-
-            //insert location table
-            LocationEntry entry = new LocationEntry("Location", bdLongitude, bdLatitude, Calendar.getInstance());
-            manager.addPoint(entry);
-
-            new LoadMessagesTask().execute(bdLongitude, bdLatitude);
         }
     }
 }
