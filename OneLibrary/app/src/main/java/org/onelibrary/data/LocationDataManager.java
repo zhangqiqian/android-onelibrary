@@ -17,7 +17,17 @@
 package org.onelibrary.data;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.onelibrary.R;
+import org.onelibrary.util.LocationConverter;
+import org.onelibrary.util.NetworkAdapter;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -74,5 +84,40 @@ public class LocationDataManager {
             mDbAdapter.insertLocation(entry);
             mPointsList.add(entry);
         }
+    }
+
+    public Bundle getBDLocation(Context ctx, double latitude, double longitude){
+        Bundle bdLocation = new Bundle();
+        try{
+            NetworkAdapter adapter = new NetworkAdapter(ctx);
+            Bundle params = new Bundle();
+            params.putString("from", "0");
+            params.putString("to", "4");
+            params.putString("x", String.valueOf(longitude));
+            params.putString("y", String.valueOf(latitude));
+
+            JSONObject result = adapter.get(ctx.getString(R.string.baidu_map_convert_url), params);
+            Log.i("BD LOCATION", result.toString());
+            try {
+                if(result.has("error") && result.getInt("error") == 0){
+                    Log.i("BD LOCATION", "From Baidu Converter");
+                    String x = new String(Base64.decode(result.getString("x").getBytes(), Base64.DEFAULT));
+                    String y = new String(Base64.decode(result.getString("y").getBytes(), Base64.DEFAULT));
+
+                    bdLocation.putDouble("longitude", Double.valueOf(x));
+                    bdLocation.putDouble("latitude", Double.valueOf(y));
+                }else{
+                    //convert lon and lat to baidu lon and lat.
+                    Log.i("BD LOCATION", "From Local Converter");
+                    bdLocation = LocationConverter.convertWgs2Bd(latitude, longitude);
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
+            return bdLocation;
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        return bdLocation;
     }
 }

@@ -330,14 +330,11 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Gets the data repository in write mode
         SQLiteDatabase db = getWritableDatabase();
 
-        //convert lon and lat to baidu lon and lat.
-        Bundle location = LocationConverter.convertWgs2Bd(entry.getLatitude(), entry.getLongitude());
-
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(LocationEntry.NAME, entry.getName());
-        values.put(LocationEntry.LONGITUDE, location.getDouble("longitude"));
-        values.put(LocationEntry.LATITUDE, location.getDouble("latitude"));
+        values.put(LocationEntry.LONGITUDE, entry.getLatitude());
+        values.put(LocationEntry.LATITUDE, entry.getLatitude());
         values.put(LocationEntry.CTIME, entry.getCtime().getTimeInMillis());
 
         // Insert the new row, returning the primary key value of the new row
