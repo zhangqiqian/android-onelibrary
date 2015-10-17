@@ -21,6 +21,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle;
+
+import org.onelibrary.util.LocationConverter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -205,8 +208,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         values.put(MessageItem.CTIME, item.getCtime().getTimeInMillis());
 
         // Insert the new row, returning the primary key value of the new row
-        long ret = db.insert(TABLE_NAME_MESSAGE, "null", values);
-        return ret;
+        return db.insert(TABLE_NAME_MESSAGE, "null", values);
     }
 
     /**
@@ -287,8 +289,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         values.put(MessageItem.STATUS, item.getStatus());
         values.put(MessageItem.CTIME, item.getCtime().getTimeInMillis());
 
-        int ret = db.update(TABLE_NAME_MESSAGE, values, MessageItem.ID + "=" + item.getId(), null);
-        return ret;
+        return db.update(TABLE_NAME_MESSAGE, values, MessageItem.ID + "=" + item.getId(), null);
     }
 
     /**
@@ -299,8 +300,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = MessageItem.ID + " = ?";
         String[] selectionArgs = {String.valueOf(item.getId())};
-        int ret = db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
-        return ret;
+        return db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
     }
 
     /**
@@ -311,8 +311,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = MessageItem.MESSAGEID + " = ?";
         String[] selectionArgs = {String.valueOf(message_id)};
-        int ret = db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
-        return ret;
+        return db.delete(TABLE_NAME_MESSAGE, selection, selectionArgs);
     }
 
     /**
@@ -320,8 +319,7 @@ public class DbAdapter extends SQLiteOpenHelper {
      */
     public final int deleteAllMessages() {
         SQLiteDatabase db = getWritableDatabase();
-        int ret = db.delete(TABLE_NAME_MESSAGE, null, null);
-        return ret;
+        return db.delete(TABLE_NAME_MESSAGE, null, null);
     }
 
     /**
@@ -332,17 +330,19 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Gets the data repository in write mode
         SQLiteDatabase db = getWritableDatabase();
 
+        //convert lon and lat to baidu lon and lat.
+        Bundle location = LocationConverter.convertWgs2Bd(entry.getLatitude(), entry.getLongitude());
+
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(LocationEntry.NAME, entry.getName());
-        values.put(LocationEntry.LONGITUDE, entry.getLongitude());
-        values.put(LocationEntry.LATITUDE, entry.getLatitude());
+        values.put(LocationEntry.LONGITUDE, location.getDouble("longitude"));
+        values.put(LocationEntry.LATITUDE, location.getDouble("latitude"));
         values.put(LocationEntry.CTIME, entry.getCtime().getTimeInMillis());
 
         // Insert the new row, returning the primary key value of the new row
 
-        long ret = db.insert(TABLE_NAME_LOCATION, null, values);
-        return ret;
+        return db.insert(TABLE_NAME_LOCATION, null, values);
     }
 
     /**
@@ -406,9 +406,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = LocationEntry.ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
-        int ret =  db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
-        return ret;
-
+        return db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
     }
 
     /**
@@ -420,8 +418,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Define 'where' part of the query.
         String selection = LocationEntry.NAME + " = ?";
         String[] selectionArgs = {name};
-        int ret = db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
-        return ret;
+        return db.delete(TABLE_NAME_LOCATION, selection, selectionArgs);
     }
 
     /**
@@ -430,7 +427,6 @@ public class DbAdapter extends SQLiteOpenHelper {
      */
     public final int deleteAllLocations() {
         SQLiteDatabase db = getWritableDatabase();
-        int ret = db.delete(TABLE_NAME_LOCATION, null, null);
-        return ret;
+        return db.delete(TABLE_NAME_LOCATION, null, null);
     }
 }
