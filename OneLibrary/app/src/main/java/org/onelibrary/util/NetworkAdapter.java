@@ -18,8 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -108,6 +106,43 @@ public class NetworkAdapter {
             }
             return map;
         }
+    }
+
+    public JSONObject get(String url, Bundle params) throws IOException {
+        JSONObject result = new JSONObject();
+        InputStream stream = null;
+        try {
+            Set<String> keys = params.keySet();
+            StringBuilder sb = new StringBuilder();
+            if(!params.isEmpty()){
+                for (String key : keys){
+                    String value = params.getString(key);
+                    sb.append(key).append('=').append(URLEncoder.encode(value, "UTF-8")).append('&');
+                }
+                sb.deleteCharAt(sb.length()-1);
+                if(url.contains("?")){
+                    url = url+"&"+sb.toString();
+                }else{
+                    url = url+"?"+sb.toString();
+                }
+            }
+            Log.i("Network", url);
+            stream = requestUrl(url);
+            String str = readIt(stream);
+            result = parseJSON(str);
+        }catch (Exception e){
+            try {
+                result.put("error", 1);
+                result.put("errmsg", "Server Error");
+            }catch (JSONException err){
+                err.printStackTrace();
+            }
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+        }
+        return result;
     }
 
     public JSONObject parseJSON(String jsonString) {
