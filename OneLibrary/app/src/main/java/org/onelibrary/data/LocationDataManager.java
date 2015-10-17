@@ -86,7 +86,7 @@ public class LocationDataManager {
         }
     }
 
-    public Bundle getBDLocation(Context ctx, double latitude, double longitude){
+    public Bundle getBDLocation(Context ctx, double longitude, double latitude){
         Bundle bdLocation = new Bundle();
         try{
             NetworkAdapter adapter = new NetworkAdapter(ctx);

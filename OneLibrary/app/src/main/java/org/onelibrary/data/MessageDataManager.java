@@ -157,6 +157,19 @@ public class MessageDataManager {
     public List<MessageItem> getRemoteMessages(Context ctx, double longitude, double latitude){
         List<MessageItem> messageItems = new ArrayList<MessageItem>();
         try {
+            //convert location to bd location
+            LocationDataManager locationDataManager = new LocationDataManager(ctx);
+            Bundle bdLocation = locationDataManager.getBDLocation(ctx, longitude, latitude);
+
+            double bdLon = bdLocation.getDouble("longitude");
+            double bdLat = bdLocation.getDouble("latitude");
+
+            //todo save every bd location, will be deleted after release
+            locationDataManager = new LocationDataManager(ctx);
+            LocationEntry entry = new LocationEntry("Location", bdLon, bdLat, Calendar.getInstance());
+            locationDataManager.addPoint(entry);
+
+            //get messages
             NetworkAdapter adapter = new NetworkAdapter(ctx);
             SharedPreferences session = ctx.getSharedPreferences(MAIN_INFO, 0);
             long last_time = session.getLong(REQUEST_LAST_TIME, 0);
@@ -171,8 +184,8 @@ public class MessageDataManager {
             Bundle params = new Bundle();
             params.putString(REQUEST_LAST_TIME, String.valueOf(last_time));
             params.putString(REQUEST_LAST_PUBLISH_ID, String.valueOf(last_publish_id));
-            params.putString(REQUEST_LAST_LONGITUDE, String.valueOf(longitude));
-            params.putString(REQUEST_LAST_LATITUDE, String.valueOf(latitude));
+            params.putString(REQUEST_LAST_LONGITUDE, String.valueOf(bdLon));
+            params.putString(REQUEST_LAST_LATITUDE, String.valueOf(bdLat));
             params.putString(REQUEST_NEXT_START, String.valueOf(next_start));
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
