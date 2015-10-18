@@ -333,7 +333,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(LocationEntry.NAME, entry.getName());
-        values.put(LocationEntry.LONGITUDE, entry.getLatitude());
+        values.put(LocationEntry.LONGITUDE, entry.getLongitude());
         values.put(LocationEntry.LATITUDE, entry.getLatitude());
         values.put(LocationEntry.CTIME, entry.getCtime().getTimeInMillis());
 
