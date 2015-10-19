@@ -72,6 +72,6 @@ public class LocationEntry {
             return "latitude: "+latitude+", longitude: "+longitude;
         }
         SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
-        return id+": "+longitude+", "+latitude+" at "+fmt.format(ctime.getTime());
+        return fmt.format(ctime.getTime())+": "+longitude+","+latitude+" "+name;
     }
 }
