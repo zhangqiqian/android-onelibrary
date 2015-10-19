@@ -166,7 +166,7 @@ public class MessageDataManager {
 
             //todo save every bd location, will be deleted after release
             locationDataManager = new LocationDataManager(ctx);
-            LocationEntry entry = new LocationEntry("Location", bdLon, bdLat, Calendar.getInstance());
+            LocationEntry entry = new LocationEntry("BD Location", bdLon, bdLat, Calendar.getInstance());
             locationDataManager.addPoint(entry);
 
             //get messages
@@ -182,7 +182,7 @@ public class MessageDataManager {
             }
 
             Bundle params = new Bundle();
-            params.putString(REQUEST_LAST_TIME, String.valueOf(last_time));
+            //params.putString(REQUEST_LAST_TIME, String.valueOf(last_time));
             params.putString(REQUEST_LAST_PUBLISH_ID, String.valueOf(last_publish_id));
             params.putString(REQUEST_LAST_LONGITUDE, String.valueOf(bdLon));
             params.putString(REQUEST_LAST_LATITUDE, String.valueOf(bdLat));
