@@ -52,6 +52,7 @@ public class SchedulingService extends IntentService {
         if(networkInfo != null && networkInfo.isConnected()){
 
             LocationService locationService = new LocationService(getBaseContext());
+            locationService.getLastLocation();
             double longitude = locationService.getLongitude();
             double latitude  = locationService.getLatitude();
 

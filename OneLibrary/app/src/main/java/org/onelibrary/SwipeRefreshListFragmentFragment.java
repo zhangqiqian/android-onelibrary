@@ -180,6 +180,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     private void initiateRefresh() {
         Log.d(LOG_TAG, "------- initiateRefresh -------");
         LocationService locationService = new LocationService(getActivity());
+        locationService.getLastLocation();
         double longitude = locationService.getLongitude();
         double latitude  = locationService.getLatitude();
 
