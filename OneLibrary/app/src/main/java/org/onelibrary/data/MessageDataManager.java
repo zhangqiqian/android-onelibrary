@@ -51,8 +51,7 @@ public class MessageDataManager {
     public final static String REQUEST_LAST_PUBLISH_ID = "last_publish_id";
     public final static String REQUEST_LAST_LONGITUDE = "longitude";
     public final static String REQUEST_LAST_LATITUDE = "latitude";
-    public final static String REQUEST_NEXT_START = "next_start";
-
+    public final static String REQUEST_NEXT_START = "start";
 
     private final List<MessageItem> mMessagesList = new ArrayList<MessageItem>();
     private String domain;
@@ -154,7 +153,7 @@ public class MessageDataManager {
         }
     }
 
-    public List<MessageItem> getRemoteMessages(Context ctx, double longitude, double latitude){
+    public List<MessageItem> getRemoteMessages(Context ctx, double longitude, double latitude, int priority, int limit){
         List<MessageItem> messageItems = new ArrayList<MessageItem>();
         try {
             //convert location to bd location
@@ -187,6 +186,8 @@ public class MessageDataManager {
             params.putString(REQUEST_LAST_LONGITUDE, String.valueOf(bdLon));
             params.putString(REQUEST_LAST_LATITUDE, String.valueOf(bdLat));
             params.putString(REQUEST_NEXT_START, String.valueOf(next_start));
+            params.putString("priority", String.valueOf(priority));
+            params.putString("limit", String.valueOf(10));
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
             try{
@@ -199,11 +200,16 @@ public class MessageDataManager {
 
                     JSONArray messagesArray = result.getJSONArray("result");
                     if(messagesArray.length() > 0){
+                        long new_publish_id = 0;
                         for (int i = 0;i< messagesArray.length();i++){
                             JSONObject message = messagesArray.getJSONObject(i);
                             MessageItem item = new MessageItem();
-                            item.setPublishId(message.getInt("publish_id"));
-                            item.setMessageId(message.getInt("message_id"));
+                            long publish_id = message.getLong("publish_id");
+                            if(publish_id > new_publish_id){
+                                new_publish_id = publish_id;
+                            }
+                            item.setPublishId(publish_id);
+                            item.setMessageId(message.getLong("message_id"));
                             item.setTitle(message.getString("title"));
                             item.setAuthor("");
                             item.setContent("");
@@ -215,7 +221,7 @@ public class MessageDataManager {
                             item.setCtime(Calendar.getInstance());
                             messageItems.add(item);
                         }
-                        session.edit().putInt(REQUEST_NEXT_START, start).putLong(REQUEST_LAST_TIME, new_last_time).apply();
+                        session.edit().putInt(REQUEST_NEXT_START, start).putLong(REQUEST_LAST_TIME, new_last_time).putLong(REQUEST_LAST_PUBLISH_ID, new_publish_id).apply();
                         Log.d(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
                     }
                 }else{
