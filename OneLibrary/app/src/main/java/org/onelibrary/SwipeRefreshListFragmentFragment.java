@@ -223,7 +223,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
             List<MessageItem> items = null;
             if(networkInfo != null && networkInfo.isConnected()){
                 MessageDataManager manager = new MessageDataManager(getActivity());
-                items = manager.getRemoteMessages(getActivity(), params[0], params[1]);
+                items = manager.getRemoteMessages(getActivity(), params[0], params[1], 1, 10);
             }
             return items;
         }

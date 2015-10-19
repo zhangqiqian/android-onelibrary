@@ -58,7 +58,7 @@ public class SchedulingService extends IntentService {
 
             DbAdapter mDbAdapter = DbAdapter.getInstance(getBaseContext());
             MessageDataManager manager = new MessageDataManager(getBaseContext());
-            List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude);
+            List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude, 3, 3);
 
             int size = messageItems.size();
             String content = getBaseContext().getString(R.string.notification_content);
