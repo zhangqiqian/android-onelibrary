@@ -48,7 +48,6 @@ public class MessageDataManager {
 
     public final static String MAIN_INFO = "main_info";
     public final static String REQUEST_LAST_TIME = "last_time";
-    public final static String REQUEST_LAST_PUBLISH_ID = "last_publish_id";
     public final static String REQUEST_LAST_LONGITUDE = "longitude";
     public final static String REQUEST_LAST_LATITUDE = "latitude";
     public final static String REQUEST_NEXT_START = "start";
@@ -172,7 +171,6 @@ public class MessageDataManager {
             NetworkAdapter adapter = new NetworkAdapter(ctx);
             SharedPreferences session = ctx.getSharedPreferences(MAIN_INFO, 0);
             long last_time = session.getLong(REQUEST_LAST_TIME, 0);
-            long last_publish_id = session.getLong(REQUEST_LAST_PUBLISH_ID, 0);
             int next_start = session.getInt(REQUEST_NEXT_START, 0);
 
             long new_last_time = System.currentTimeMillis()/1000;
@@ -181,13 +179,11 @@ public class MessageDataManager {
             }
 
             Bundle params = new Bundle();
-            //params.putString(REQUEST_LAST_TIME, String.valueOf(last_time));
-            params.putString(REQUEST_LAST_PUBLISH_ID, String.valueOf(last_publish_id));
             params.putString(REQUEST_LAST_LONGITUDE, String.valueOf(bdLon));
             params.putString(REQUEST_LAST_LATITUDE, String.valueOf(bdLat));
             params.putString(REQUEST_NEXT_START, String.valueOf(next_start));
             params.putString("priority", String.valueOf(priority));
-            params.putString("limit", String.valueOf(10));
+            params.putString("limit", String.valueOf(limit));
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
             try{
@@ -200,15 +196,10 @@ public class MessageDataManager {
 
                     JSONArray messagesArray = result.getJSONArray("result");
                     if(messagesArray.length() > 0){
-                        long new_publish_id = 0;
                         for (int i = 0;i< messagesArray.length();i++){
                             JSONObject message = messagesArray.getJSONObject(i);
                             MessageItem item = new MessageItem();
-                            long publish_id = message.getLong("publish_id");
-                            if(publish_id > new_publish_id){
-                                new_publish_id = publish_id;
-                            }
-                            item.setPublishId(publish_id);
+                            item.setPublishId(message.getLong("publish_id"));
                             item.setMessageId(message.getLong("message_id"));
                             item.setTitle(message.getString("title"));
                             item.setAuthor("");
@@ -221,7 +212,7 @@ public class MessageDataManager {
                             item.setCtime(Calendar.getInstance());
                             messageItems.add(item);
                         }
-                        session.edit().putInt(REQUEST_NEXT_START, start).putLong(REQUEST_LAST_TIME, new_last_time).putLong(REQUEST_LAST_PUBLISH_ID, new_publish_id).apply();
+                        session.edit().putInt(REQUEST_NEXT_START, start).putLong(REQUEST_LAST_TIME, new_last_time).apply();
                         Log.d(LOG_TAG, "new_last_time=" + new_last_time + " start=" + start);
                     }
                 }else{
