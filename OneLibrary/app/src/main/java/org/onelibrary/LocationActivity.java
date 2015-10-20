@@ -99,8 +99,17 @@ public class LocationActivity extends ListActivity {
         listItems = new ArrayList<String>();
         List<LocationEntry> points = manager.getPoints();
 
+        LocationEntry lastPoint = null;
         for (LocationEntry entry:points){
-            listItems.add(entry.toString());
+            double distance = 0;
+            if(lastPoint == null){
+                distance = 0;
+                lastPoint = entry;
+            }else{
+                distance = LocationDataManager.getDistance(lastPoint.getLongitude(), lastPoint.getLatitude(), entry.getLongitude(), entry.getLatitude());
+                lastPoint = entry;
+            }
+            listItems.add(entry.toString()+" "+distance+"m");
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
