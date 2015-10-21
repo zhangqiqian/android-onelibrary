@@ -130,7 +130,7 @@ public class LocationDataManager {
         double b = rad(longitude1) - rad(longitude2);
         double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
         s = s * EARTH_RADIUS;
-        s = Math.round(s * 10000) / 10000.0;
+        s = Math.round(s * 10000 / 10000.0);
         return s * 1000;
     }
 

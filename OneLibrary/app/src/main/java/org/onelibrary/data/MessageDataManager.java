@@ -164,7 +164,7 @@ public class MessageDataManager {
 
             //todo save every bd location, will be deleted after release
             locationDataManager = new LocationDataManager(ctx);
-            LocationEntry entry = new LocationEntry("BD Location", bdLon, bdLat, Calendar.getInstance());
+            LocationEntry entry = new LocationEntry("Location", bdLon, bdLat, Calendar.getInstance());
             locationDataManager.addPoint(entry);
 
             //get messages
