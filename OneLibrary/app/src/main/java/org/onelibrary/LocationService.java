@@ -151,28 +151,40 @@ public class LocationService extends Service implements LocationListener {
                 // no network provider is enabled
             } else {
                 this.canGetLocation = true;
-                // First get location from Network Provider
-                if (isNetworkEnabled) {
-                    Log.d(TAG, "Get last location, LocationService is from network.");
-                    if (locationManager != null) {
-                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        if (location != null) {
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                        }
-                    }
-                }
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
+                    locationManager.requestSingleUpdate(
+                            LocationManager.GPS_PROVIDER, this, null);
+
                     Log.d(TAG, "Get last location, GPS Enabled, and locationService is from gps.");
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         if (location != null) {
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
+                            return location;
                         }
                     }
                 }
+
+                // First get location from Network Provider
+                if (isNetworkEnabled) {
+                    locationManager.requestSingleUpdate(
+                            LocationManager.NETWORK_PROVIDER,
+                            this,
+                            null);
+
+                    Log.d(TAG, "Get last location, LocationService is from network.");
+                    if (locationManager != null) {
+                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            return location;
+                        }
+                    }
+                }
+
             }
 
         } catch (Exception e) {
