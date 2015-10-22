@@ -20,8 +20,8 @@ public class OneApplication extends Application {
 
         //register Location Updates
         Log.d(TAG, "---- register location updates ----");
-        LocationService locationService = new LocationService(this);
-        locationService.registerLocationUpdates();
+        //LocationService locationService = new LocationService(this);
+        //locationService.registerLocationUpdates();
 
         //set scheduling alarm
         Log.d(TAG, "---- set scheduling alarm ----");
