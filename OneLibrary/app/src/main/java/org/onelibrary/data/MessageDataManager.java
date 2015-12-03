@@ -152,7 +152,7 @@ public class MessageDataManager {
         }
     }
 
-    public List<MessageItem> getRemoteMessages(Context ctx, double longitude, double latitude, int priority, int limit){
+    public List<MessageItem> getRemoteMessages(Context ctx, double longitude, double latitude, int priority, int limit, int is_notify){
         List<MessageItem> messageItems = new ArrayList<MessageItem>();
         try {
             //convert location to bd location
@@ -183,6 +183,7 @@ public class MessageDataManager {
             params.putString(REQUEST_LAST_LATITUDE, String.valueOf(bdLat));
             params.putString(REQUEST_NEXT_START, String.valueOf(next_start));
             params.putString("priority", String.valueOf(priority));
+            params.putString("notification", String.valueOf(is_notify));
             params.putString("limit", String.valueOf(limit));
 
             Log.d(LOG_TAG, "Request params: " + params.toString());
