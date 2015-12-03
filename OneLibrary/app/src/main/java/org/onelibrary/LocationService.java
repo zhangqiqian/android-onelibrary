@@ -303,7 +303,7 @@ public class LocationService extends Service implements LocationListener {
         protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
             MessageDataManager manager = new MessageDataManager(mContext);
-            return manager.getRemoteMessages(mContext, params[0], params[1], 1, 10);
+            return manager.getRemoteMessages(mContext, params[0], params[1], 1, 10, 1);
         }
 
         @Override
