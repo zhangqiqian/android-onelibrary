@@ -33,14 +33,22 @@ public class SchedulingService extends IntentService {
     }
 
     public static final String TAG = "SchedulingService";
-    // An ID used to post the notification.
-    public static final int NOTIFICATION_ID = 1;
-
     public final static String APP_STATUS = "app_status";
     public final static String STATUS_DATA_UPDATE = "data_update";
 
     NotificationManager mNotificationManager;
     SharedPreferences settings;
+    SharedPreferences preferences = null;
+    private MessageDataManager manager = null;
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        preferences = getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        manager = new MessageDataManager(getBaseContext(), domain);
+    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -57,34 +65,26 @@ public class SchedulingService extends IntentService {
             double latitude  = locationService.getLatitude();
 
             DbAdapter mDbAdapter = DbAdapter.getInstance(getBaseContext());
-            MessageDataManager manager = new MessageDataManager(getBaseContext());
-            List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude, 1, 3, 1);
+            List<MessageItem> messageItems = manager.getRemoteMessages(getBaseContext(), longitude, latitude, 1, 1, 1);
 
             int size = messageItems.size();
-            String content = getBaseContext().getString(R.string.notification_content);
+            String title = getBaseContext().getString(R.string.notification_title);
             for (MessageItem item : messageItems){
                 if(mDbAdapter.messageIsExist(item)){
                     size--;
                 }else{
                     manager.addMessage(item);
-                    content = item.getTitle();
+                    Log.d(TAG, "------ send notification ------");
+                    int notification_id = (int)(Math.random() * 10 + 1);
+                    sendNotification(notification_id, title, item.getTitle());
+                    Log.d(TAG, "------ notification: " + item.getTitle());
                 }
             }
 
-            String msg;
-            String title = getBaseContext().getString(R.string.notification_title);
             if (size > 0) {
-                SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
-                Log.d(TAG, "------ send notification ------");
-                if(size == 1){
-                    int notification_id = (int)(Math.random() * 10 + 1);
-                    msg = content;
-                    sendNotification(notification_id, title, msg);
-                }else{
-                    msg = "You have " + size + " new messages.";
-                    sendNotification(NOTIFICATION_ID, title, msg);
+                if (preferences == null){
+                    preferences = getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
                 }
-                Log.d(TAG, "------ notification: " + msg);
                 preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }
         }

@@ -53,6 +53,8 @@ public class LocationService extends Service implements LocationListener {
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
+    private SharedPreferences preferences = null;
+    private String domain = null;
 
     public LocationService() {
         this.mContext = getBaseContext();
@@ -66,6 +68,7 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onCreate(){
         super.onCreate();
+        preferences = mContext.getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
         Log.d(TAG, "------ onCreate ------");
         mContext = getBaseContext();
     }
@@ -302,14 +305,22 @@ public class LocationService extends Service implements LocationListener {
         @Override
         protected List<MessageItem> doInBackground(Double...params) {
             //get remote message, and save to db.
-            MessageDataManager manager = new MessageDataManager(mContext);
+            if(domain == null){
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+                domain = settings.getString("server_address", "http://115.28.223.203:8080");
+            }
+            MessageDataManager manager = new MessageDataManager(mContext, domain);
             return manager.getRemoteMessages(mContext, params[0], params[1], 1, 3, 1);
         }
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
             mDbAdapter = DbAdapter.getInstance(mContext);
-            MessageDataManager manager = new MessageDataManager(mContext);
+            if(domain == null){
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+                domain = settings.getString("server_address", "http://115.28.223.203:8080");
+            }
+            MessageDataManager manager = new MessageDataManager(mContext, domain);
             int size = result.size();
             for (MessageItem item : result){
                 if(mDbAdapter.messageIsExist(item)){
@@ -319,7 +330,9 @@ public class LocationService extends Service implements LocationListener {
                 }
             }
             if(size > 0){
-                SharedPreferences preferences = getSharedPreferences(APP_STATUS, 0);
+                if (preferences == null){
+                    preferences = mContext.getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
+                }
                 preferences.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }
         }

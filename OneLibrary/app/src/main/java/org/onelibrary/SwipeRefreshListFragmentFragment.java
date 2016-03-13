@@ -20,10 +20,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextPaint;
 import android.util.Log;
@@ -66,10 +68,14 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
     private List<MessageItem> messages;
     MessageAdapter adapter;
 
+    public MessageDataManager messageDataManager = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        messageDataManager = new MessageDataManager(getActivity(), domain);
         // Notify the system to allow an options menu for this fragment.
         setHasOptionsMenu(true);
     }
@@ -205,7 +211,9 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
 
     private List<MessageItem> getLocalMessages(){
-        MessageDataManager messageDataManager = new MessageDataManager(getActivity());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        MessageDataManager messageDataManager = new MessageDataManager(getActivity(), domain);
         return messageDataManager.getMessageList();
     }
 
@@ -222,8 +230,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
             NetworkInfo networkInfo = cm.getActiveNetworkInfo();
             List<MessageItem> items = null;
             if(networkInfo != null && networkInfo.isConnected()){
-                MessageDataManager manager = new MessageDataManager(getActivity());
-                items = manager.getRemoteMessages(getActivity(), params[0], params[1], 1, 10, 0);
+                items = messageDataManager.getRemoteMessages(getActivity(), params[0], params[1], 1, 10, 0);
             }
             return items;
         }
@@ -231,7 +238,6 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         @Override
         protected void onPostExecute(List<MessageItem> result) {
             DbAdapter mDbAdapter = DbAdapter.getInstance(getActivity());
-            MessageDataManager manager = new MessageDataManager(getActivity());
             int size = 0;
             if (result != null && result.size() > 0){
                 size = result.size();
@@ -239,7 +245,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
                     if(mDbAdapter.messageIsExist(item)){
                         size--;
                     }else{
-                        long id = manager.addMessage(item);
+                        long id = messageDataManager.addMessage(item);
                         item.setId(id);
                         adapter.insert(item, 0);
                     }
@@ -256,11 +262,10 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         builder.setPositiveButton(R.string.dialog_btn_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                MessageDataManager manager = new MessageDataManager(getActivity());
                 Log.d(LOG_TAG, "---- remove message: " + which + " position: " + position);
                 MessageItem item = messages.get(position);
                 messages.remove(position);
-                manager.removeMessage(item);
+                messageDataManager.removeMessage(item);
                 adapter = (MessageAdapter) getListAdapter();
                 if(adapter == null){
                     renderListView();

@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ public class DetailActivity extends Activity {
 
     private MessageDataManager manager;
     MessageItem message;
+    private SharedPreferences prefStatus = null;
     private ProgressDialog progressDialog;
 
     @Override
@@ -34,11 +36,16 @@ public class DetailActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        prefStatus = getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
+
         Intent intent = getIntent();
         Bundle item = intent.getBundleExtra("message");
         long id = item.getLong("id");
         long message_id = item.getLong("message_id");
-        manager = new MessageDataManager(getBaseContext());
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        manager = new MessageDataManager(getBaseContext(), domain);
         message = manager.getMessage(id);
         if (message != null && (message.getContent().isEmpty() || message.getContent().contentEquals(""))){
             ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -109,7 +116,6 @@ public class DetailActivity extends Activity {
         @Override
         protected MessageItem doInBackground(Long...params) {
             //get remote message, and save to db.
-            manager = new MessageDataManager(getBaseContext());
             return manager.getMessageDetail(getBaseContext(), params[0], params[1]);
         }
 
@@ -118,11 +124,12 @@ public class DetailActivity extends Activity {
             if(result != null){
                 Log.d(LOG_TAG, "AsyncTask result: " + result.toString());
                 renderDetail(result);
-                manager = new MessageDataManager(getBaseContext());
                 result.setStatus(1);
                 manager.updateMessage(result);
                 //notify main to update UI.
-                SharedPreferences prefStatus = getSharedPreferences(APP_STATUS, 0);
+                if (prefStatus == null){
+                    prefStatus = getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
+                }
                 prefStatus.edit().putBoolean(STATUS_DATA_UPDATE, true).apply();
             }else{
                 Toast.makeText(DetailActivity.this, R.string.access_failure, Toast.LENGTH_SHORT).show();

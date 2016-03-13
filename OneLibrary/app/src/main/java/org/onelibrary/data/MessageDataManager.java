@@ -19,7 +19,6 @@ package org.onelibrary.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -55,10 +54,9 @@ public class MessageDataManager {
     private final List<MessageItem> mMessagesList = new ArrayList<MessageItem>();
     private String domain;
 
-    public MessageDataManager(Context context) {
+    public MessageDataManager(Context context, String domain) {
         mDbAdapter = DbAdapter.getInstance(context);
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        this.domain = domain;
     }
 
     /**

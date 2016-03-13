@@ -37,6 +37,7 @@ public class MainActivity extends FragmentActivity {
 
     public final static String SESSION_INFO = "session_info";
     public final static String IS_LOGIN = "is_login";
+    public final static String UID = "uid";
     public final static String USERNAME = "username";
     public final static String PASSWORD = "password";
     public final static String LAST_LOGIN = "last_login_time";
@@ -49,8 +50,9 @@ public class MainActivity extends FragmentActivity {
     private SharedPreferences session;
     private ConnectivityManager cm;
 
+    private MessageDataManager messageManager = null;
 
-    int AUTO_REFRESH_INTERVAL = 20 * 1000; //20 seconds.
+    int AUTO_REFRESH_INTERVAL = 30 * 1000; //20 seconds.
     private Handler mHandler = new Handler();
 
     private Runnable updateTimerThread = new Runnable() {
@@ -78,7 +80,7 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main);
 
         settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        pref = getSharedPreferences(APP_STATUS, 0);
+        pref = getSharedPreferences(APP_STATUS, Context.MODE_MULTI_PROCESS);
         session = getSharedPreferences(SESSION_INFO, 0);
 
         mHandler.postDelayed(updateTimerThread, AUTO_REFRESH_INTERVAL);
@@ -91,6 +93,10 @@ public class MainActivity extends FragmentActivity {
         cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         autoLogin();
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        messageManager = new MessageDataManager(getBaseContext(), domain);
 
         if (savedInstanceState == null) {
             refreshListView();
@@ -108,10 +114,10 @@ public class MainActivity extends FragmentActivity {
         }
 
         //cancel new notification
-        NotificationManager mNotificationManager = (NotificationManager)
+        /*NotificationManager mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancelAll();
-        Log.d(TAG, "---- cancel new notification ----");
+        Log.d(TAG, "---- cancel new notification ----");*/
 
         autoLogin();
 
@@ -145,6 +151,17 @@ public class MainActivity extends FragmentActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
+                return false;
+            }
+        });
+
+        MenuItem item4 = menu.add(0, 1, 0, R.string.menu_clear);
+        item4.setIcon(android.R.drawable.ic_menu_delete);
+        item4.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                messageManager.clearMessages();
+                refreshListView();
                 return false;
             }
         });
@@ -250,8 +267,9 @@ public class MainActivity extends FragmentActivity {
 
                 if(result.getInt("errno") == 0){
                     is_ok = true;
+                    long uid = result.getInt("uid");
                     long now = System.currentTimeMillis()/1000;
-                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).apply();
+                    session.edit().putString(USERNAME, params[0].getString(USERNAME)).putString(PASSWORD, params[0].getString(PASSWORD)).putBoolean(IS_LOGIN, true).putLong(LAST_LOGIN, now).putLong(UID, uid).apply();
                 }else{
                     session.edit().putString(USERNAME, params[0].getString(USERNAME)).putBoolean(IS_LOGIN, false).apply();
                 }
@@ -299,10 +317,6 @@ public class MainActivity extends FragmentActivity {
             public void onClick(DialogInterface dialog, int which) {
                 session.edit().putBoolean(IS_LOGIN, false).putString(PASSWORD, null).putString(NetworkAdapter.PHPSESSID, null).putLong(LAST_LOGIN, 0).apply();
                 pref.edit().putBoolean(STATUS_DATA_UPDATE, false).apply();
-                MessageDataManager messageManager = new MessageDataManager(getBaseContext());
-                messageManager.clearMessages();
-                LocationDataManager locationManager = new LocationDataManager(getBaseContext());
-                locationManager.clearPoints();
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();

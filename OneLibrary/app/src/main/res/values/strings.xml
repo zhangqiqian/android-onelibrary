@@ -7,7 +7,7 @@
     <string name="title_activity_main">OneLibrary</string>
     <!--<string name="action_search">Search</string>-->
     <string name="menu_refresh">Refresh</string>
-    <string name="menu_clear">Clear</string>
+    <string name="menu_clear">Clean</string>
     <string name="action_settings">Settings</string>
     <string name="action_logout">Sign out</string>
     <string name="search_hint">Key words</string>
@@ -24,7 +24,7 @@
     <string name="being_sign_in">Signing in ...</string>
     <string name="being_sign_up">Signing up ...</string>
     <string name="signup_success">Success to sign up, please sign in.</string>
-    <string name="logout_alert_tip">All messages will be deleted, continue?</string>
+    <string name="logout_alert_tip">Are you sure to sign out, continue?</string>
 
     <string name="login_url">/Api/Public/login</string>
     <string name="signup_url">/Api/Public/register</string>
