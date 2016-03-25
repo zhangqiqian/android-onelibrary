@@ -29,6 +29,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,8 +43,6 @@ import org.onelibrary.data.DbAdapter;
 import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.data.MessageItem;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -292,24 +291,30 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
      */
     private class MessageAdapter extends ArrayAdapter<MessageItem>{
 
+        private LayoutInflater inflater;
+
         public MessageAdapter(Context context, int resource, int textViewResourceId, List<MessageItem> messages) {
             super(context, resource, textViewResourceId, messages);
+            inflater = LayoutInflater.from(context);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            View view = convertView;
             if(convertView == null) {
-                convertView = getActivity().getLayoutInflater().inflate(R.layout.list_item, null);
+                view = inflater.inflate(R.layout.list_item, null);
             }
             MessageItem message = getItem(position);
-            TextView itemText = (TextView)convertView.findViewById(R.id.item_text);
+            TextView itemText = (TextView)view.findViewById(R.id.item_text);
             itemText.setText(message.getTitle());
             if(message.getStatus() == 0){
                 itemText.setTextColor(getResources().getColor(R.color.blue_pressed));
-                TextPaint tp = itemText.getPaint();
-                tp.setFakeBoldText(true);
+                /*TextPaint tp = itemText.getPaint();
+                tp.setFakeBoldText(true);*/
+            }else{
+                itemText.setTextColor(getResources().getColor(R.color.abc_secondary_text_material_light));
             }
-            return convertView;
+            return view;
         }
     }
 
