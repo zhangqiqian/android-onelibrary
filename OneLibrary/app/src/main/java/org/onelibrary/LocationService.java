@@ -310,7 +310,7 @@ public class LocationService extends Service implements LocationListener {
                 domain = settings.getString("server_address", "http://115.28.223.203:8080");
             }
             MessageDataManager manager = new MessageDataManager(mContext, domain);
-            return manager.getRemoteMessages(mContext, params[0], params[1], 1, 3, 1);
+            return manager.getRemoteMessages(mContext, params[0], params[1], 1, 1, 1);
         }
 
         @Override
