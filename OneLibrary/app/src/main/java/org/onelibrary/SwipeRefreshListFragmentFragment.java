@@ -236,17 +236,19 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
 
         @Override
         protected void onPostExecute(List<MessageItem> result) {
-            DbAdapter mDbAdapter = DbAdapter.getInstance(getActivity());
             int size = 0;
-            if (result != null && result.size() > 0){
-                size = result.size();
-                for (MessageItem item : result){
-                    if(mDbAdapter.messageIsExist(item)){
-                        size--;
-                    }else{
-                        long id = messageDataManager.addMessage(item);
-                        item.setId(id);
-                        adapter.insert(item, 0);
+            if(isAdded()){
+                DbAdapter mDbAdapter = DbAdapter.getInstance(getActivity());
+                if (result != null && result.size() > 0){
+                    size = result.size();
+                    for (MessageItem item : result){
+                        if(mDbAdapter.messageIsExist(item)){
+                            size--;
+                        }else{
+                            long id = messageDataManager.addMessage(item);
+                            item.setId(id);
+                            adapter.insert(item, 0);
+                        }
                     }
                 }
             }
