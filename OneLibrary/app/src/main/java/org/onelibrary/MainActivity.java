@@ -2,15 +2,21 @@ package org.onelibrary;
 
 
 import android.app.AlertDialog;
-import android.app.NotificationManager;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -22,7 +28,6 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.onelibrary.data.LocationDataManager;
 import org.onelibrary.data.MessageDataManager;
 import org.onelibrary.util.NetworkAdapter;
 
@@ -52,6 +57,10 @@ public class MainActivity extends FragmentActivity {
 
     private MessageDataManager messageManager = null;
 
+    DownloadManager downManager ;
+    private DownLoadCompleteReceiver receiver;
+
+    String domain;
     int AUTO_REFRESH_INTERVAL = 30 * 1000; //20 seconds.
     private Handler mHandler = new Handler();
 
@@ -95,12 +104,22 @@ public class MainActivity extends FragmentActivity {
         autoLogin();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String domain = settings.getString("server_address", "http://115.28.223.203:8080");
+        domain = settings.getString("server_address", "http://115.28.223.203:8080");
+
+        Bundle params = new Bundle();
+        new checkUpdateTask().execute(params);
+
         messageManager = new MessageDataManager(getBaseContext(), domain);
 
         if (savedInstanceState == null) {
             refreshListView();
         }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        filter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED);
+        receiver = new DownLoadCompleteReceiver();
+        registerReceiver(receiver, filter);
 
     }
 
@@ -302,13 +321,15 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     public void onDestroy(){
-        mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
+        mHandler.removeCallbacksAndMessages(null);
+        unregisterReceiver(receiver);
     }
 
     private void showLogoutAlert(){
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK);
 
+        alertDialog.setIcon(android.R.drawable.ic_dialog_info);
         // Setting Dialog Message
         alertDialog.setMessage(R.string.logout_alert_tip);
 
@@ -332,6 +353,105 @@ public class MainActivity extends FragmentActivity {
 
         // Showing Alert Message
         alertDialog.show();
+    }
+
+    private void showUpdateDialog(final String name, final String downloadUrl, String description) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_HOLO_DARK);
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+        builder.setTitle(getString(R.string.update_alert_title));
+        builder.setMessage(description);
+        builder.setPositiveButton(R.string.dialog_btn_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
+                //设置在什么网络情况下进行下载
+                request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+                //设置通知栏标题
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
+                request.setTitle(name);
+                request.setDescription(getString(R.string.update_source));
+                request.setAllowedOverRoaming(false);
+                //设置文件存放目录
+                request.setDestinationInExternalFilesDir(getBaseContext(), Environment.DIRECTORY_DOWNLOADS, name);
+
+                downManager = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
+                long id = downManager.enqueue(request);
+            }
+        });
+        builder.setNegativeButton(R.string.dialog_btn_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+
+    /**
+     * Implementation of AsyncTask, to fetch the data in the background away from
+     * the UI thread.
+     */
+    private class checkUpdateTask extends AsyncTask<Bundle, Void, JSONObject> {
+
+        @Override
+        protected JSONObject doInBackground(Bundle...params) {
+            JSONObject versionInfo = new JSONObject();
+            try {
+                String updateUrl = domain + getString(R.string.update_url);
+                NetworkAdapter adapter = new NetworkAdapter(getBaseContext());
+
+                JSONObject result = adapter.request(updateUrl, params[0]);
+
+                if(result != null && result.getInt("errno") == 0) {
+                    Log.d("Update", "Success to get update info. result: " + result.toString());
+                    versionInfo = result.getJSONObject("result");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return versionInfo;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject info) {
+            try {
+                String description = info.getString("description");
+                double new_version = info.getDouble("version");
+                String downloadUrl = info.getString("url");
+                String name = info.getString("name");
+
+                try{
+                    PackageManager packageManager = getBaseContext().getPackageManager();
+                    PackageInfo packageInfo = packageManager.getPackageInfo(getBaseContext().getPackageName(), 0);
+                    String version = packageInfo.versionName;
+                    double now_version = Double.valueOf(version);
+                    if (new_version > now_version) {
+                        showUpdateDialog(name, downloadUrl, description);
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private class DownLoadCompleteReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)){
+                long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+                Intent installIntent = new Intent();
+                installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                installIntent.setAction(Intent.ACTION_VIEW);
+                installIntent.setDataAndType(downManager.getUriForDownloadedFile(id),
+                        "application/vnd.android.package-archive");
+                startActivity(installIntent);
+            }
+        }
     }
 
 }

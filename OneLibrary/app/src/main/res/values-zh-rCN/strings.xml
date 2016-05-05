@@ -30,7 +30,7 @@
     <string name="signup_url">/Api/Public/register</string>
     <string name="get_messages_url">/Api/Index/messages</string>
     <string name="get_message_detail_url">/Api/Index/message</string>
-    <string name="update_url">/Api/update/info</string>
+    <string name="update_url">/Api/Index/get_update_info</string>
     <string name="baidu_map_convert_url">http://api.map.baidu.com/ag/coord/convert</string>
     <string name="connection_error">连接错误</string>
     <string name="title_activity_location">位置</string>
@@ -58,4 +58,7 @@
 
     <string name="tip_updated">更新了</string>
     <string name="tip_messages">条信息。</string>
+
+    <string name="update_alert_title">是否升级到最新版本？</string>
+    <string name="update_source">www.onelibrary.cn</string>
 </resources>
