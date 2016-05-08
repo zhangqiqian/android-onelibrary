@@ -19,10 +19,12 @@
     <string name="input_repassword_hint">Confirm password</string>
     <string name="button_sign_in">Sign in</string>
     <string name="button_sign_up">Sign up</string>
+    <string name="button_save">Save</string>
     <string name="success">Success</string>
-    <string name="loading">Loading...</string>
-    <string name="being_sign_in">Signing in ...</string>
-    <string name="being_sign_up">Signing up ...</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="being_sign_in">Signing in &#8230;</string>
+    <string name="being_sign_up">Signing up &#8230;</string>
+    <string name="being_save">Saving &#8230;</string>
     <string name="signup_success">Success to sign up, please sign in.</string>
     <string name="logout_alert_tip">Are you sure to sign out, continue?</string>
 
@@ -31,6 +33,9 @@
     <string name="get_messages_url">/Api/Index/messages</string>
     <string name="get_message_detail_url">/Api/Index/message</string>
     <string name="update_url">/Api/Index/get_update_info</string>
+    <string name="get_profile_options_url">/Api/User/get_profile_options</string>
+    <string name="get_profile_url">/Api/User/get_profile</string>
+    <string name="update_profile_url">/Api/User/update_profile</string>
     <string name="baidu_map_convert_url">http://api.map.baidu.com/ag/coord/convert</string>
     <string name="connection_error">Connection Error.</string>
     <string name="title_activity_location">Location</string>
@@ -61,4 +66,15 @@
 
     <string name="update_alert_title">Do you update to the latest?</string>
     <string name="update_source">www.onelibrary.cn</string>
+
+    <string name="profile">Profile</string>
+    <string name="profile_grade">Grade</string>
+    <string name="profile_major">Major</string>
+    <string name="profile_research">Research</string>
+    <string name="profile_interest">Interest</string>
+    <string name="profile_project">Project</string>
+    <string name="profile_curricula">Curricula</string>
+    <string name="profile_text_tip">Please separate by comma as more.</string>
+    <string name="title_activity_profile">Profile</string>
+
 </resources>

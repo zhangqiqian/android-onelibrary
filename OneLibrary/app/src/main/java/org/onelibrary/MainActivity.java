@@ -49,6 +49,7 @@ public class MainActivity extends FragmentActivity {
 
     public final static String APP_STATUS = "app_status";
     public final static String STATUS_DATA_UPDATE = "data_update";
+    public final static String IS_PROFILE_UPDATED = "is_profile_updated";
 
     private SharedPreferences pref;
     private SharedPreferences settings;
@@ -60,7 +61,7 @@ public class MainActivity extends FragmentActivity {
     DownloadManager downManager ;
     private DownLoadCompleteReceiver receiver;
 
-    String domain;
+    private String domain;
     int AUTO_REFRESH_INTERVAL = 30 * 1000; //20 seconds.
     private Handler mHandler = new Handler();
 
@@ -121,6 +122,12 @@ public class MainActivity extends FragmentActivity {
         receiver = new DownLoadCompleteReceiver();
         registerReceiver(receiver, filter);
 
+        Boolean isProfileUpdated = pref.getBoolean(IS_PROFILE_UPDATED, false);
+        if(!isProfileUpdated){
+            Intent profileIntent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(profileIntent);
+        }
+
     }
 
     @Override
@@ -151,6 +158,17 @@ public class MainActivity extends FragmentActivity {
         * 给菜单设置图标时才可见
         */
         setIconEnable(menu, true);
+
+        MenuItem item0 = menu.add(0, 1, 0, R.string.profile);
+        item0.setIcon(android.R.drawable.ic_menu_info_details);
+        item0.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
 
         MenuItem item1 = menu.add(0, 1, 0, R.string.action_location);
         item1.setIcon(android.R.drawable.ic_menu_mylocation);

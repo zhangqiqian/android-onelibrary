@@ -76,5 +76,17 @@
         android:layout_marginTop="10dp"
         android:textColor="@android:color/holo_green_dark" />
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text=""
+        android:id="@+id/link"
+        android:layout_below="@+id/tags"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:textColor="@android:color/darker_gray" />
+
 </RelativeLayout>
 </ScrollView>

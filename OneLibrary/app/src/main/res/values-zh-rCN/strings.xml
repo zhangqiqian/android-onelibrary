@@ -19,10 +19,12 @@
     <string name="input_repassword_hint">确认密码</string>
     <string name="button_sign_in">登录</string>
     <string name="button_sign_up">注册</string>
+    <string name="button_save">保存</string>
     <string name="success">成功</string>
-    <string name="loading">正在加载...</string>
-    <string name="being_sign_in">正在登录...</string>
-    <string name="being_sign_up">正在注册...</string>
+    <string name="loading">正在加载&#8230;</string>
+    <string name="being_sign_in">正在登录&#8230;</string>
+    <string name="being_sign_up">正在注册&#8230;</string>
+    <string name="being_save">正在保存&#8230;</string>
     <string name="signup_success">注册成功，请登录。</string>
     <string name="logout_alert_tip">你确定要退出吗？</string>
 
@@ -31,6 +33,9 @@
     <string name="get_messages_url">/Api/Index/messages</string>
     <string name="get_message_detail_url">/Api/Index/message</string>
     <string name="update_url">/Api/Index/get_update_info</string>
+    <string name="get_profile_options_url">/Api/User/get_profile_options</string>
+    <string name="get_profile_url">/Api/User/get_profile</string>
+    <string name="update_profile_url">/Api/User/update_profile</string>
     <string name="baidu_map_convert_url">http://api.map.baidu.com/ag/coord/convert</string>
     <string name="connection_error">连接错误</string>
     <string name="title_activity_location">位置</string>
@@ -61,4 +66,15 @@
 
     <string name="update_alert_title">是否升级到最新版本？</string>
     <string name="update_source">www.onelibrary.cn</string>
+
+    <string name="profile">个人信息</string>
+    <string name="profile_grade">角色</string>
+    <string name="profile_major">专业</string>
+    <string name="profile_research">研究方向</string>
+    <string name="profile_interest">兴趣</string>
+    <string name="profile_project">在研项目</string>
+    <string name="profile_curricula">课程表</string>
+    <string name="profile_text_tip">如果多条请用英文逗号分割</string>
+    <string name="title_activity_profile">个人信息</string>
+
 </resources>

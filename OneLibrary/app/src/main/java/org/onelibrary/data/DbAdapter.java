@@ -234,6 +234,7 @@ public class DbAdapter extends SQLiteOpenHelper {
         // sort ASC based on the time of the entry
         String sortOrder = MessageItem.ID + " DESC";
         String selection = null; //LocationEntry.NAME + " LIKE ?";
+        String limit = "100";
 
         Cursor cursor = db.query(
                 TABLE_NAME_MESSAGE,         // The table to query
@@ -242,7 +243,8 @@ public class DbAdapter extends SQLiteOpenHelper {
                 null,                       // The values for the WHERE clause, new String[]{""},
                 null,                       // don't group the rows
                 null,                       // don't filter by row groups
-                sortOrder                   // The sort order
+                sortOrder,                   // The sort order
+                limit                   // The sort order
         );
 
         List<MessageItem> result = new ArrayList<MessageItem>();
