@@ -10,6 +10,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,6 +91,14 @@ public class DetailActivity extends Activity {
         if(!item.getTags().isEmpty()) {
             TextView tagsView = (TextView) findViewById(R.id.tags);
             tagsView.setText("Tags: "+item.getTags());
+        }
+
+        //Link
+        if(!item.getLink().isEmpty()) {
+            TextView linkView = (TextView) findViewById(R.id.link);
+            linkView.setText("Link: "+item.getLink());
+            linkView.setAutoLinkMask(Linkify.ALL);
+            linkView.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
