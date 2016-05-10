@@ -108,7 +108,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
                     curriculaSpinner.setVisibility(View.VISIBLE);
                     curriculaSpinner.setAnimation(AnimationUtils.makeInAnimation(getBaseContext(), true));
                 }
-                if(gradeId == 6){
+                if(gradeId == 7){
                     researchText.setVisibility(View.VISIBLE);
                     researchEditText.setVisibility(View.VISIBLE);
                     researchEditText.setAnimation(AnimationUtils.makeInAnimation(getBaseContext(), true));
