@@ -42,6 +42,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
 
     private TextView curriculaText;
     private Spinner curriculaSpinner;
+    private ProfileOptions profileOptions = null;
 
     private ProgressGenerator progressGenerator;
     private ActionProcessButton saveButton;
@@ -132,7 +133,13 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
         majorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                int majorId = ((Dict) majorSpinner.getSelectedItem()).getId();
+                Map<Integer, List<Dict>> curriculasMap = profileOptions.getCurriculas();
+                List<Dict> curriculas = curriculasMap.get(majorId);
+                ArrayAdapter<Dict> curriculasAdapter = new ArrayAdapter<Dict>(getBaseContext(),
+                        android.R.layout.simple_spinner_item, curriculas);
+                curriculasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                curriculaSpinner.setAdapter(curriculasAdapter);
             }
 
             @Override
@@ -220,7 +227,6 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
 
                 if(userProfile != null){
                     JSONObject optionsResult = adapter.request(OptionsUrl, params[0]);
-                    ProfileOptions profileOptions = null;
                     if(optionsResult != null && optionsResult.getInt("errno") == 0) {
                         Log.d("ProfileActivity", "profile options result: " + optionsResult.toString());
                         JSONObject options = optionsResult.getJSONObject("result");
