@@ -226,12 +226,13 @@ public class MessageDataManager {
         return messageItems;
     }
 
-    public MessageItem getMessageDetail(Context ctx, long id, long message_id){
+    public MessageItem getMessageDetail(Context ctx, long id, long publish_id, long message_id){
         MessageItem item = null;
         try {
             NetworkAdapter adapter = new NetworkAdapter(ctx);
 
             Bundle params = new Bundle();
+            params.putString("publish_id", String.valueOf(publish_id));
             params.putString("message_id", String.valueOf(message_id));
 
             Log.d(LOG_TAG, "Request params: " + params.toString());

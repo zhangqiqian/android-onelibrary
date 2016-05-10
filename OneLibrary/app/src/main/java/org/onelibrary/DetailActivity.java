@@ -44,6 +44,7 @@ public class DetailActivity extends Activity {
         Bundle item = intent.getBundleExtra("message");
         long id = item.getLong("id");
         long message_id = item.getLong("message_id");
+        long publish_id = item.getLong("publish_id");
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String domain = settings.getString("server_address", "http://115.28.223.203:8080");
@@ -54,7 +55,7 @@ public class DetailActivity extends Activity {
             NetworkInfo networkInfo = cm.getActiveNetworkInfo();
             if(networkInfo != null && networkInfo.isConnected()){
                 progressDialog = ProgressDialog.show(DetailActivity.this, "", getString(R.string.loading), true, false);
-                new LoadMessageTask().execute(id, message_id);
+                new LoadMessageTask().execute(id, publish_id, message_id);
             }else{
                 Toast.makeText(DetailActivity.this, R.string.network_disconnected, Toast.LENGTH_SHORT).show();
             }
@@ -126,7 +127,7 @@ public class DetailActivity extends Activity {
         @Override
         protected MessageItem doInBackground(Long...params) {
             //get remote message, and save to db.
-            return manager.getMessageDetail(getBaseContext(), params[0], params[1]);
+            return manager.getMessageDetail(getBaseContext(), params[0], params[1], params[2]);
         }
 
         @Override
