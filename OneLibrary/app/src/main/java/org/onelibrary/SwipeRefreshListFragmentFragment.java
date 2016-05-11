@@ -151,6 +151,7 @@ public class SwipeRefreshListFragmentFragment extends SwipeRefreshListFragment i
         MessageItem item = messages.get(position);
         bundle.putLong("id", item.getId());
         bundle.putLong("message_id", item.getMessageId());
+        bundle.putLong("publish_id", item.getPublishId());
         intent.putExtra("message", bundle);
         startActivityForResult(intent, 0);
     }

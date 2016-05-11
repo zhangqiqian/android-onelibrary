@@ -435,7 +435,7 @@ public class MainActivity extends FragmentActivity {
         protected void onPostExecute(JSONObject info) {
             try {
                 String description = info.getString("description");
-                double new_version = info.getDouble("version");
+                String new_version = info.getString("version");
                 String downloadUrl = info.getString("url");
                 String name = info.getString("name");
 
@@ -443,8 +443,7 @@ public class MainActivity extends FragmentActivity {
                     PackageManager packageManager = getBaseContext().getPackageManager();
                     PackageInfo packageInfo = packageManager.getPackageInfo(getBaseContext().getPackageName(), 0);
                     String version = packageInfo.versionName;
-                    double now_version = Double.valueOf(version);
-                    if (new_version > now_version) {
+                    if (!new_version.equals(version)) {
                         showUpdateDialog(name, downloadUrl, description);
                     }
                 } catch (PackageManager.NameNotFoundException e) {
