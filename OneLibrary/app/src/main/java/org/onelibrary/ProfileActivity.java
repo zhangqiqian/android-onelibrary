@@ -44,6 +44,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
     private Spinner curriculaSpinner;
     private ProfileOptions profileOptions = null;
 
+    private Profile userProfile = null;
     private ProgressGenerator progressGenerator;
     private ActionProcessButton saveButton;
 
@@ -83,7 +84,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int gradeId = ((Dict) gradeSpinner.getSelectedItem()).getId();
-                if(gradeId == 1){
+                if (gradeId == 1) {
                     researchText.setVisibility(View.GONE);
                     researchEditText.setVisibility(View.GONE);
                     researchEditText.setAnimation(AnimationUtils.makeOutAnimation(getBaseContext(), true));
@@ -96,7 +97,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
                     curriculaSpinner.setVisibility(View.VISIBLE);
                     curriculaSpinner.setAnimation(AnimationUtils.makeInAnimation(getBaseContext(), true));
                 }
-                if(gradeId == 2){
+                if (gradeId == 2) {
                     researchText.setVisibility(View.VISIBLE);
                     researchEditText.setVisibility(View.VISIBLE);
                     researchEditText.setAnimation(AnimationUtils.makeInAnimation(getBaseContext(), true));
@@ -109,7 +110,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
                     curriculaSpinner.setVisibility(View.VISIBLE);
                     curriculaSpinner.setAnimation(AnimationUtils.makeInAnimation(getBaseContext(), true));
                 }
-                if(gradeId == 7){
+                if (gradeId == 7) {
                     researchText.setVisibility(View.VISIBLE);
                     researchEditText.setVisibility(View.VISIBLE);
                     researchEditText.setAnimation(AnimationUtils.makeInAnimation(getBaseContext(), true));
@@ -140,6 +141,15 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
                         android.R.layout.simple_spinner_item, curriculas);
                 curriculasAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 curriculaSpinner.setAdapter(curriculasAdapter);
+
+                int curriculaPosition = 0;
+                for (int i = 0; i < curriculas.size(); i++) {
+                    if(curriculas.get(i).getId().equals(userProfile.getCurriculaId())){
+                        curriculaPosition = i;
+                        break;
+                    }
+                }
+                curriculaSpinner.setSelection(curriculaPosition, true);
             }
 
             @Override
@@ -211,7 +221,6 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
 
         @Override
         protected Profile doInBackground(Bundle...params) {
-            Profile userProfile = null;
             try {
                 String profileUrl = domain + getString(R.string.get_profile_url);
                 String OptionsUrl = domain + getString(R.string.get_profile_options_url);
@@ -254,6 +263,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
             for (int i = 0; i < grades.size(); i++) {
                 if(grades.get(i).getId().equals(userProfile.getGradeId())){
                     gradePosition = i;
+                    break;
                 }
             }
             gradeSpinner.setSelection(gradePosition, true);
@@ -268,6 +278,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
             for (int i = 0; i < majors.size(); i++) {
                 if(majors.get(i).getId().equals(userProfile.getMajorId())){
                     majorPosition = i;
+                    break;
                 }
             }
             majorSpinner.setSelection(majorPosition, true);
@@ -288,6 +299,7 @@ public class ProfileActivity extends Activity implements ProgressGenerator.OnCom
             for (int i = 0; i < curriculas.size(); i++) {
                 if(curriculas.get(i).getId().equals(userProfile.getCurriculaId())){
                     curriculaPosition = i;
+                    break;
                 }
             }
             curriculaSpinner.setSelection(curriculaPosition, true);
